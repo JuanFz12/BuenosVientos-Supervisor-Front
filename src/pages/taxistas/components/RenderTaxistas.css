@@ -1,0 +1,40 @@
+.render-taxistas ul > li {
+  flex-grow: 1;
+  &:nth-child(2) {
+    width: max(30%, 180px);
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 1079px) {
+  .render-taxistas ul > li {
+    &:nth-child(2) {
+      width: max(25%, 180px);
+    }
+  }
+}
+
+@media (min-width: 640px) {
+  .render-taxistas ul > li {
+    flex-grow: 0;
+    &:first-child {
+      width: max(5%, 30px);
+    }
+
+    &:nth-child(3) {
+      width: max(10%, 80px);
+    }
+
+    &:nth-child(4) {
+      width: max(10%, 110px);
+    }
+
+    &:nth-child(5) {
+      width: max(10%, 80px);
+    }
+
+    &:nth-child(6) {
+      width: max(10%, 110px);
+    }
+  }
+}

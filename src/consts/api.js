@@ -1,0 +1,14 @@
+import { TOKEN_NAME } from './consts'
+
+export const HOST = 'http://sv-e2ukmdxmyh.cloud.elastika.pe:81'
+
+export const api = `${HOST}/api`
+
+export const TOKEN = localStorage.getItem(TOKEN_NAME)
+
+export const apiRequest = {
+  login: `${api}/auth/login-supervisor`,
+  taxistas: `${api}/driver`,
+  crearTaxista: `${api}/driver/create`,
+  valesSolicitudes: `${api}/user-supervisor/vales`
+}

@@ -1,0 +1,266 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+
+  --dm-sans: 'DM Sans', sans-serif;
+  font-family: var(--dm-sans);
+
+}
+
+body::-webkit-scrollbar {
+  width: 7.5px;
+  border-radius: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+  @apply bg-neutral-200;
+  border-radius: 8px;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none
+}
+
+input[type="number"] {
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+/* input[type="time"]::-webkit-calendar-picker-indicator {
+  background: none;
+  width: 0;
+  height: 0;
+  display: none
+} */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .scroll-neutral {
+    &::-webkit-scrollbar {
+      width: 7.5px;
+      border-radius: 8px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      @apply bg-neutral-200;
+      border-radius: 8px;
+    }
+  }
+
+  .scroll-hide {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .scroll-show {
+    &::-webkit-scrollbar {
+      display: block;
+    }
+  }
+
+  .slider-animation {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: #e7e7e7;
+      transition: width 0.3s ease-in-out;
+    }
+
+    &:hover::after {
+      width: 100%;
+    }
+  }
+  
+  .texto-m {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+  }
+  
+  .texto-regular-s {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+  }
+  
+  .texto-regular-m {
+    @apply texto-m;
+  }
+
+  .texto-regular-l {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+    font-style: normal;
+  }
+
+  .texto-semi-bold-m {
+    @apply texto-m;
+    font-weight: 600;
+  }
+  
+  .texto-semi-bold-l {
+    font-size: 16px;
+    font-weight: 600;
+    font-style: normal;
+    line-height: 20px;
+  }
+
+  .texto-semi-bold-xl {
+    font-size: 20px;
+    font-weight: 600;
+    font-style: normal;
+    line-height: 24px;
+  }
+
+  .titulo-h4 {
+    font-size: 22px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+  }
+
+  .boton-base {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    font-style: normal;
+    transition: background-color 0.25s ease-in-out,
+      color 0.25s ease-in-out,
+      border-color 0.25s ease-in-out,
+      box-shadow 0.25s ease-in-out;
+  }
+
+  .boton-primario-verde {
+    padding: 10px 16px;
+    @apply bg-verdeMarca-600;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    @apply text-verdeMarca-100;
+    transition: background-color 0.25s ease-in-out;
+
+    &:hover {
+      @apply bg-verdeMarca-500;
+    }
+
+    &:active {
+      @apply bg-verdeMarca-700;
+    }
+  }
+
+  .boton-primario-marca {
+    @apply boton-base;
+    color: #F9FAFB;
+    background-color: #4C64A6;
+
+    &:hover {
+      background-color: #7A94D8;
+    }
+
+    &:active {
+      background-color: #314886;
+    }
+
+    &:disabled {
+      background-color: #DCE5FF;
+    }
+  }
+
+  .boton-terciario-marca {
+    padding: 10px 16px;
+    background-color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    color: #4C64A6;
+    transition: background-color 0.25s ease-in-out,
+      color 0.25s ease-in-out;
+
+    &:hover {
+      background-color: #DCE5FF;
+      color: #314886;
+    }
+
+    &:active {
+      background-color: #A9BCF0;
+      color: #F3F7FF;
+    }
+
+    &:disabled {
+      background-color: white;
+      color: #A9BCF0;
+    }
+  }
+
+  .boton-fantasma-marca {
+    @apply boton-base;
+    color: #4C64A6;
+    background-color: white;
+    border: 1px solid #4C64A6;
+
+    &:hover {
+      box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+      background-color: #F3F7FF;
+    }
+
+    &:active {
+      background-color: #A9BCF0;
+      color: #F3F7FF;
+    }
+
+    &:disabled {
+      border-color: #A9BCF0;
+      color: #A9BCF0;
+    }
+  }
+
+  .boton-fantasma-verde {
+    padding: 10px 16px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #358643;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    color: #358643;
+    transition: background-color 0.25s ease-in-out,
+      border-color 0.25s ease-in-out,
+      color 0.25s ease-in-out,
+      box-shadow 0.25s ease-in-out;
+
+    &:hover {
+      border-color: #195E25;
+      background-color: #DDFFE3;
+      color: #195E25;
+      box-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
+    }
+
+    &:active {
+      background-color: #B8F1C2;
+    }
+  }
+}

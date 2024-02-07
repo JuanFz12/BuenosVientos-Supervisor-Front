@@ -1,0 +1,77 @@
+.checkbox-base {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid #4c64a6;
+  background-color: #F9FAFB;
+  transition: background-color 0.25s ease-in-out,
+    border-color 0.25s ease-in-out;
+
+  & > svg > path {
+    transition: stroke 0.25s ease-in-out;
+  }
+
+  &:has(input:disabled) {
+    border-color: #A9BCF0;
+    background-color: #F9FAFB;
+  }
+
+  &:hover {
+    background-color: #DCE5FF;
+  }
+
+  & > input {
+    @apply appearance-none;
+  }
+
+  &.check-semi {
+    & > svg > path {
+      stroke: transparent;
+    }
+
+    &:has(input:checked) {
+      background-color: #DCE5FF;
+      & > svg > path {
+        stroke: #4C64A6;
+      }
+
+      &:not(:has(input:disabled)):hover > svg > path {
+        stroke: #152B68;
+      }
+
+      &:has(input:disabled) {
+        & > svg > path {
+          stroke: #A9BCF0;
+        }
+      }
+    }
+
+  }
+
+  &.check-full {
+    & > svg > path {
+      stroke: transparent;
+    }
+
+    &:has(input:checked) {
+      background-color: #4C64A6;
+
+      & > svg > path {
+        stroke: white;
+      }
+
+      &:not(:has(input:disabled)):hover {
+        background-color: #152B68;
+        border-color: #152B68;
+      }
+
+      &:has(input:disabled) {
+        background-color: #A9BCF0;
+        border-color: #A9BCF0;
+      }
+    }
+  }
+}

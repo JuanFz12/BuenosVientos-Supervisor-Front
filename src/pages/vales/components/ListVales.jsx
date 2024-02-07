@@ -1,0 +1,150 @@
+import './ListVales.css'
+
+import { BotonDetalles } from '../../../components/botones/BotonDetalles'
+import { BotonPaginacion } from '../../../components/botones/BotonPaginacion'
+import { Etiqueta } from '../../../components/etiquetas/Etiquetas'
+import { ListStyle } from '../../../components/listStyle/ListStyle'
+import { ValeMovilidad } from './modales/ValeMovilidad'
+import { useRef, useState } from 'react'
+
+export function ListVales ({ data, loading, backTo }) {
+  const valeMovilidad = useRef()
+
+  const [currentData, setCurrentData] = useState(null)
+
+  return (
+    <section
+      className='render-vales w-full h-auto [&_li]:text-nowrap [&_li]:overflow-hidden [&_li]:text-ellipsis rounded-[20px] overflow-hidden flex flex-col gap-2'
+    >
+      <header>
+        <ListStyle
+          className='py-3 px-6 text-xs font-normal leading-4 flex-wrap w-full min-h-11'
+        >
+          <li>No.</li>
+          <li>Corporación</li>
+          <li>Área</li>
+          <li>Fecha</li>
+          <li>Distrito</li>
+          {
+            !backTo &&
+              <li>Taxista</li>
+          }
+          <li
+            className='w-[max(10%,_90px)]'
+          >
+            Estado
+          </li>
+          <li
+            className='w-[max(10%,_90px)]'
+          />
+        </ListStyle>
+      </header>
+
+      {
+        loading &&
+          <ListStyle className='py-3 px-6 text-sm font-normal leading-4 flex-wrap w-full min-h-[72px]'>Cargando...</ListStyle>
+      }
+
+      {
+        !loading &&
+        Boolean(data.length) &&
+        data
+          .map(({
+            id,
+            area: {
+              area_name: area,
+              corporation: {
+                corporation_name: corporacion
+              }
+            },
+            date: fechaParam,
+            district: distrito,
+            user_corporation_id: taxista,
+            application_status: estado
+
+          }, idx) => {
+            const fecha = new Date(fechaParam).toLocaleDateString('es-PE')
+
+            return (
+              <ListStyle
+                key={id}
+                className='py-3 px-6 text-sm font-normal leading-4 flex-wrap flex-1 lg:flex-grow-0 w-full min-h-[72px]'
+              >
+                <li title={id}>
+                  {id}
+                </li>
+                <li title={corporacion}>
+                  {corporacion}
+                </li>
+                <li title={area}>
+                  {area}
+                </li>
+                <li title={fecha}>
+                  {fecha}
+                </li>
+                <li title={distrito}>
+                  {distrito}
+                </li>
+                {
+                  !backTo &&
+                    <li title={taxista}>
+                      {taxista}
+                    </li>
+                }
+                <li
+                  className='w-[max(10%,_90px)]'
+                  title={estado}
+                >
+                  <Etiqueta
+                    className='w-max'
+                    text={estado === 'Submitted' ? 'Enviado' : 'Completo'}
+                    color={estado === 'Submitted' ? 'celeste' : 'verde'}
+                  />
+                </li>
+                <li
+                  className='w-[max(10%,_90px)]'
+                >
+                  <BotonDetalles
+                    onMouseDown={() => {
+                      setCurrentData(data[idx])
+                    }}
+                    onClick={() => {
+                      valeMovilidad.current.showModal()
+                    }}
+                  >
+                    Detalles
+                  </BotonDetalles>
+                </li>
+              </ListStyle>
+            )
+          })
+      }
+
+      {
+        !loading &&
+        Boolean(data.length) &&
+        (
+          <ValeMovilidad
+            refModal={valeMovilidad}
+            data={currentData}
+          />
+        )
+      }
+
+      <footer
+        className='flex flex-wrap gap-2 items-center text-sm font-medium leading-4 justify-between w-full bg-white px-5 py-2 min-h-20'
+      >
+        <span>
+          Página 1 de 15
+        </span>
+
+        <div
+          className='flex items-center gap-5'
+        >
+          <BotonPaginacion text='Anterior' left />
+          <BotonPaginacion text='Siguiente' />
+        </div>
+      </footer>
+    </section>
+  )
+}

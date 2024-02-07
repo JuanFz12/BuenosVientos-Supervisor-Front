@@ -1,0 +1,4 @@
+.active-dropdown {
+  height: 480px;
+  @apply shadow-1;
+}
