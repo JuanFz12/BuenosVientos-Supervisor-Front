@@ -1,7 +1,7 @@
 import businessMan from '/src/assets/img/businessMan.jpeg'
 
 import { apiRequest } from '../consts/api'
-import { TIPOS_USUARIOS, TOKEN_NAME } from '../consts/consts'
+import { TIPOS_USUARIOS, TOKEN_NAME, USER_INFO_GENERAL } from '../consts/consts'
 import { routes } from '../routes'
 import { createData } from '../services/createData'
 import { atenuarFormulario } from '../utils/atenuarFormulario'
@@ -37,6 +37,14 @@ export function Home () {
         }
 
         localStorage.setItem(TOKEN_NAME, data.token)
+
+        // usuario
+        const usuario = {
+          usuario: data.user,
+          usuarioSupervisor: data.user_supervisor
+        }
+
+        window.localStorage.setItem(USER_INFO_GENERAL, btoa(JSON.stringify(usuario)))
 
         if (e.target[fields.remember].checked) {
           const pass = btoa(body.password)

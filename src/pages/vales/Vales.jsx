@@ -26,6 +26,7 @@ export function Vales () {
           solicitudes={Boolean(backTo)}
         />
 
+        {/* el outlet setea la data para que listVales pueda listarlo */}
         <Outlet context={{ setBackTo, data, setData }} />
 
         <ListVales

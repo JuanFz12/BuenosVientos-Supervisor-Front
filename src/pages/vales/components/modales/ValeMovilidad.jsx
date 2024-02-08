@@ -4,6 +4,12 @@ import { TextArea } from '../../../../components/inputs/TextArea'
 import { LabelText } from '../../../../components/labels/LabelText'
 import { MenuComun } from '../../../../components/menus/MenuComun'
 import { ModalBase } from '../../../../components/modales/ModalBase'
+import { formatearInputASoles } from '../../../../utils/formatearInputASoles'
+import { formatearASoles } from '../../../../utils/formatearASoles'
+import { parsearSoles } from '../../../../utils/parsearSoles'
+import { useUsuarioSupervisor } from '../../../../store/useUsuarioSupervisor'
+import { useVales } from '../../../../store/vales/useVales'
+import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
 
 const fields = {
   taxista: 'taxista_id',
@@ -14,7 +20,40 @@ const fields = {
   peaje: 'peaje',
   subTotal: 'sub_total',
   total: 'total_cost',
-  file: 'file'
+  firma: 'signature'
+}
+
+function handleCosto ({ event, costo, setCosto, discountParam }) {
+  const value = formatearInputASoles({ event, controlled: true })
+
+  const discount = parseFloat(discountParam.replace(/[^\d.]/g, '')) / 100
+
+  const descuento = value * discount
+  const subTotal = parseFloat((value * (1 - discount)).toFixed(2))
+
+  const igv = parseFloat((subTotal * 0.18).toFixed(2))
+
+  const total = parsearSoles(costo.peaje) + subTotal + igv
+
+  if (value === 0) {
+    setCosto(prev => ({
+      ...prev,
+      total: prev.peaje || 'S/ 00.00',
+      costoReal: '',
+      descuento: 'S/ 00.00',
+      subTotal: 'S/ 00.00',
+      igv: 'S/ 00.00'
+    }))
+  } else {
+    setCosto(prev => ({
+      ...prev,
+      total: formatearASoles({ numero: total }),
+      costoReal: formatearASoles({ numero: value }),
+      descuento: formatearASoles({ numero: descuento }),
+      subTotal: formatearASoles({ numero: subTotal }),
+      igv: formatearASoles({ numero: igv })
+    }))
+  }
 }
 
 export function ValeMovilidad ({
@@ -22,91 +61,27 @@ export function ValeMovilidad ({
   data,
   readOnly
 }) {
+  const { usuarioSupervisor: { id: supervisorId } } = useUsuarioSupervisor()
+  const { aceptarVale } = useVales()
+
   const [costo, setCosto] = useState({
     costoReal: '',
     descuento: 'S/ 00.00',
     subTotal: 'S/ 00.00',
     igv: 'S/ 00.00',
-    total: 'S/ 00.00'
+    total: 'S/ 00.00',
+    peaje: ''
   })
 
   const formRef = useRef()
 
-  // separar esto en una funcion independiente o convertirla en un componente
-  function handleCosto (e) {
-    function parsearSoles (stringFormat) {
-      return parseFloat(stringFormat.replace(/[^\d.]/g, ''))
-    }
-
-    let currentValue
-    let value
-
-    if (e.target.value.length === 1) {
-      currentValue = e.target.value
-      value = parseFloat(currentValue)
-      console.log('entro en el primer if')
-    } else if (e.target.value.length < costo.costoReal.length) {
-      currentValue = parsearSoles(costo.costoReal)
-      value = Math.floor(currentValue / 10)
-      console.log({ currentValue, value })
-      console.log('entro en el segundo if')
-    } else if (e.target.value.length > 1) {
-      const lastChar = e.target.value.slice(-1).replace(/[^\d.]/g, '')
-      const prevValue = parseFloat(e.target.value.slice(0, -1).replace(/[^\d.]/g, ''))
-
-      console.log({ lastChar, prevValue })
-
-      currentValue = prevValue + lastChar
-      value = parseFloat(currentValue)
-      console.log({ value })
-    }
-
-    const discount = parseFloat(data.area.discount.replace(/[^\d.]/g, '')) / 100
-
-    const descuento = value * discount
-    const subTotal = value * (1 - discount)
-
-    const igv = subTotal * 0.18
-
-    const peaje = formRef.current[fields.peaje].value.match(/\d+/g)
-    const total = !peaje ? 'S/ 00.00' : subTotal + igv + peaje
-
-    function formatearASoles (number) {
-      if (!number) return ''
-
-      return number.toLocaleString('es-PE', {
-        style: 'currency',
-        currency: 'PEN'
-      })
-    }
-
-    e.target.value = formatearASoles(value)
-
-    if (value === 0) {
-      setCosto({
-        ...costo,
-        descuento: 'S/ 00.00',
-        subTotal: 'S/ 00.00',
-        igv: 'S/ 00.00',
-        total: 'S/ 00.00'
-      })
-    } else {
-      setCosto({
-        costoReal: formatearASoles(value),
-        descuento: formatearASoles(descuento),
-        subTotal: formatearASoles(subTotal),
-        igv: formatearASoles(igv),
-        total: formatearASoles(total)
-      })
-    }
-  }
-
   if (!data) return null
 
   const {
-    // id,
+    id,
     area: {
-      area_name: area
+      area_name: area,
+      discount: descuento
     },
     capacity: solicitarCarga,
     date: fecha,
@@ -116,7 +91,13 @@ export function ValeMovilidad ({
     remarks: observaciones,
     request_time: horaSolicitada,
     arrival_time: horaLlegada,
-    departure_time: horaSalida
+    departure_time: horaSalida,
+    user_corporation: {
+      user: {
+        user_name: nombre,
+        surnames: apellidos
+      }
+    }
   } = data
 
   function formatearHora (date) {
@@ -132,15 +113,49 @@ export function ValeMovilidad ({
   return (
     <ModalBase
       refModal={thisModal}
+      onClose={() => {
+        setCosto({
+          costoReal: '',
+          descuento: 'S/ 00.00',
+          subTotal: 'S/ 00.00',
+          igv: 'S/ 00.00',
+          total: 'S/ 00.00',
+          peaje: ''
+        })
+      }}
     >
       <form
         ref={formRef}
         className='w-[640px] h-[804px] max-h-[85dvh] gap-5 flex flex-col p-5 rounded-[32px] overflow-x-clip overflow-y-auto scroll-neutral'
         onSubmit={e => {
           e.preventDefault()
-          const formData = new FormData(e.target)
+          const formData = new FormData()
 
-          console.log(Object.fromEntries(formData))
+          for (const [key, value] of new FormData(e.target)) {
+            if (!value) {
+              alert(`El campo ${key} es obligatorio`)
+              return
+            }
+
+            formData.append(key, parsearSoles(value))
+          }
+
+          const body = Object.fromEntries(formData)
+          body[fields.taxista] = 3
+          body[fields.supervisor] = supervisorId
+          body[fields.firma] = 'algunafoto.pdf'
+
+          atenuarFormulario({ form: e.target })
+
+          aceptarVale({ id, body })
+            .then(data => {
+              alert('vale aceptado')
+              thisModal.current.close()
+            })
+            .catch(err => {
+              alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
+              atenuarFormulario({ form: e.target, restore: true })
+            })
         }}
       >
         <header>
@@ -160,7 +175,7 @@ export function ValeMovilidad ({
           >
             <LabelText
               label='Funcionario'
-              value='Nombre nombre apellido apellido'
+              value={`${nombre} ${apellidos}`}
               readOnly
             />
 
@@ -258,7 +273,9 @@ export function ValeMovilidad ({
             <LabelText
               label='Costo Real'
               name={fields.costoReal}
-              onChange={handleCosto}
+              value={costo.costoReal}
+              required
+              onChange={e => handleCosto({ event: e, costo, setCosto, discountParam: descuento })}
               placeholder='S/ 00.00'
             />
 
@@ -289,6 +306,28 @@ export function ValeMovilidad ({
             <LabelText
               label='Peaje / Est.'
               name={fields.peaje}
+              value={costo.peaje}
+              required
+              onChange={e => {
+                const value = formatearInputASoles({ event: e, controlled: true })
+
+                if (isNaN(Number(value))) return
+                if (isNaN(Number(e.target.value.slice(-1)))) return
+
+                const subTotal = parsearSoles(costo.subTotal)
+                const igv = parsearSoles(costo.igv)
+
+                const total =
+                  value
+                    ? value + subTotal + igv
+                    : subTotal + igv
+
+                setCosto(prev => ({
+                  ...prev,
+                  peaje: formatearASoles({ numero: value }),
+                  total: formatearASoles({ numero: total }) || 'S/ 00.00'
+                }))
+              }}
               placeholder='S/ 00.00'
             />
 
@@ -301,9 +340,9 @@ export function ValeMovilidad ({
             />
 
             <div
-              className='bg-white cursor-default border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg uppercase flex items-center justify-center'
+              className='bg-white cursor-default text-center border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg uppercase flex items-center justify-center'
             >
-              Firma aqui
+              Firma del usuario corporativo
             </div>
           </fieldset>
         </fieldset>
@@ -312,6 +351,7 @@ export function ValeMovilidad ({
         <LabelText
           label='Taxista'
           placeholder='Ingrese el nombre del taxista'
+          name={fields.taxista}
         />
 
         <MenuComun

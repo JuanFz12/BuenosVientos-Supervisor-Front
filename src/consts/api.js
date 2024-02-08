@@ -10,5 +10,7 @@ export const apiRequest = {
   login: `${api}/auth/login-supervisor`,
   taxistas: `${api}/driver`,
   crearTaxista: `${api}/driver/create`,
-  valesSolicitudes: `${api}/user-supervisor/vales`
+  // vales
+  valesSolicitudes: `${api}/user-supervisor/vales`,
+  aceptarVale: `${api}/user-supervisor/vales/accept`
 }

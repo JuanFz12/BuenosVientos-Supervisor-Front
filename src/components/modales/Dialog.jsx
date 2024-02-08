@@ -49,10 +49,10 @@ export function Dialog ({ selfRef, overflowHidden, ...props }) {
     <dialog
       {...props}
       key={key}
-      onClose={() => {
+      onClose={e => {
         setKey(crypto.randomUUID())
         overflowHidden && document.body.classList.remove('overflow-hidden')
-        props?.onClose && props.onClose()
+        props?.onClose && props.onClose(e)
       }}
       ref={selfRef}
       className={`opacity-0 bg-transparent -translate-y-full transition-all duration-[400ms] backdrop:opacity-0 backdrop:transition-all backdrop:duration-[400ms] backdrop:ease-in-out ease-in-out scale-75 [&.active-show]:scale-100 [&.active-show]:opacity-100 [&.active-show]:translate-y-0 backdrop:[&.active-show]:opacity-100 backdrop:[&.active-show]:backdrop-blur-[3px] ${props.className || ''}`}
