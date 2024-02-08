@@ -3,17 +3,17 @@ import { useOutletContext } from 'react-router-dom'
 import { useVales } from '../../../store/vales/useVales'
 
 export function RenderVales () {
-  const { vales, loading } = useVales()
+  const { vales, getVales, loading } = useVales()
 
   const { setData } = useOutletContext()
 
-  // useEffect(() => {
-  //   getVales()
-  // }, [getVales])
-
   useEffect(() => {
-    setData(({ loading, render: vales }))
-  }, [setData, loading, vales])
+    getVales()
+  }, [getVales])
+
+  // useEffect(() => {
+  //   setData(({ loading, render: vales }))
+  // }, [setData, loading, vales])
 
   return <></>
 }

@@ -7,6 +7,29 @@ import { ListStyle } from '../../../components/listStyle/ListStyle'
 import { ValeMovilidad } from './modales/ValeMovilidad'
 import { useRef, useState } from 'react'
 
+const colors = {
+  celeste: 'celeste',
+  naranja: 'naranja',
+  rojo: 'rojo',
+  verde: 'verde'
+}
+
+const estados = {
+  enviado: 'Submitted',
+  aprobado: 'Approved'
+}
+
+const status = {
+  [estados.enviado]: {
+    text: 'Enviado',
+    color: colors.celeste
+  },
+  [estados.aprobado]: {
+    text: 'Completo',
+    color: colors.verde
+  }
+}
+
 export function ListVales ({ data, loading, backTo }) {
   const valeMovilidad = useRef()
 
@@ -93,27 +116,32 @@ export function ListVales ({ data, loading, backTo }) {
                 }
                 <li
                   className='w-[max(10%,_90px)]'
-                  title={estado}
+                  title={status[estado].text}
                 >
                   <Etiqueta
                     className='w-max'
-                    text={estado === 'Submitted' ? 'Enviado' : 'Completo'}
-                    color={estado === 'Submitted' ? 'celeste' : 'verde'}
+                    text={status[estado].text}
+                    color={status[estado].color}
                   />
                 </li>
                 <li
                   className='w-[max(10%,_90px)]'
                 >
-                  <BotonDetalles
-                    onMouseDown={() => {
-                      setCurrentData(data[idx])
-                    }}
-                    onClick={() => {
-                      valeMovilidad.current.showModal()
-                    }}
-                  >
-                    Detalles
-                  </BotonDetalles>
+                  {
+                    estado === estados.enviado &&
+                    (
+                      <BotonDetalles
+                        onMouseDown={() => {
+                          setCurrentData(data[idx])
+                        }}
+                        onClick={() => {
+                          valeMovilidad.current.showModal()
+                        }}
+                      >
+                        Detalles
+                      </BotonDetalles>
+                    )
+                  }
                 </li>
               </ListStyle>
             )

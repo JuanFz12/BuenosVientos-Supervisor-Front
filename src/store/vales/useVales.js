@@ -4,6 +4,19 @@ import { apiRequest } from '../../consts/api'
 import { createData } from '../../services/createData'
 
 export const useVales = create(set => {
+  function getVales () {
+    return getData({ url: apiRequest.vales })
+      .then(vales => {
+        console.log(vales)
+      })
+      .catch(err => {
+        alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
+      })
+      .finally(() => {
+        set({ loading: false })
+      })
+  }
+
   function getSolicitudes () {
     return getData({ url: apiRequest.valesSolicitudes })
       .then(solicitudes => {
@@ -21,9 +34,18 @@ export const useVales = create(set => {
   function aceptarVale ({ id, body }) {
     return new Promise((resolve, reject) => {
       createData({ url: `${apiRequest.aceptarVale}/${id}`, body })
-        .then(data => {
-          console.log(data)
-          resolve(data)
+        .then(({ vale }) => {
+          set(state => {
+            const { id } = vale
+            const index = state.solicitudes.findIndex(v => v.id === id)
+
+            const newSolicitudes = [...state.solicitudes]
+
+            newSolicitudes[index] = vale
+
+            return { solicitudes: newSolicitudes }
+          })
+          resolve(vale)
         })
         .catch(err => {
           alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
@@ -37,6 +59,7 @@ export const useVales = create(set => {
     loadingSolicitudes: true,
     vales: [],
     solicitudes: [],
+    getVales,
     getSolicitudes,
     aceptarVale
   }
