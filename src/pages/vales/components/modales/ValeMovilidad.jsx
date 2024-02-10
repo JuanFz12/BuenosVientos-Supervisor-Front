@@ -61,11 +61,7 @@ function handleCosto ({ event, costo, setCosto, discountParam }) {
   }
 }
 
-export function ValeMovilidad ({
-  refModal: thisModal,
-  data,
-  readOnly
-}) {
+export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose }) {
   const {
     usuarioSupervisor: {
       id: supervisorId
@@ -89,6 +85,17 @@ export function ValeMovilidad ({
   })
 
   const formRef = useRef()
+
+  useEffect(() => {
+    data && readOnly && setCosto({
+      costoReal: formatearASoles({ numero: data.cost_actual, cero: true }),
+      descuento: formatearASoles({ numero: data.discount, cero: true }),
+      subTotal: formatearASoles({ numero: data.sub_total, cero: true }),
+      igv: formatearASoles({ numero: data.igv, cero: true }),
+      total: formatearASoles({ numero: data.total_cost, cero: true }),
+      peaje: formatearASoles({ numero: data.peaje, cero: true })
+    })
+  }, [data, readOnly])
 
   if (!data) return null
 
@@ -136,7 +143,7 @@ export function ValeMovilidad ({
         surnames: apellidos
       }
     }
-  } = data
+  } = readOnly ? data.vale : data
 
   function formatearHora (date) {
     const options = {
@@ -151,7 +158,7 @@ export function ValeMovilidad ({
   return (
     <ModalBase
       refModal={thisModal}
-      onClose={() => {
+      onClose={e => {
         setCosto({
           costoReal: '',
           descuento: 'S/ 00.00',
@@ -160,6 +167,8 @@ export function ValeMovilidad ({
           total: 'S/ 00.00',
           peaje: ''
         })
+
+        onClose && onClose(e)
       }}
     >
       <form
@@ -312,6 +321,8 @@ export function ValeMovilidad ({
               label='Costo Real'
               name={fields.costoReal}
               value={costo.costoReal}
+              readOnly={readOnly}
+              inputClass={readOnly ? 'bg-white cursor-default' : ''}
               required
               onChange={e => handleCosto({ event: e, costo, setCosto, discountParam: descuento })}
               placeholder='S/ 00.00'
@@ -321,6 +332,7 @@ export function ValeMovilidad ({
               label='Descuento'
               name={fields.descuento}
               value={costo.descuento}
+              required
               inputClass='bg-white cursor-default'
               readOnly
             />
@@ -329,6 +341,7 @@ export function ValeMovilidad ({
               label='Sub Total'
               name={fields.subTotal}
               value={costo.subTotal}
+              required
               inputClass='bg-white cursor-default'
               readOnly
             />
@@ -337,6 +350,7 @@ export function ValeMovilidad ({
               label='+ I.G.V.'
               name={fields.igv}
               value={costo.igv}
+              required
               inputClass='bg-white cursor-default'
               readOnly
             />
@@ -345,6 +359,8 @@ export function ValeMovilidad ({
               label='Peaje / Est.'
               name={fields.peaje}
               value={costo.peaje}
+              readOnly={readOnly}
+              inputClass={readOnly ? 'bg-white cursor-default' : ''}
               required
               onChange={e => {
                 const value = formatearInputASoles({ event: e, controlled: true })
@@ -373,6 +389,7 @@ export function ValeMovilidad ({
               label='Total a pagar'
               name={fields.total}
               value={costo.total}
+              required
               inputClass='bg-white cursor-default'
               readOnly
             />
@@ -403,13 +420,27 @@ export function ValeMovilidad ({
           />
         </LabelText>
 
-        <MenuComun
-          cancelProps={{ type: 'button', className: 'w-[100px]' }}
-          handleCancel={() => thisModal.current.close()}
-          cancelName='Cancelar'
-          confirmName='Aceptar'
-          confirmProps={{ type: 'submit', className: 'w-[160px]' }}
-        />
+        {
+          readOnly
+            ? (
+              <button
+                className='boton-terciario-marca w-[100px] self-end'
+                type='button'
+                onClick={() => thisModal.current.close()}
+              >
+                Cerrar
+              </button>
+              )
+            : (
+              <MenuComun
+                cancelProps={{ type: 'button', className: 'w-[100px]' }}
+                handleCancel={() => thisModal.current.close()}
+                cancelName='Cancelar'
+                confirmName='Aceptar'
+                confirmProps={{ type: 'submit', className: 'w-[160px]' }}
+              />
+              )
+        }
       </form>
     </ModalBase>
   )

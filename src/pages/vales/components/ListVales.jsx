@@ -5,7 +5,7 @@ import { BotonPaginacion } from '../../../components/botones/BotonPaginacion'
 import { Etiqueta } from '../../../components/etiquetas/Etiquetas'
 import { ListStyle } from '../../../components/listStyle/ListStyle'
 import { ValeMovilidad } from './modales/ValeMovilidad'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const colors = {
   celeste: 'celeste',
@@ -33,8 +33,19 @@ const status = {
 export function ListVales ({ data, loading, backTo }) {
   const valeMovilidad = useRef()
 
+  const [vales, setVales] = useState([])
+
+  useEffect(() => {
+    setVales(
+      backTo
+        ? data
+        : data.map(({ vale }) => vale)
+    )
+  }, [backTo, data])
+
   const [currentData, setCurrentData] = useState(null)
 
+  console.log({ data, currentData })
   return (
     <section
       className='render-vales w-full h-auto [&_li]:text-nowrap [&_li]:overflow-hidden [&_li]:text-ellipsis rounded-[20px] overflow-hidden flex flex-col gap-2'
@@ -50,7 +61,7 @@ export function ListVales ({ data, loading, backTo }) {
           <li>Distrito</li>
           {
             !backTo &&
-              <li>Taxista</li>
+              <li className='w-[max(14%,_105px)]'>Taxista</li>
           }
           <li
             className='w-[max(10%,_90px)]'
@@ -71,7 +82,7 @@ export function ListVales ({ data, loading, backTo }) {
       {
         !loading &&
         Boolean(data.length) &&
-        data
+        vales
           .map(({
             id,
             area: {
@@ -82,11 +93,12 @@ export function ListVales ({ data, loading, backTo }) {
             },
             date: fechaParam,
             district: distrito,
-            user_corporation_id: taxista,
             application_status: estado
 
           }, idx) => {
             const fecha = new Date(fechaParam).toLocaleDateString('es-PE')
+
+            const taxista = !backTo && `${data[idx].taxista.user.user_name} ${data[idx].taxista.user.surnames}`
 
             return (
               <ListStyle
@@ -110,7 +122,10 @@ export function ListVales ({ data, loading, backTo }) {
                 </li>
                 {
                   !backTo &&
-                    <li title={taxista}>
+                    <li
+                      title={taxista}
+                      className='w-[max(14%,_105px)]'
+                    >
                       {taxista}
                     </li>
                 }
@@ -127,21 +142,16 @@ export function ListVales ({ data, loading, backTo }) {
                 <li
                   className='w-[max(10%,_90px)]'
                 >
-                  {
-                    estado === estados.enviado &&
-                    (
-                      <BotonDetalles
-                        onMouseDown={() => {
-                          setCurrentData(data[idx])
-                        }}
-                        onClick={() => {
-                          valeMovilidad.current.showModal()
-                        }}
-                      >
-                        Detalles
-                      </BotonDetalles>
-                    )
-                  }
+                  <BotonDetalles
+                    onMouseDown={() => {
+                      setCurrentData(data[idx])
+                    }}
+                    onClick={() => {
+                      valeMovilidad.current.showModal()
+                    }}
+                  >
+                    Detalles
+                  </BotonDetalles>
                 </li>
               </ListStyle>
             )
@@ -153,8 +163,10 @@ export function ListVales ({ data, loading, backTo }) {
         Boolean(data.length) &&
         (
           <ValeMovilidad
+            readOnly={!backTo}
             refModal={valeMovilidad}
             data={currentData}
+            onClose={() => setCurrentData(null)}
           />
         )
       }

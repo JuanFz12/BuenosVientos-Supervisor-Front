@@ -16,7 +16,7 @@ export function InputSelect ({
     value: ''
   })
 
-  const internOptions = useState(options)
+  const [internOptions, setInternOptions] = useState(options)
 
   const labelParent = useRef()
 

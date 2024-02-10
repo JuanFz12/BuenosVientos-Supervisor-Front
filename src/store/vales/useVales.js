@@ -20,9 +20,9 @@ export const useVales = create(set => {
   function getVales () {
     return getData({ url: `${apiRequest.vales}/${corporacionId}` })
       .then(({ vales }) => {
-        const newState = vales.map(({ vale }) => vale)
-        set({ vales: newState })
-        console.log(newState)
+        // const newState = vales.map(({ vale }) => vale)
+        set({ vales })
+        console.log(vales)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
