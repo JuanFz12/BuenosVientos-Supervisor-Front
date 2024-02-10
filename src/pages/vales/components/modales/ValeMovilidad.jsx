@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NormalCheck } from '../../../../components/checkbox/Checkbox'
 import { TextArea } from '../../../../components/inputs/TextArea'
 import { LabelText } from '../../../../components/labels/LabelText'
@@ -10,6 +10,8 @@ import { parsearSoles } from '../../../../utils/parsearSoles'
 import { useUsuarioSupervisor } from '../../../../store/useUsuarioSupervisor'
 import { useVales } from '../../../../store/vales/useVales'
 import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
+import { InputSelect } from '../../../../components/select/InputSelect'
+import { useTaxistas } from '../../../../store/taxistas/useTaxistas'
 
 const fields = {
   taxista: 'taxista_id',
@@ -33,6 +35,9 @@ function handleCosto ({ event, costo, setCosto, discountParam }) {
 
   const igv = parseFloat((subTotal * 0.18).toFixed(2))
 
+  console.log({ descuento })
+  console.log(igv)
+
   const total = parsearSoles(costo.peaje) + subTotal + igv
 
   if (value === 0) {
@@ -51,7 +56,7 @@ function handleCosto ({ event, costo, setCosto, discountParam }) {
       costoReal: formatearASoles({ numero: value }),
       descuento: formatearASoles({ numero: descuento }),
       subTotal: formatearASoles({ numero: subTotal }),
-      igv: formatearASoles({ numero: igv })
+      igv: formatearASoles({ numero: igv, cero: true })
     }))
   }
 }
@@ -61,8 +66,18 @@ export function ValeMovilidad ({
   data,
   readOnly
 }) {
-  const { usuarioSupervisor: { id: supervisorId } } = useUsuarioSupervisor()
+  const {
+    usuarioSupervisor: {
+      id: supervisorId
+    }
+  } = useUsuarioSupervisor()
   const { aceptarVale } = useVales()
+
+  const { getTaxistas } = useTaxistas()
+
+  useEffect(() => {
+    getTaxistas()
+  }, [getTaxistas])
 
   const [costo, setCosto] = useState({
     costoReal: '',
@@ -76,6 +91,29 @@ export function ValeMovilidad ({
   const formRef = useRef()
 
   if (!data) return null
+
+  const taxistas = [
+    {
+      id: 1,
+      nombre: 'Taxista 1'
+    },
+    {
+      id: 2,
+      nombre: 'Taxista 2'
+    },
+    {
+      id: 3,
+      nombre: 'Taxista 3'
+    },
+    {
+      id: 4,
+      nombre: 'Taxista 4'
+    },
+    {
+      id: 5,
+      nombre: 'Taxista 5'
+    }
+  ]
 
   const {
     id,
@@ -148,7 +186,7 @@ export function ValeMovilidad ({
           atenuarFormulario({ form: e.target })
 
           aceptarVale({ id, body })
-            .then(data => {
+            .then(() => {
               alert('vale aceptado')
               thisModal.current.close()
             })
@@ -350,9 +388,20 @@ export function ValeMovilidad ({
         {/* realizar un buscador en tiempo real para buscar taxistas y seleccionarlos */}
         <LabelText
           label='Taxista'
-          placeholder='Ingrese el nombre del taxista'
-          name={fields.taxista}
-        />
+        >
+          <InputSelect
+            name={fields.taxista}
+            placeholder='Ingrese el nombre del taxista'
+            options={
+              taxistas.map(({ id, nombre }) => {
+                return {
+                  label: nombre,
+                  value: id
+                }
+              })
+            }
+          />
+        </LabelText>
 
         <MenuComun
           cancelProps={{ type: 'button', className: 'w-[100px]' }}

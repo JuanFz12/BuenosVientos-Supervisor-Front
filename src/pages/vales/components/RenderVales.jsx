@@ -11,9 +11,9 @@ export function RenderVales () {
     getVales()
   }, [getVales])
 
-  // useEffect(() => {
-  //   setData(({ loading, render: vales }))
-  // }, [setData, loading, vales])
+  useEffect(() => {
+    setData(({ loading, render: vales }))
+  }, [setData, loading, vales])
 
   return <></>
 }

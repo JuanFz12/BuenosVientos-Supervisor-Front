@@ -14,6 +14,12 @@ import { Calendario } from '../assets/icons/elements/Calendario'
 import { Alerta } from '../assets/icons/elements/Alerta'
 import { Finanzas } from '../assets/icons/elements/Finanzas'
 import { useEffect, useState } from 'react'
+import { TOKEN_NAME, USER_INFO_GENERAL } from '../consts/consts'
+
+function handleLogout () {
+  localStorage.removeItem(TOKEN_NAME)
+  localStorage.removeItem(USER_INFO_GENERAL)
+}
 
 export function MenuSupervisor () {
   const rutas = [
@@ -117,6 +123,7 @@ export function MenuSupervisor () {
           <Link
             className='h-9 p-2 flex items-center gap-2 slider-animation after:bg-azul-500 after:bottom-1 after:left-2 after:hover:w-[calc(100%-15px)]'
             reloadDocument
+            onClick={handleLogout}
             to='/'
           >
             <img src={apagar} />

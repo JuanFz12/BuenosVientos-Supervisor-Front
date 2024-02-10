@@ -2,12 +2,27 @@ import { create } from 'zustand'
 import { getData } from '../../services/getData'
 import { apiRequest } from '../../consts/api'
 import { createData } from '../../services/createData'
+import { USER_INFO_GENERAL } from '../../consts/consts'
 
 export const useVales = create(set => {
+  const {
+    usuarioSupervisor: {
+      corporation_id: corporacionId
+    }
+  } = window.localStorage.getItem(USER_INFO_GENERAL)
+    ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
+    : {
+        usuarioSupervisor: {
+          corporation_id: null
+        }
+      }
+
   function getVales () {
-    return getData({ url: apiRequest.vales })
-      .then(vales => {
-        console.log(vales)
+    return getData({ url: `${apiRequest.vales}/${corporacionId}` })
+      .then(({ vales }) => {
+        const newState = vales.map(({ vale }) => vale)
+        set({ vales: newState })
+        console.log(newState)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
@@ -18,8 +33,8 @@ export const useVales = create(set => {
   }
 
   function getSolicitudes () {
-    return getData({ url: apiRequest.valesSolicitudes })
-      .then(solicitudes => {
+    return getData({ url: `${apiRequest.valesSolicitudes}/${corporacionId}` })
+      .then(({ vale: solicitudes }) => {
         set({ solicitudes })
         console.log(solicitudes)
       })
