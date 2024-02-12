@@ -47,39 +47,53 @@ export function ListVales ({ data, loading, backTo }) {
 
   console.log({ data, currentData })
   return (
-    <section
-      className='render-vales w-full h-auto [&_li]:text-nowrap [&_li]:overflow-hidden [&_li]:text-ellipsis rounded-[20px] overflow-hidden flex flex-col gap-2'
-    >
-      <header>
-        <ListStyle
-          className='py-3 px-6 text-xs font-normal leading-4 flex-wrap w-full min-h-11'
-        >
-          <li>No.</li>
-          <li>Corporación</li>
-          <li>Área</li>
-          <li>Fecha</li>
-          <li>Distrito</li>
-          {
+    <>
+      {
+        !loading &&
+        Boolean(data.length) &&
+        (
+          <ValeMovilidad
+            readOnly={!backTo}
+            refModal={valeMovilidad}
+            data={currentData}
+            onClose={() => setCurrentData(null)}
+          />
+        )
+      }
+
+      <section
+        className='render-vales w-full h-auto [&_li]:text-nowrap [&_li]:overflow-hidden [&_li]:text-ellipsis rounded-[20px] overflow-hidden flex flex-col gap-2'
+      >
+        <header>
+          <ListStyle
+            className='py-3 px-6 text-xs font-normal leading-4 flex-wrap w-full min-h-11'
+          >
+            <li>No.</li>
+            <li>Corporación</li>
+            <li>Área</li>
+            <li>Fecha</li>
+            <li>Distrito</li>
+            {
             !backTo &&
               <li className='w-[max(14%,_105px)]'>Taxista</li>
           }
-          <li
-            className='w-[max(10%,_90px)]'
-          >
-            Estado
-          </li>
-          <li
-            className='w-[max(10%,_90px)]'
-          />
-        </ListStyle>
-      </header>
+            <li
+              className='w-[max(10%,_90px)]'
+            >
+              Estado
+            </li>
+            <li
+              className='w-[max(10%,_90px)]'
+            />
+          </ListStyle>
+        </header>
 
-      {
+        {
         loading &&
           <ListStyle className='py-3 px-6 text-sm font-normal leading-4 flex-wrap w-full min-h-[72px]'>Cargando...</ListStyle>
       }
 
-      {
+        {
         !loading &&
         Boolean(data.length) &&
         vales
@@ -158,33 +172,21 @@ export function ListVales ({ data, loading, backTo }) {
           })
       }
 
-      {
-        !loading &&
-        Boolean(data.length) &&
-        (
-          <ValeMovilidad
-            readOnly={!backTo}
-            refModal={valeMovilidad}
-            data={currentData}
-            onClose={() => setCurrentData(null)}
-          />
-        )
-      }
-
-      <footer
-        className='flex flex-wrap gap-2 items-center text-sm font-medium leading-4 justify-between w-full bg-white px-5 py-2 min-h-20'
-      >
-        <span>
-          Página 1 de 15
-        </span>
-
-        <div
-          className='flex items-center gap-5'
+        <footer
+          className='flex flex-wrap gap-2 items-center text-sm font-medium leading-4 justify-between w-full bg-white px-5 py-2 min-h-20'
         >
-          <BotonPaginacion text='Anterior' left />
-          <BotonPaginacion text='Siguiente' />
-        </div>
-      </footer>
-    </section>
+          <span>
+            Página 1 de 15
+          </span>
+
+          <div
+            className='flex items-center gap-5'
+          >
+            <BotonPaginacion text='Anterior' left />
+            <BotonPaginacion text='Siguiente' />
+          </div>
+        </footer>
+      </section>
+    </>
   )
 }

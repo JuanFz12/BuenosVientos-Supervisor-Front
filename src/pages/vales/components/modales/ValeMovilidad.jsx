@@ -35,9 +35,6 @@ function handleCosto ({ event, costo, setCosto, discountParam }) {
 
   const igv = parseFloat((subTotal * 0.18).toFixed(2))
 
-  console.log({ descuento })
-  console.log(igv)
-
   const total = parsearSoles(costo.peaje) + subTotal + igv
 
   if (value === 0) {
@@ -69,7 +66,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose })
   } = useUsuarioSupervisor()
   const { aceptarVale } = useVales()
 
-  const { getTaxistas } = useTaxistas()
+  const { taxistas, getTaxistas } = useTaxistas()
 
   useEffect(() => {
     getTaxistas()
@@ -98,29 +95,6 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose })
   }, [data, readOnly])
 
   if (!data) return null
-
-  const taxistas = [
-    {
-      id: 1,
-      nombre: 'Taxista 1'
-    },
-    {
-      id: 2,
-      nombre: 'Taxista 2'
-    },
-    {
-      id: 3,
-      nombre: 'Taxista 3'
-    },
-    {
-      id: 4,
-      nombre: 'Taxista 4'
-    },
-    {
-      id: 5,
-      nombre: 'Taxista 5'
-    }
-  ]
 
   const {
     id,
@@ -188,9 +162,9 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose })
           }
 
           const body = Object.fromEntries(formData)
-          body[fields.taxista] = 3
           body[fields.supervisor] = supervisorId
           body[fields.firma] = 'algunafoto.pdf'
+          body[fields.taxista] = Number(body[fields.taxista])
 
           atenuarFormulario({ form: e.target })
 
@@ -410,9 +384,9 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose })
             name={fields.taxista}
             placeholder='Ingrese el nombre del taxista'
             options={
-              taxistas.map(({ id, nombre }) => {
+              taxistas.map(({ id, user }) => {
                 return {
-                  label: nombre,
+                  label: `${user.user_name} ${user.surnames}`,
                   value: id
                 }
               })
