@@ -45,7 +45,6 @@ export function ListVales ({ data, loading, backTo }) {
 
   const [currentData, setCurrentData] = useState(null)
 
-  console.log({ data, currentData })
   return (
     <>
       {

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TextInput } from '../inputs/TextInput'
 
 export function InputSelect ({
@@ -11,16 +11,21 @@ export function InputSelect ({
   onSelect,
   maxVisibleOptions,
   maxOptions,
+  defaultLabel,
+  defaultValue,
+  readOnly,
   required
 }) {
   const [labelInput, setLabelInput] = useState({
-    label: '',
-    value: ''
+    label: defaultLabel ?? '',
+    value: defaultValue ?? ''
   })
 
-  const [internOptions, setInternOptions] = useState(options)
+  const [internOptions, setInternOptions] = useState([])
 
-  const labelParent = useRef()
+  useEffect(() => {
+    setInternOptions(options)
+  }, [options])
 
   const [openList, setOpenList] = useState(false)
 
@@ -81,13 +86,28 @@ export function InputSelect ({
     list.style.height = 'auto'
   }
 
-  const inputLabel = useRef()
-  const inputValue = useRef()
+  // const selectWithKey = useRef(0)
+
+  // function handleKeyDown (e) {
+  //   if (!internOptions.length) return
+  //   if (e.key === 'ArrowUp') {
+  //     selectWithKey.current--
+  //   }
+  //   if (e.key === 'ArrowDown') {
+  //     // terminar
+  //     selectWithKey.current++
+  //   }
+  //   const index = Math.abs(selectWithKey.current % internOptions.length)
+  //   const selection = internOptions[index]
+  //   console.log({ index, current: selectWithKey.current })
+  //   const element = e.target.parentElement.querySelector('ul')
+  //   element.children[index].focus()
+  // }
 
   return (
     <label
-      className='relative h-9'
-      ref={labelParent}
+      className='relative'
+      onBlur={handleHeight}
     >
       <TextInput
         className='w-full'
@@ -96,24 +116,15 @@ export function InputSelect ({
           if (internOptions.length === 0) return
           handleHeight(e)
         }}
-        onBlur={handleHeight}
         onChange={handleChange}
-        refInput={inputLabel}
+        // onKeyDown={handleKeyDown}
         value={labelInput.label}
         required={required}
-      />
-
-      <input
-        type='text'
-        name={name}
-        className='absolute inset-0 w-0 h-0 pointer-events-none'
-        ref={inputValue}
-        value={labelInput.value}
-        readOnly
+        readOnly={readOnly}
       />
 
       <ul
-        className={`absolute z-10 shadow-1 bg-superficiesInputEditable overflow-y-auto ${visibleScroll ? 'scroll-neutral' : 'scroll-hide'} rounded-lg border-azul-600 left-0 w-full overflow-clip top-[${(labelParent.current?.clientHeight + 8)}px] ${openList ? 'py-2' : 'py-0'} px-3 h-0 transition-all duration-200 ease-in-out flex flex-col gap-1 ${listClass || ''}`}
+        className={`absolute z-10 shadow-1 bg-superficiesInputEditable overflow-y-auto ${visibleScroll ? 'scroll-neutral' : 'scroll-hide'} top-11 rounded-lg border-azul-600 left-0 w-full overflow-clip ${openList ? 'py-2' : 'py-0'} px-3 h-0 transition-all duration-200 ease-in-out flex flex-col gap-1 ${listClass || ''}`}
       >
         {
           options &&
@@ -121,9 +132,10 @@ export function InputSelect ({
             <li
               key={value}
               tabIndex={0}
+              onFocus={handleHeight}
               role='option'
               onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && e.currentTarget.click()}
-              className={`cursor-pointer max-w-full text-ellipsis texto-m text-textoPrincipal flex items-center px-1 py-2 rounded-lg hover:bg-azul-100 transition-colors duration-200 ease-out ${optionClass || ''}`}
+              className={`cursor-pointer max-w-full text-ellipsis texto-m text-textoPrincipal flex items-center px-1 py-2 rounded-lg focus:bg-azul-100 hover:bg-azul-100 transition-colors duration-200 ease-out ${optionClass || ''}`}
               onMouseDown={() => {
                 setLabelInput({ label, value })
                 onSelect && onSelect({ label, value })
@@ -135,6 +147,13 @@ export function InputSelect ({
         }
       </ul>
 
+      <input
+        type='text'
+        name={name}
+        className='absolute inset-0 w-0 h-0 pointer-events-none'
+        value={labelInput.value}
+        readOnly
+      />
       {
         !internOptions.length && (
           <span

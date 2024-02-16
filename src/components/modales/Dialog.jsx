@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
  * @returns {JSX.Element}
  */
 export function Dialog ({ selfRef, overflowHidden, ...props }) {
-  const [key, setKey] = useState(crypto.randomUUID())
+  const [key, setKey] = useState(Math.random())
 
   useEffect(() => {
     const originalShow = HTMLDialogElement.prototype.showModal
@@ -25,7 +25,7 @@ export function Dialog ({ selfRef, overflowHidden, ...props }) {
     HTMLDialogElement.prototype.close = function () {
       this.classList.remove('active-show')
       // setTimeout(() => {
-      //   originalClose.call(this)
+      //  originalClose.call(this)
       // }, 250)
 
       function handleTransitionEnd (e) {
@@ -50,7 +50,7 @@ export function Dialog ({ selfRef, overflowHidden, ...props }) {
       {...props}
       key={key}
       onClose={e => {
-        setKey(crypto.randomUUID())
+        setKey(key + 1)
         overflowHidden && document.body.classList.remove('overflow-hidden')
         props?.onClose && props.onClose(e)
       }}
