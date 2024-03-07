@@ -7,7 +7,7 @@ export function PasswordInput ({ name, placeholder, labelClass, inputClass, ...p
 
   return (
     <label
-      className={`relative bg-superficiesInputEditable rounded-lg flex items-center border border-bordesIdle h-9 ${labelClass || ''}`}
+      className={`relative bg-superficiesInputEditable rounded-lg flex items-center border border-bordesIdle has-[:focus]:border-azul-500 transition-colors duration-300 ease-in-out h-9 ${labelClass || ''}`}
     >
       <input
         {...props}
@@ -26,18 +26,16 @@ export function PasswordInput ({ name, placeholder, labelClass, inputClass, ...p
           onClick={function ({ target }) {
             const input = inputRef.current
 
-            if (target.ariaLabel === 'show password text') {
+            if (input.type === 'password') {
               target.src = ojoVer
-              target.ariaLabel = 'hide password text'
               input.type = 'text'
             } else {
               target.src = ojoNoVer
-              target.ariaLabel = 'show password text'
               input.type = 'password'
             }
           }}
           src={ojoNoVer}
-          aria-label='show password text'
+          aria-label='show | hide password text'
           className='w-[28px] h-auto cursor-pointer'
         />
       </button>
