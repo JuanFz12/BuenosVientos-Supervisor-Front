@@ -20,7 +20,7 @@
     height: 3px;
     background: black;
     border-radius: 5px;
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
   }
 
   &::before {
@@ -43,6 +43,7 @@
   &.open::after {
     top: 0;
     transform: rotate(90deg);
+    opacity: 0;
     z-index: 1;
   }
 

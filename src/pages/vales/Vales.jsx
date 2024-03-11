@@ -4,39 +4,24 @@ import { Buscador } from '../../components/buscador/Buscador'
 import { SelectorFecha } from '../../components/selectorFecha/SelectorFecha'
 import { Notificacion } from '../../assets/icons/elements/Notificacion'
 import { routes } from '../../routes'
-import { Layout } from '../../Layout'
-import { useState } from 'react'
-import { ListVales } from './components/ListVales'
+import { useEffect } from 'react'
+import { changeDocTitle, titlePages } from '../../consts/titlePage'
+import { useLayout } from '../../store/useLayout'
 
 export function Vales () {
-  const [data, setData] =
-    useState({
-      loading: true,
-      render: []
-    })
+  useEffect(() => changeDocTitle(titlePages.vales), [])
 
-  const [backTo, setBackTo] = useState(null)
+  const { backTo } = useLayout()
 
   return (
-    <Layout
-      backTo={backTo}
-    >
-      <main>
-        <Header
-          solicitudes={Boolean(backTo)}
-        />
+    <main>
+      <Header
+        solicitudes={Boolean(backTo)}
+      />
 
-        {/* el outlet setea la data para que listVales pueda listarlo */}
-        <Outlet context={{ setBackTo, data, setData }} />
+      <Outlet />
 
-        <ListVales
-          data={data.render}
-          loading={data.loading}
-          backTo={backTo}
-        />
-
-      </main>
-    </Layout>
+    </main>
   )
 }
 

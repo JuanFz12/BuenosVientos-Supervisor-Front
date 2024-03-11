@@ -1,4 +1,5 @@
 export const routes = {
+  logout: '/logout',
   home: '/',
   dashboard: '/dashboard',
   taxistas: '/taxistas',

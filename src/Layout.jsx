@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom'
 import { MenuSupervisor } from './components/MenuSupervisor'
 import { HeaderSupervisor } from './components/header/HeaderSupervisor'
+import { useLayout } from './store/useLayout'
 
-export function Layout ({ children, displayHeader = true, title, backTo }) {
+export function Layout ({ children }) {
+  const { displayHeader, title, backTo } = useLayout()
+
   return (
     <section
       className='flex'

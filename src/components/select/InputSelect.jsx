@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TextInput } from '../inputs/TextInput'
 
 export function InputSelect ({
@@ -76,7 +76,7 @@ export function InputSelect ({
       list.style.paddingTop = '0'
       list.style.paddingBottom = '0'
       e.target.style.border = '1px solid rgb(239 68 68)'
-      console.log('se cumple')
+      // console.log('se cumple')
     } else {
       list.classList.add('py-2')
       list.style.paddingTop = ''
@@ -104,6 +104,8 @@ export function InputSelect ({
   //   element.children[index].focus()
   // }
 
+  const input = useRef()
+
   return (
     <label
       className='relative'
@@ -118,9 +120,11 @@ export function InputSelect ({
         }}
         onChange={handleChange}
         // onKeyDown={handleKeyDown}
+        defaultValue={defaultValue}
         value={labelInput.label}
         required={required}
         readOnly={readOnly}
+        refInput={input}
       />
 
       <ul
@@ -155,7 +159,7 @@ export function InputSelect ({
         readOnly
       />
       {
-        !internOptions.length && (
+        Boolean(input.current?.value.length) && !internOptions.length && (
           <span
             className='absolute right-0 -top-5 text-red-500'
           >

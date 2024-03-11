@@ -11,7 +11,6 @@ import { useUsuarioSupervisor } from '../../../../store/useUsuarioSupervisor'
 import { useVales } from '../../../../store/vales/useVales'
 import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
 import { InputSelect } from '../../../../components/select/InputSelect'
-import { useTaxistas } from '../../../../store/taxistas/useTaxistas'
 
 const fields = {
   taxista: 'taxista_id',
@@ -25,52 +24,13 @@ const fields = {
   firma: 'signature'
 }
 
-function handleCosto ({ event, costo, setCosto, discountParam }) {
-  const value = formatearInputASoles({ event, controlled: true })
-
-  const discount = parseFloat(discountParam.replace(/[^\d.]/g, '')) / 100
-
-  const descuento = value * discount
-  const subTotal = parseFloat((value * (1 - discount)).toFixed(2))
-
-  const igv = parseFloat((subTotal * 0.18).toFixed(2))
-
-  const total = parsearSoles(costo.peaje) + subTotal + igv
-
-  if (value === 0) {
-    setCosto(prev => ({
-      ...prev,
-      total: prev.peaje || 'S/ 00.00',
-      costoReal: '',
-      descuento: 'S/ 00.00',
-      subTotal: 'S/ 00.00',
-      igv: 'S/ 00.00'
-    }))
-  } else {
-    setCosto(prev => ({
-      ...prev,
-      total: formatearASoles({ numero: total }),
-      costoReal: formatearASoles({ numero: value }),
-      descuento: formatearASoles({ numero: descuento }),
-      subTotal: formatearASoles({ numero: subTotal }),
-      igv: formatearASoles({ numero: igv, cero: true })
-    }))
-  }
-}
-
-export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose }) {
+export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, taxistas }) {
   const {
     usuarioSupervisor: {
       id: supervisorId
     }
   } = useUsuarioSupervisor()
   const { aceptarVale } = useVales()
-
-  const { taxistas, getTaxistas } = useTaxistas()
-
-  useEffect(() => {
-    getTaxistas()
-  }, [getTaxistas])
 
   const [costo, setCosto] = useState({
     costoReal: '',
@@ -376,7 +336,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose })
           </fieldset>
         </fieldset>
 
-        {/* realizar un buscador en tiempo real para buscar taxistas y seleccionarlos */}
+        {/* realizar un buscador en tiempo real para buscar taxistas y seleccionarlos. UPDATE --> ya se hizo pero verificar si todo funciona bien */}
         <LabelText
           label='Taxista'
         >
@@ -418,4 +378,37 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose })
       </form>
     </ModalBase>
   )
+}
+
+function handleCosto ({ event, costo, setCosto, discountParam }) {
+  const value = formatearInputASoles({ event, controlled: true })
+
+  const discount = parseFloat(discountParam.replace(/[^\d.]/g, '')) / 100
+
+  const descuento = value * discount
+  const subTotal = parseFloat((value * (1 - discount)).toFixed(2))
+
+  const igv = parseFloat((subTotal * 0.18).toFixed(2))
+
+  const total = parsearSoles(costo.peaje) + subTotal + igv
+
+  if (value === 0) {
+    setCosto(prev => ({
+      ...prev,
+      total: prev.peaje || 'S/ 00.00',
+      costoReal: '',
+      descuento: 'S/ 00.00',
+      subTotal: 'S/ 00.00',
+      igv: 'S/ 00.00'
+    }))
+  } else {
+    setCosto(prev => ({
+      ...prev,
+      total: formatearASoles({ numero: total }),
+      costoReal: formatearASoles({ numero: value }),
+      descuento: formatearASoles({ numero: descuento }),
+      subTotal: formatearASoles({ numero: subTotal }),
+      igv: formatearASoles({ numero: igv, cero: true })
+    }))
+  }
 }

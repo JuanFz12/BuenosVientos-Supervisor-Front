@@ -1,7 +1,20 @@
+import { useEffect } from 'react'
 import { Filtros } from '../../assets/icons/elements/Filtros'
 import { Buscador } from '../../components/buscador/Buscador'
 import { SelectorFecha } from '../../components/selectorFecha/SelectorFecha'
+import { changeDocTitle, titlePages } from '../../consts/titlePage'
 import { RenderAsistencias } from './components/RenderAsistencias'
+
+export function Asistencias () {
+  useEffect(() => changeDocTitle(titlePages.asistencias), [])
+
+  return (
+    <main>
+      <Header />
+      <RenderAsistencias />
+    </main>
+  )
+}
 
 function Header () {
   return (
@@ -34,14 +47,5 @@ function Header () {
         <Buscador />
       </section>
     </header>
-  )
-}
-
-export function Asistencias () {
-  return (
-    <main>
-      <Header />
-      <RenderAsistencias />
-    </main>
   )
 }

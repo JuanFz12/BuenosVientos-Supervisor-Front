@@ -1,7 +1,7 @@
 import businessMan from '/src/assets/img/businessMan.jpeg'
 
 import { apiRequest } from '../consts/api'
-import { TIPOS_USUARIOS, TOKEN_NAME, USER_INFO_GENERAL } from '../consts/consts'
+import { TIPOS_USUARIOS } from '../consts/consts'
 import { routes } from '../routes'
 import { createData } from '../services/createData'
 import { atenuarFormulario } from '../utils/atenuarFormulario'
@@ -9,8 +9,7 @@ import { LabelText } from '../components/labels/LabelText'
 import { PasswordInput } from '../components/inputs/PasswordInput'
 import { NormalCheck } from '../components/checkbox/Checkbox'
 import { Link } from 'react-router-dom'
-
-const rememberPassword = 'rm-p'
+import { localStorageNames } from '../consts/localStorageNames'
 
 export function Home () {
   const fields = {
@@ -36,7 +35,7 @@ export function Home () {
           Promise.reject(new Error('No eres administrador'))
         }
 
-        localStorage.setItem(TOKEN_NAME, data.token)
+        window.localStorage.setItem(localStorageNames.TOKEN_NAME, data.token)
 
         // usuario
         const usuario = {
@@ -44,19 +43,19 @@ export function Home () {
           usuarioSupervisor: data.user_supervisor
         }
 
-        window.localStorage.setItem(USER_INFO_GENERAL, btoa(JSON.stringify(usuario)))
+        window.localStorage.setItem(localStorageNames.USER_INFO_GENERAL, btoa(JSON.stringify(usuario)))
 
         if (e.target[fields.remember].checked) {
           const pass = btoa(body.password)
-          localStorage.setItem(rememberPassword, pass)
+          localStorage.setItem(localStorageNames.REMEMBER_PASSWORD, pass)
         } else {
-          localStorage.removeItem(rememberPassword)
+          localStorage.removeItem(localStorageNames.REMEMBER_PASSWORD)
         }
 
         location.replace(routes.dashboard)
       })
-      .catch(err => alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`))
-      .finally(() => {
+      .catch(err => {
+        alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
         atenuarFormulario({ form: e.target, restore: true })
       })
   }
@@ -122,8 +121,8 @@ export function Home () {
             >
               <PasswordInput
                 defaultValue={
-                  localStorage.getItem(rememberPassword)
-                    ? atob(localStorage.getItem(rememberPassword))
+                  localStorage.getItem(localStorageNames.REMEMBER_PASSWORD)
+                    ? atob(localStorage.getItem(localStorageNames.REMEMBER_PASSWORD))
                     : ''
                 }
                 placeholder='******'
@@ -140,7 +139,7 @@ export function Home () {
               >
                 <NormalCheck
                   defaultChecked={
-                    Boolean(localStorage.getItem(rememberPassword))
+                    Boolean(localStorage.getItem(localStorageNames.REMEMBER_PASSWORD))
                   }
                   labelClass='scale-[0.8]'
                   name={fields.remember}

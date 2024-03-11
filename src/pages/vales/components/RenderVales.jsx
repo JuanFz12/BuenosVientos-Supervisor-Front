@@ -1,19 +1,13 @@
 import { useEffect } from 'react'
-import { useOutletContext } from 'react-router-dom'
 import { useVales } from '../../../store/vales/useVales'
+import { ListVales } from './ListVales'
 
 export function RenderVales () {
   const { vales, getVales, loading } = useVales()
-
-  const { setData } = useOutletContext()
 
   useEffect(() => {
     getVales()
   }, [getVales])
 
-  useEffect(() => {
-    setData(({ loading, render: vales }))
-  }, [setData, loading, vales])
-
-  return <></>
+  return <ListVales data={vales} loading={loading} />
 }

@@ -1,5 +1,8 @@
+import './MenuSupervisor.css'
+
 // React
 import { Link, NavLink, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 // Consts
 import { routes } from '../routes'
@@ -13,13 +16,6 @@ import { Vale } from '../assets/icons/elements/Vale'
 import { Calendario } from '../assets/icons/elements/Calendario'
 import { Alerta } from '../assets/icons/elements/Alerta'
 import { Finanzas } from '../assets/icons/elements/Finanzas'
-import { useEffect, useState } from 'react'
-import { TOKEN_NAME, USER_INFO_GENERAL } from '../consts/consts'
-
-function handleLogout () {
-  localStorage.removeItem(TOKEN_NAME)
-  localStorage.removeItem(USER_INFO_GENERAL)
-}
 
 export function MenuSupervisor () {
   const rutas = [
@@ -97,24 +93,28 @@ export function MenuSupervisor () {
           className='flex flex-col gap-2 h-[380px] lg:h-[654px]'
         >
           {
-          rutas.map(({ label, path, Icon }) => (
-            <li
-              key={label}
-              className='flex items-center gap-2'
-            >
-              <NavLink
-                to={path}
-                className={({ isActive }) => `h-9 p-2 w-full lg:w-auto flex items-center gap-2 lg:slider-animation rounded-lg lg:after:bg-azul-500 lg:after:bottom-1 lg:after:left-2 lg:after:hover:w-[calc(100%-15px)] ${isActive ? 'bg-azul-500 lg:w-full text-white' : ''}`}
-                unstable_viewTransition
+            rutas.map(({ label, path, Icon }) => (
+              <li
+                key={label}
+                className='flex items-center gap-2'
               >
-                <Icon
-                  fill={pathname.includes(path) ? 'white' : '#4C64A6'}
-                />
-                {label}
-              </NavLink>
-            </li>
-          ))
-        }
+                <NavLink
+                  to={path}
+                  className={({ isActive }) => `h-9 p-2 flex-1 w-full lg:w-auto flex items-center gap-2 [&>div]:lg:hover:after:w-full rounded-lg ${isActive ? 'bg-azul-500 lg:w-full text-white' : ''}`}
+                  unstable_viewTransition
+                >
+                  <div
+                    className='flex items-center gap-2 lg:slider-animation lg:after:bg-azul-500 '
+                  >
+                    <Icon
+                      fill={pathname.includes(path) ? 'white' : '#4C64A6'}
+                    />
+                    {label}
+                  </div>
+                </NavLink>
+              </li>
+            ))
+          }
         </ul>
 
         <footer
@@ -123,8 +123,7 @@ export function MenuSupervisor () {
           <Link
             className='h-9 p-2 flex items-center gap-2 slider-animation after:bg-azul-500 after:bottom-1 after:left-2 after:hover:w-[calc(100%-15px)]'
             reloadDocument
-            onClick={handleLogout}
-            to='/'
+            to={routes.logout}
           >
             <img src={apagar} />
             Salir

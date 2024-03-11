@@ -2,7 +2,15 @@ const title = 'Buenos Vientos'
 
 const getTitle = (add) => {
   if (!add) return title
-  return `${add} | ${title}`
+  return `${title} | ${add}`
+}
+
+export function changeDocTitle (newTitle) {
+  const currentDocTitle = document.title
+
+  document.title = newTitle
+
+  return () => (document.title = currentDocTitle)
 }
 
 export const titlePages = {

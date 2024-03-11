@@ -18,9 +18,10 @@ import { Abajo } from '../../assets/icons/elements/Abajo'
  * @param {boolean} props.visibleScroll - Indica si se debe mostrar la barra de desplazamiento de la lista
  * @param {function({value: string, label: string}): void} props.onChange - Función que se ejecuta al cambiar el valor
  * @param {boolean} props.disabled - Indica si el select es deshabilitado
+ * @param {function(clickEvent): void} props.onDisabled - Función que se ejecuta al dar click cuando el select esta deshabilitado
  * @returns {JSX.Element}
  */
-export function Select ({ placeholder = 'Seleccione una opción', selectClass, placeholderClass, listClass, maxVisibleOptions, optionClass, name, options, arrowImg, arrowWidth, arrowHeight, arrowColor, visibleScroll, onChange, disabled }) {
+export function Select ({ placeholder = 'Seleccione una opción', selectClass, placeholderClass, listClass, maxVisibleOptions, optionClass, name, options, arrowImg, arrowWidth, arrowHeight, arrowColor, visibleScroll, onChange, disabled, onDisabled }) {
   const [label, setLabel] = useState({
     label: placeholder,
     value: ''
@@ -55,10 +56,10 @@ export function Select ({ placeholder = 'Seleccione una opción', selectClass, p
       />
       <div
         tabIndex={0}
-        onClick={disabled ? null : handleHeight}
+        onClick={disabled ? onDisabled : handleHeight}
         ref={parent}
-        onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && e.currentTarget.click()}
-        className={`relative ${!disabled ? 'focus:border-azul-600 cursor-pointer' : 'cursor-not-allowed opacity-50'} before:content-[""] before:absolute before:inset-0 before:w-full before:h-full flex items-center justify-between w-auto py-2 px-3 bg-superficiesInputEditable outline-none border border-bordesIdle rounded-lg h-9 ${selectClass || ''}`}
+        onKeyDown={e => !disabled && (e.key === 'Enter' || e.key === ' ') && e.currentTarget.click()}
+        className={`relative ${!disabled ? 'focus:border-azul-600 cursor-pointer' : 'cursor-not-allowed opacity-50'} transition-colors duration-300 ease-in-out before:content-[""] before:absolute before:inset-0 before:w-full before:h-full flex items-center justify-between w-auto py-2 px-3 bg-superficiesInputEditable outline-none border border-bordesIdle rounded-lg h-9 ${selectClass || ''}`}
         role='listbox'
       >
         <span

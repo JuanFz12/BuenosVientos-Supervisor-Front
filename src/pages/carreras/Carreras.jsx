@@ -1,9 +1,13 @@
+import { useEffect } from 'react'
 import { Filtros } from '../../assets/icons/elements/Filtros'
 import { Buscador } from '../../components/buscador/Buscador'
 import { SelectorFecha } from '../../components/selectorFecha/SelectorFecha'
+import { changeDocTitle, titlePages } from '../../consts/titlePage'
 import { RenderCarreras } from './components/RenderCarreras'
 
 export function Carreras () {
+  useEffect(() => changeDocTitle(titlePages.carreras), [])
+
   return (
     <main
       className=''

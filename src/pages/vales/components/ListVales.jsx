@@ -5,7 +5,8 @@ import { BotonPaginacion } from '../../../components/botones/BotonPaginacion'
 import { Etiqueta } from '../../../components/etiquetas/Etiquetas'
 import { ListStyle } from '../../../components/listStyle/ListStyle'
 import { ValeMovilidad } from './modales/ValeMovilidad'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { formatearFechaCorta } from '../../../utils/formatear'
 
 const colors = {
   celeste: 'celeste',
@@ -30,18 +31,18 @@ const status = {
   }
 }
 
-export function ListVales ({ data, loading, backTo }) {
+export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
   const valeMovilidad = useRef()
 
-  const [vales, setVales] = useState([])
+  // const [vales, setVales] = useState([])
 
-  useEffect(() => {
-    setVales(
-      backTo
-        ? data
-        : data.map(({ vale }) => vale)
-    )
-  }, [backTo, data])
+  // useEffect(() => {
+  //   setVales(
+  //     backTo
+  //       ? data
+  //       : data.map(({ vale }) => vale)
+  //   )
+  // }, [backTo, data])
 
   const [currentData, setCurrentData] = useState(null)
 
@@ -52,7 +53,8 @@ export function ListVales ({ data, loading, backTo }) {
         Boolean(data.length) &&
         (
           <ValeMovilidad
-            readOnly={!backTo}
+            taxistas={taxistas}
+            readOnly={!solicitudes}
             refModal={valeMovilidad}
             data={currentData}
             onClose={() => setCurrentData(null)}
@@ -73,9 +75,9 @@ export function ListVales ({ data, loading, backTo }) {
             <li>Fecha</li>
             <li>Distrito</li>
             {
-            !backTo &&
-              <li className='w-[max(14%,_105px)]'>Taxista</li>
-          }
+              !solicitudes &&
+                <li className='w-[max(14%,_105px)]'>Taxista</li>
+            }
             <li
               className='w-[max(10%,_90px)]'
             >
@@ -95,7 +97,7 @@ export function ListVales ({ data, loading, backTo }) {
         {
         !loading &&
         Boolean(data.length) &&
-        vales
+        data
           .map(({
             id,
             area: {
@@ -109,9 +111,9 @@ export function ListVales ({ data, loading, backTo }) {
             application_status: estado
 
           }, idx) => {
-            const fecha = new Date(fechaParam).toLocaleDateString('es-PE')
+            const fecha = formatearFechaCorta(fechaParam)
 
-            const taxista = !backTo && `${data[idx].taxista.user.user_name} ${data[idx].taxista.user.surnames}`
+            const taxista = !solicitudes && `${data[idx].taxista.user.user_name} ${data[idx].taxista.user.surnames}`
 
             return (
               <ListStyle
@@ -134,7 +136,7 @@ export function ListVales ({ data, loading, backTo }) {
                   {distrito}
                 </li>
                 {
-                  !backTo &&
+                  !solicitudes &&
                     <li
                       title={taxista}
                       className='w-[max(14%,_105px)]'

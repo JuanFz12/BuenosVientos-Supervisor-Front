@@ -1,5 +1,3 @@
-import './HeaderSupervisor.css'
-
 import { Link, useLocation } from 'react-router-dom'
 import { getCapitalizedLastPath } from '../../utils/getCapLastPath'
 import { PerfilSupervisor } from './PerfilSupervisor'

@@ -12,8 +12,11 @@ import { Asistencias } from './pages/asistencias/Asistencias'
 import { Vales } from './pages/vales/Vales'
 import { SolicitudesVales } from './pages/vales/solicitudes/Solicitudes'
 import { RenderVales } from './pages/vales/components/RenderVales'
+import { Logout } from './pages/Logout'
+import { Exoneraciones } from './pages/exoneraciones/Exoneraciones'
 
 const {
+  logout,
   home,
   dashboard,
   taxistas,
@@ -25,34 +28,22 @@ const {
     solicitudes: solicitudesVales
   },
 
-  asistencias
-  // exoneraciones,
+  asistencias,
+  exoneraciones
   // pagos
 } = routes
 
 const router = createBrowserRouter([
   {
+    path: logout,
+    element: <Logout />
+  },
+  {
     path: home,
     element: <Home />
   },
-
   {
-    path: vales,
-    element: <Vales />,
-    children: [
-      {
-        index: true,
-        element: <RenderVales />
-      },
-      {
-        path: solicitudesVales,
-        element: <SolicitudesVales />
-      }
-    ]
-  },
-
-  {
-    // se separa porque necesita un titulo diferente
+    // se separa porque necesita un titulo diferente, tambien se podria controlar con un estado, cambiar a eso si se necesita
     path: asistencias,
     element: <Layout title='Registro de Asistencias'><Asistencias /></Layout>
   },
@@ -72,6 +63,24 @@ const router = createBrowserRouter([
       {
         path: carreras,
         element: <Carreras />
+      },
+      {
+        path: vales,
+        element: <Vales />,
+        children: [
+          {
+            index: true,
+            element: <RenderVales />
+          },
+          {
+            path: solicitudesVales,
+            element: <SolicitudesVales />
+          }
+        ]
+      },
+      {
+        path: exoneraciones,
+        element: <Exoneraciones />
       }
     ]
   },

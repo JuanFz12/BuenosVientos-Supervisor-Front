@@ -1,23 +1,24 @@
-import { useOutletContext } from 'react-router-dom'
-import { routes } from '../../../routes'
 import { useEffect } from 'react'
 import { useVales } from '../../../store/vales/useVales'
+import { ListVales } from '../components/ListVales'
+import { useTaxistas } from '../../../store/taxistas/useTaxistas'
+import { useLayout } from '../../../store/useLayout'
+import { routes } from '../../../routes'
 
 export function SolicitudesVales () {
   const { solicitudes, getSolicitudes, loadingSolicitudes } = useVales()
+  const { taxistas, getTaxistas } = useTaxistas()
 
-  const { setBackTo, setData } = useOutletContext()
+  const { setBackTo } = useLayout()
 
   useEffect(() => {
-    setBackTo(routes.vales)
     getSolicitudes()
+    getTaxistas()
 
-    return () => setBackTo(null)
-  }, [setBackTo, getSolicitudes])
+    setBackTo(routes.vales)
 
-  useEffect(() => {
-    setData(({ loading: loadingSolicitudes, render: solicitudes }))
-  }, [setData, loadingSolicitudes, solicitudes])
+    return () => setBackTo(undefined)
+  }, [getSolicitudes, getTaxistas, setBackTo])
 
-  return <></>
+  return <ListVales taxistas={taxistas} solicitudes data={solicitudes} loading={loadingSolicitudes} />
 }
