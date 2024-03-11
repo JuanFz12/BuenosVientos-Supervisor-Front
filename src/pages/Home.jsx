@@ -31,19 +31,27 @@ export function Home () {
 
     createData({ url, body })
       .then(data => {
-        if (data.type_user !== TIPOS_USUARIOS.supervisor) {
+
+        const { data: payload, token } = data
+        const { user, user_supervisor, corporation } = payload
+
+        if (user.type_user !== TIPOS_USUARIOS.supervisor) {
           Promise.reject(new Error('No eres administrador'))
         }
 
-        window.localStorage.setItem(localStorageNames.TOKEN_NAME, data.token)
+        window.localStorage.setItem(localStorageNames.TOKEN_NAME, token)
 
         // usuario
         const usuario = {
-          usuario: data.user,
-          usuarioSupervisor: data.user_supervisor
+          usuario: user,
+          usuarioSupervisor: user_supervisor,
+          corporation
         }
 
-        window.localStorage.setItem(localStorageNames.USER_INFO_GENERAL, btoa(JSON.stringify(usuario)))
+        window.localStorage.setItem(
+          localStorageNames.USER_INFO_GENERAL,
+          btoa(JSON.stringify(usuario))
+        )
 
         if (e.target[fields.remember].checked) {
           const pass = btoa(body.password)
@@ -52,7 +60,7 @@ export function Home () {
           localStorage.removeItem(localStorageNames.REMEMBER_PASSWORD)
         }
 
-        location.replace(routes.dashboard)
+        location.replace(routes.dashboard) 
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)

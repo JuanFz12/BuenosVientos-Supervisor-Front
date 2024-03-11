@@ -8,7 +8,7 @@ export const TOKEN = localStorage.getItem(TOKEN_NAME)
 
 export const apiRequest = {
   login: `${api}/auth/login-supervisor`,
-  taxistas: `${api}/denominations/supervisor`,
+  taxistas: `${api}/user-supervisor/drivers-associated`,
   crearTaxista: `${api}/driver/create`,
   vales: `${api}/user-supervisor/vales/aceppt`,
   valesSolicitudes: `${api}/user-supervisor/vales`,

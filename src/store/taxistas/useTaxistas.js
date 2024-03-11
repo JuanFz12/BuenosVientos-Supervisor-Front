@@ -3,14 +3,9 @@ import { getData } from '../../services/getData'
 import { apiRequest } from '../../consts/api'
 import { USER_INFO_GENERAL } from '../../consts/consts'
 
-// se obtiene el id de la denominacion del supervisor
 
 export const useTaxistas = create(set => {
-  const {
-    usuarioSupervisor: {
-      denomination_id: denominacionId
-    }
-  } = window.localStorage.getItem(USER_INFO_GENERAL)
+  const { corporation } = window.localStorage.getItem(USER_INFO_GENERAL)
     ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
     : {
         usuarioSupervisor: {
@@ -18,10 +13,9 @@ export const useTaxistas = create(set => {
         }
       }
 
-  function getTaxistas () {
-    return getData({ url: `${apiRequest.taxistas}/${denominacionId}` })
-      .then(({ drivers: taxistas }) => {
-        console.log(taxistas)
+  function getTaxistas() {
+    return getData({ url: `${apiRequest.taxistas}/${corporation?.id}` })
+      .then(({ data: taxistas }) => {
         set({ taxistas })
       })
       .catch(err => {

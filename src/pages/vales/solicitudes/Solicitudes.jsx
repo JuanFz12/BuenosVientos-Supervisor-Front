@@ -20,5 +20,12 @@ export function SolicitudesVales () {
     return () => setBackTo(undefined)
   }, [getSolicitudes, getTaxistas, setBackTo])
 
-  return <ListVales taxistas={taxistas} solicitudes data={solicitudes} loading={loadingSolicitudes} />
+  return (
+    <ListVales
+      taxistas={taxistas}
+      solicitudes
+      data={solicitudes}
+      loading={loadingSolicitudes}
+    />
+  )
 }

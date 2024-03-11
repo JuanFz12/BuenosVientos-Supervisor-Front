@@ -5,11 +5,7 @@ import { createData } from '../../services/createData'
 import { USER_INFO_GENERAL } from '../../consts/consts'
 
 export const useVales = create(set => {
-  const {
-    usuarioSupervisor: {
-      corporation_id: corporacionId
-    }
-  } = window.localStorage.getItem(USER_INFO_GENERAL)
+  const { corporation } = window.localStorage.getItem(USER_INFO_GENERAL)
     ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
     : {
         usuarioSupervisor: {
@@ -17,12 +13,11 @@ export const useVales = create(set => {
         }
       }
 
-  function getVales () {
-    return getData({ url: `${apiRequest.vales}/${corporacionId}` })
-      .then(({ vales }) => {
+  function getVales() {
+    return getData({ url: `${apiRequest.vales}/${corporation?.id}` })
+      .then(({ data: vales }) => {
         // const newState = vales.map(({ vale }) => vale)
         set({ vales })
-        console.log(vales)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
@@ -32,11 +27,12 @@ export const useVales = create(set => {
       })
   }
 
-  function getSolicitudes () {
-    return getData({ url: `${apiRequest.valesSolicitudes}/${corporacionId}` })
-      .then(({ vale: solicitudes }) => {
+  function getSolicitudes() {
+    return getData({
+      url: `${apiRequest.valesSolicitudes}/${corporation.id}`
+    })
+      .then(({ data: solicitudes }) => {
         set({ solicitudes })
-        console.log(solicitudes)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)

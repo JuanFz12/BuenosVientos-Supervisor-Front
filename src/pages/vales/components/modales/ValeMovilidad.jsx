@@ -11,6 +11,7 @@ import { useUsuarioSupervisor } from '../../../../store/useUsuarioSupervisor'
 import { useVales } from '../../../../store/vales/useVales'
 import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
 import { InputSelect } from '../../../../components/select/InputSelect'
+import { api } from '../../../../consts/api'
 
 const fields = {
   taxista: 'taxista_id',
@@ -24,11 +25,15 @@ const fields = {
   firma: 'signature'
 }
 
-export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, taxistas }) {
+export function ValeMovilidad({
+  refModal: thisModal,
+  data,
+  readOnly,
+  onClose,
+  taxistas
+}) {
   const {
-    usuarioSupervisor: {
-      id: supervisorId
-    }
+    usuarioSupervisor: { id: supervisorId }
   } = useUsuarioSupervisor()
   const { aceptarVale } = useVales()
 
@@ -44,42 +49,37 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
   const formRef = useRef()
 
   useEffect(() => {
-    data && readOnly && setCosto({
-      costoReal: formatearASoles({ numero: data.cost_actual, cero: true }),
-      descuento: formatearASoles({ numero: data.discount, cero: true }),
-      subTotal: formatearASoles({ numero: data.sub_total, cero: true }),
-      igv: formatearASoles({ numero: data.igv, cero: true }),
-      total: formatearASoles({ numero: data.total_cost, cero: true }),
-      peaje: formatearASoles({ numero: data.peaje, cero: true })
-    })
+    data &&
+      readOnly &&
+      setCosto({
+        costoReal: formatearASoles({
+          numero: data?.submitVale?.cost_actual ?? '',
+          cero: true
+        }),
+        descuento: formatearASoles({
+          numero: data?.submitVale?.discount ?? '',
+          cero: true
+        }),
+        subTotal: formatearASoles({
+          numero: data?.submitVale?.sub_total ?? '',
+          cero: true
+        }),
+        igv: formatearASoles({
+          numero: data?.submitVale?.igv ?? '',
+          cero: true
+        }),
+        total: formatearASoles({
+          numero: data?.submitVale?.total_cost ?? '',
+          cero: true
+        }),
+        peaje: formatearASoles({
+          numero: data?.submitVale?.peaje ?? '',
+          cero: true
+        })
+      })
   }, [data, readOnly])
 
-  if (!data) return null
-
-  const {
-    id,
-    area: {
-      area_name: area,
-      discount: descuento
-    },
-    capacity: solicitarCarga,
-    date: fecha,
-    destiny: destino,
-    district: distrito,
-    passenger: pasajero,
-    remarks: observaciones,
-    request_time: horaSolicitada,
-    arrival_time: horaLlegada,
-    departure_time: horaSalida,
-    user_corporation: {
-      user: {
-        user_name: nombre,
-        surnames: apellidos
-      }
-    }
-  } = readOnly ? data.vale : data
-
-  function formatearHora (date) {
+  function formatearHora(date) {
     const options = {
       hour: '2-digit',
       minute: '2-digit'
@@ -88,6 +88,8 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
     const hora = new Date(date).toLocaleTimeString('es-PE', options)
     return hora
   }
+
+  if (!data) return null
 
   return (
     <ModalBase
@@ -103,8 +105,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
         })
 
         onClose && onClose(e)
-      }}
-    >
+      }}>
       <form
         ref={formRef}
         className='w-[640px] h-[804px] max-h-[85dvh] gap-5 flex flex-col p-5 rounded-[32px] overflow-x-clip overflow-y-auto scroll-neutral'
@@ -137,120 +138,98 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
               alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
               atenuarFormulario({ form: e.target, restore: true })
             })
-        }}
-      >
+        }}>
         <header>
-          <h4
-            className='titulo-h4 text-azul-500'
-          >
-            Vale de movilidad
-          </h4>
+          <h4 className='titulo-h4 text-azul-500'>Vale de movilidad</h4>
         </header>
 
-        <fieldset
-          className='flex gap-5 h-[584px] justify-between'
-        >
-
-          <fieldset
-            className='flex flex-col gap-5 h-full w-[358px] [&_input[type=text]]:bg-white [&_input[type=text]]:cursor-default'
-          >
+        <fieldset className='flex gap-5 h-[584px] justify-between'>
+          <fieldset className='flex flex-col gap-5 h-full w-[358px] [&_input[type=text]]:bg-white [&_input[type=text]]:cursor-default'>
             <LabelText
               label='Funcionario'
-              value={`${nombre} ${apellidos}`}
+              value={`${data?.detail_user_corporate?.user_name ?? ''} ${
+                data?.user_corporate?.surnames ?? ''
+              }`}
               readOnly
             />
 
             <LabelText
               label='Área'
-              value={area}
+              value={data?.area?.area_name ?? ''}
               readOnly
             />
 
             <LabelText
               label='Pasajero'
-              value={pasajero}
+              value={data?.requestVale?.passenger ?? ''}
               readOnly
             />
 
-            <fieldset
-              className='flex gap-5 justify-between [&>label]:w-[170px]'
-            >
+            <fieldset className='flex gap-5 justify-between [&>label]:w-[170px]'>
               <LabelText
                 label='Fecha'
-                value={new Date(fecha).toLocaleDateString('es-PE')}
+                value={new Date(
+                  data?.requestVale?.date ?? ''
+                ).toLocaleDateString('es-PE')}
                 readOnly
               />
 
               <LabelText
                 label='Distrito'
-                value={distrito}
+                value={data?.requestVale?.district ?? ''}
                 readOnly
               />
             </fieldset>
 
             <LabelText
               label='Destino'
-              value={destino}
+              value={data?.requestVale?.destiny ?? ''}
               readOnly
             />
 
-            <fieldset
-              className='flex flex-col gap-2'
-            >
-              <LabelText
-                label='Observaciones'
-              >
+            <fieldset className='flex flex-col gap-2'>
+              <LabelText label='Observaciones'>
                 <TextArea
                   className='w-full h-[84px] cursor-default bg-white'
-                  value={observaciones}
+                  value={data?.requestVale?.remarks ?? ''}
                   readOnly
                 />
               </LabelText>
 
-              <label
-                className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'
-              >
+              <label className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'>
                 <NormalCheck
                   labelClass='scale-[80%] cursor-default'
-                  checked={solicitarCarga}
+                  checked={data?.requestVale?.capacity ?? false}
                   disabled
                 />
-
                 Solicitar para llevar carga
               </label>
             </fieldset>
 
-            <fieldset
-              className='flex gap-5 justify-between w-full max-w-full [&>label]:flex-1 [&>label]:max-w-[106px]'
-            >
+            <fieldset className='flex gap-5 justify-between w-full max-w-full [&>label]:flex-1 [&>label]:max-w-[106px]'>
               <LabelText
                 label='Hora Solicitada'
-                value={formatearHora(horaSolicitada)}
+                value={formatearHora(data?.requestVale?.request_time ?? '')}
                 readOnly
               />
 
               <LabelText
                 label='Hora de Salida'
-                value={formatearHora(horaSalida)}
+                value={formatearHora(data?.requestVale?.departure_time ?? '')}
                 readOnly
               />
 
               <LabelText
                 label='Hora de Llegada'
-                value={formatearHora(horaLlegada)}
+                value={formatearHora(data?.requestVale?.arrival_time ?? '')}
                 readOnly
               />
             </fieldset>
-
           </fieldset>
 
-          <hr
-            className='w-px h-full border-l border-bordesSeparador'
-          />
+          <hr className='w-px h-full border-l border-bordesSeparador' />
 
-          <fieldset
-            className='flex flex-col gap-5 h-full'
-          >
+          <fieldset className='flex flex-col gap-5 h-full'>
             <LabelText
               label='Costo Real'
               name={fields.costoReal}
@@ -258,7 +237,14 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
               readOnly={readOnly}
               inputClass={readOnly ? 'bg-white cursor-default' : ''}
               required
-              onChange={e => handleCosto({ event: e, costo, setCosto, discountParam: descuento })}
+              onChange={e =>
+                handleCosto({
+                  event: e,
+                  costo,
+                  setCosto,
+                  discountParam: data?.area?.discount ?? ''
+                })
+              }
               placeholder='S/ 00.00'
             />
 
@@ -297,7 +283,10 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
               inputClass={readOnly ? 'bg-white cursor-default' : ''}
               required
               onChange={e => {
-                const value = formatearInputASoles({ event: e, controlled: true })
+                const value = formatearInputASoles({
+                  event: e,
+                  controlled: true
+                })
 
                 if (isNaN(Number(value))) return
                 if (isNaN(Number(e.target.value.slice(-1)))) return
@@ -305,10 +294,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
                 const subTotal = parsearSoles(costo.subTotal)
                 const igv = parsearSoles(costo.igv)
 
-                const total =
-                  value
-                    ? value + subTotal + igv
-                    : subTotal + igv
+                const total = value ? value + subTotal + igv : subTotal + igv
 
                 setCosto(prev => ({
                   ...prev,
@@ -328,53 +314,48 @@ export function ValeMovilidad ({ refModal: thisModal, data, readOnly, onClose, t
               readOnly
             />
 
-            <div
-              className='bg-white cursor-default text-center border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg uppercase flex items-center justify-center'
-            >
+            {/* //* Por ahora lo dejo asi  */}
+            <img src={`${api}/images/${data?.user_corporative?.signature}`} alt='Imagen' />
+
+            {/*   <div className='bg-white cursor-default text-center border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg uppercase flex items-center justify-center'>
               Firma del usuario corporativo
-            </div>
+            </div> */}
           </fieldset>
         </fieldset>
 
         {/* realizar un buscador en tiempo real para buscar taxistas y seleccionarlos. UPDATE --> ya se hizo pero verificar si todo funciona bien */}
-        <LabelText
-          label='Taxista'
-        >
+        <LabelText label='Taxista'>
           <InputSelect
             name={fields.taxista}
             placeholder='Ingrese el nombre del taxista'
             options={
+              taxistas &&
               taxistas.map(({ id, user }) => {
                 return {
-                  label: `${user.user_name} ${user.surnames}`,
-                  value: id
+                  label: `${user?.user_name} ${user?.surnames}`,
+                  value: id ?? ''
                 }
               })
             }
           />
         </LabelText>
 
-        {
-          readOnly
-            ? (
-              <button
-                className='boton-terciario-marca w-[100px] self-end'
-                type='button'
-                onClick={() => thisModal.current.close()}
-              >
-                Cerrar
-              </button>
-              )
-            : (
-              <MenuComun
-                cancelProps={{ type: 'button', className: 'w-[100px]' }}
-                handleCancel={() => thisModal.current.close()}
-                cancelName='Cancelar'
-                confirmName='Aceptar'
-                confirmProps={{ type: 'submit', className: 'w-[160px]' }}
-              />
-              )
-        }
+        {readOnly ? (
+          <button
+            className='boton-terciario-marca w-[100px] self-end'
+            type='button'
+            onClick={() => thisModal.current.close()}>
+            Cerrar
+          </button>
+        ) : (
+          <MenuComun
+            cancelProps={{ type: 'button', className: 'w-[100px]' }}
+            handleCancel={() => thisModal.current.close()}
+            cancelName='Cancelar'
+            confirmName='Aceptar'
+            confirmProps={{ type: 'submit', className: 'w-[160px]' }}
+          />
+        )}
       </form>
     </ModalBase>
   )
