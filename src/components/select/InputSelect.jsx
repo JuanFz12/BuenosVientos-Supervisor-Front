@@ -17,9 +17,16 @@ export function InputSelect ({
   required
 }) {
   const [labelInput, setLabelInput] = useState({
-    label: defaultLabel ?? '',
-    value: defaultValue ?? ''
+    label: '',
+    value: ''
   })
+
+  useEffect(() => {
+    setLabelInput({
+      label: defaultLabel ?? '',
+      value: defaultValue ?? ''
+    })
+  }, [defaultLabel, defaultValue])
 
   const [internOptions, setInternOptions] = useState([])
 
@@ -29,9 +36,10 @@ export function InputSelect ({
 
   const [openList, setOpenList] = useState(false)
 
+  const itemsList = useRef()
+
   function handleHeight (e) {
-    const { currentTarget } = e
-    const list = currentTarget.parentElement.querySelector('ul')
+    const list = itemsList.current
 
     if (openList || e.type === 'blur') {
       list.style.height = '0px'
@@ -69,8 +77,7 @@ export function InputSelect ({
 
     setInternOptions(newOptions)
 
-    const { currentTarget } = e
-    const list = currentTarget.parentElement.querySelector('ul')
+    const list = itemsList.current
 
     if (!newOptions.length) {
       list.style.paddingTop = '0'
@@ -112,15 +119,14 @@ export function InputSelect ({
       onBlur={handleHeight}
     >
       <TextInput
-        className='w-full'
+        className={`w-full ${readOnly ? 'cursor-default bg-white' : ''}`}
         placeholder={placeholder}
         onMouseDown={e => {
-          if (internOptions.length === 0) return
-          handleHeight(e)
+          if (internOptions && internOptions.length === 0) return
+          !readOnly && handleHeight(e)
         }}
         onChange={handleChange}
         // onKeyDown={handleKeyDown}
-        defaultValue={defaultValue}
         value={labelInput.label}
         required={required}
         readOnly={readOnly}
@@ -128,6 +134,7 @@ export function InputSelect ({
       />
 
       <ul
+        ref={itemsList}
         className={`absolute z-10 shadow-1 bg-superficiesInputEditable overflow-y-auto ${visibleScroll ? 'scroll-neutral' : 'scroll-hide'} top-11 rounded-lg border-azul-600 left-0 w-full overflow-clip ${openList ? 'py-2' : 'py-0'} px-3 h-0 transition-all duration-200 ease-in-out flex flex-col gap-1 ${listClass || ''}`}
       >
         {
@@ -159,7 +166,7 @@ export function InputSelect ({
         readOnly
       />
       {
-        Boolean(input.current?.value.length) && !internOptions.length && (
+        Boolean(input.current?.value.length) && internOptions && !internOptions.length && (
           <span
             className='absolute right-0 -top-5 text-red-500'
           >

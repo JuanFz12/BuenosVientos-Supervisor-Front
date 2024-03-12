@@ -3,9 +3,8 @@ import { getData } from '../../services/getData'
 import { apiRequest } from '../../consts/api'
 import { USER_INFO_GENERAL } from '../../consts/consts'
 
-
 export const useTaxistas = create(set => {
-  const { corporation } = window.localStorage.getItem(USER_INFO_GENERAL)
+  const { corporacion } = window.localStorage.getItem(USER_INFO_GENERAL)
     ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
     : {
         usuarioSupervisor: {
@@ -13,10 +12,13 @@ export const useTaxistas = create(set => {
         }
       }
 
-  function getTaxistas() {
-    return getData({ url: `${apiRequest.taxistas}/${corporation?.id}` })
-      .then(({ data: taxistas }) => {
+  function getTaxistas () {
+    return getData({ url: `${apiRequest.taxistas}/${corporacion.id}` })
+      .then(data => {
+        const { data: taxistas } = data
+
         set({ taxistas })
+        console.log(data)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)

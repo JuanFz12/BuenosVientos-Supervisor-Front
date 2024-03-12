@@ -4,6 +4,13 @@ export const HOST = 'http://sv-e2ukmdxmyh.cloud.elastika.pe:81'
 
 export const api = `${HOST}/api`
 
+export const apiImages = `${api}/images`
+
+export function getImage (url) {
+  if (typeof url !== 'string') return null
+  return `${apiImages}${url}`
+}
+
 export const TOKEN = localStorage.getItem(TOKEN_NAME)
 
 export const apiRequest = {

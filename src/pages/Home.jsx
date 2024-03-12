@@ -31,26 +31,41 @@ export function Home () {
 
     createData({ url, body })
       .then(data => {
+        const {
+          data: dataResponse,
+          token
+        } = data
 
-        const { data: payload, token } = data
-        const { user, user_supervisor, corporation } = payload
+        console.log(data)
 
-        if (user.type_user !== TIPOS_USUARIOS.supervisor) {
-          Promise.reject(new Error('No eres administrador'))
+        const {
+          user_supervisor: usuarioSupervisor,
+          user: usuario,
+          denomination: denominacion,
+          zone: zona,
+          area,
+          corporation: corporacion
+        } = dataResponse
+
+        if (usuario.type_user !== TIPOS_USUARIOS.supervisor) {
+          Promise.reject(new Error('No eres Supervisor'))
         }
 
         window.localStorage.setItem(localStorageNames.TOKEN_NAME, token)
 
         // usuario
-        const usuario = {
-          usuario: user,
-          usuarioSupervisor: user_supervisor,
-          corporation
+        const userToSet = {
+          usuarioSupervisor,
+          usuario,
+          denominacion,
+          zona,
+          area,
+          corporacion
         }
 
         window.localStorage.setItem(
           localStorageNames.USER_INFO_GENERAL,
-          btoa(JSON.stringify(usuario))
+          btoa(JSON.stringify(userToSet))
         )
 
         if (e.target[fields.remember].checked) {
@@ -60,7 +75,7 @@ export function Home () {
           localStorage.removeItem(localStorageNames.REMEMBER_PASSWORD)
         }
 
-        location.replace(routes.dashboard) 
+        location.replace(routes.dashboard)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
@@ -70,7 +85,7 @@ export function Home () {
 
   return (
     <main
-      className='flex min-h-screen h-screen max-h-screen overflow-clip lgMax:bg-[url(/src/assets/img/businessMan.jpeg)] bg-no-repeat bg-cover'
+      className='flex min-h-svh h-svh max-h-svh overflow-clip lgMax:bg-[url(/src/assets/img/businessMan.jpeg)] bg-no-repeat bg-cover'
     >
       <section
         className='hidden lg:block h-full flex-1'
@@ -82,7 +97,7 @@ export function Home () {
       </section>
 
       <section
-        className='relative flex justify-center items-center h-full p-[100px] lgMax:backdrop-blur-xl bg-[rgba(177,177,177)] bg-opacity-70 lg:bg-white w-full lg:w-[568px]'
+        className='relative flex flex-col justify-center items-center h-full p-[100px] lgMax:backdrop-blur-xl bg-[rgba(177,177,177)] bg-opacity-70 lg:bg-white w-full lg:w-[568px]'
       >
         <header
           className='absolute top-10 right-10 w-[215px] h-[55px]'
@@ -92,6 +107,12 @@ export function Home () {
             src='/LogoBuenosVientos.jpeg'
           />
         </header>
+
+        <span
+          className='w-full mb-2 text-base font-medium'
+        >
+          Supervisor
+        </span>
 
         <form
           onSubmit={handleSubmit}
