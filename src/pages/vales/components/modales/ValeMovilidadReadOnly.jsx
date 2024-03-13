@@ -68,7 +68,7 @@ export function ValeMovilidadReadOnly ({
       fullName: taxista
     },
     user_corporative: {
-      signature
+      signature: firma
     }
   } = data
 
@@ -210,12 +210,10 @@ export function ValeMovilidadReadOnly ({
               readOnly
             />
 
-            {/* //* Por ahora lo dejo asi  */}
-
             <fieldset className='cursor-default border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg flex items-center justify-center'>
               <img
                 className='w-[198px] h-[124px] object-cover rounded-md'
-                src={getImage(signature)}
+                src={getImage(firma)}
                 alt='Imagen'
               />
             </fieldset>

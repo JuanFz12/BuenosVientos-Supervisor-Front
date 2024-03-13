@@ -164,7 +164,7 @@ export function Home () {
               className='flex justify-between items-center gap-2'
             >
               <label
-                className='flex gap-2 h-4 items-center w-max'
+                className='flex gap-2 h-4 items-center w-max cursor-pointer'
               >
                 <NormalCheck
                   defaultChecked={

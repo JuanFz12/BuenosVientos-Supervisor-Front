@@ -17,8 +17,8 @@ import { Abajo } from '../../assets/icons/elements/Abajo'
  * @param {number} props.arrowHeight - Alto de la flecha
  * @param {boolean} props.visibleScroll - Indica si se debe mostrar la barra de desplazamiento de la lista
  * @param {function({value: string, label: string}): void} props.onChange - Función que se ejecuta al cambiar el valor
- * @param {boolean} props.disabled - Indica si el select es deshabilitado
- * @param {function(clickEvent): void} props.onDisabled - Función que se ejecuta al dar click cuando el select esta deshabilitado
+ * @param {boolean} props.disabled - Indica si el select esta deshabilitado
+ * @param {function(clickEvent): void} props.onDisabled - Función que se ejecuta cuando el select este deshabilitado
  * @returns {JSX.Element}
  */
 export function Select ({ placeholder = 'Seleccione una opción', selectClass, placeholderClass, listClass, maxVisibleOptions, optionClass, name, options, arrowImg, arrowWidth, arrowHeight, arrowColor, visibleScroll, onChange, disabled, onDisabled }) {
@@ -85,7 +85,8 @@ export function Select ({ placeholder = 'Seleccione una opción', selectClass, p
               )
         }
         <ul
-          className={`absolute z-10 bg-superficiesInputEditable overflow-y-auto ${visibleScroll ? 'scroll-neutral' : 'scroll-hide'} rounded-lg border-azul-600 left-0 w-full overflow-clip top-[${(parent.current?.clientHeight + 8)}px] ${open ? 'py-2 border' : 'py-0'} px-3 h-0 transition-all duration-200 ease-in-out flex flex-col gap-1 ${listClass || ''}`}
+          className={`absolute z-10 overscroll-contain cursor-auto bg-superficiesInputEditable overflow-y-auto ${visibleScroll ? 'scroll-neutral' : 'scroll-hide'} rounded-lg border-azul-600 left-0 w-full overflow-clip top-[${(parent.current?.clientHeight + 8)}px] ${open ? 'py-2 border' : 'py-0'} px-3 h-0 transition-all duration-200 ease-in-out flex flex-col gap-1 ${listClass || ''}`}
+          role='list'
         >
           {
           options && options.map(({ label, value, img }) => (

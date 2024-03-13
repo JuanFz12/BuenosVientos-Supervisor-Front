@@ -11,6 +11,7 @@ import { useUsuarioSupervisor } from '../../../../store/useUsuarioSupervisor'
 import { useVales } from '../../../../store/vales/useVales'
 import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
 import { InputSelect } from '../../../../components/select/InputSelect'
+import { getImage } from '../../../../consts/api'
 
 const fields = {
   taxista: 'taxista_id',
@@ -65,6 +66,9 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
     user: {
       user_name: nombre,
       surnames: apellidos
+    },
+    user_corporative: {
+      signature: firma
     }
 
   } = data
@@ -314,11 +318,13 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
               readOnly
             />
 
-            <div
-              className='bg-white cursor-default text-center border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg uppercase flex items-center justify-center'
-            >
-              Firma del usuario corporativo
-            </div>
+            <fieldset className='cursor-default border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg flex items-center justify-center'>
+              <img
+                className='w-[198px] h-[124px] object-cover rounded-md'
+                src={getImage(firma)}
+                alt='Imagen'
+              />
+            </fieldset>
           </fieldset>
         </fieldset>
 
