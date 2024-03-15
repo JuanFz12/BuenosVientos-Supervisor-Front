@@ -47,7 +47,7 @@ export const useVales = create(set => {
         .then((data) => {
           const { data: valeAceptado } = data
 
-          const { submitVale: { id } } = valeAceptado
+          const { requestVale: { id } } = valeAceptado
 
           set(state => {
             // esto es para cambiar el estado del vale de 'enviado' a -> 'aceptado'
@@ -62,7 +62,7 @@ export const useVales = create(set => {
             return { solicitudes: newSolicitudes }
           })
 
-          console.log(valeAceptado)
+          console.log(data)
           resolve(valeAceptado)
         })
         .catch(err => {

@@ -90,7 +90,7 @@ export function MenuSupervisor () {
         </header>
 
         <ul
-          className='flex flex-col gap-2 h-[380px] lg:h-[654px]'
+          className='flex flex-col gap-2 h-[380px] 2xl:h-[654px]'
         >
           {
             rutas.map(({ label, path, Icon }) => (
