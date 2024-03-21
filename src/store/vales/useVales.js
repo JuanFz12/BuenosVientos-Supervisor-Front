@@ -59,7 +59,7 @@ export const useVales = create(set => {
 
             valeAModificar.request.application_status = valeAceptado.requestVale.application_status
 
-            return { solicitudes: newSolicitudes }
+            return { solicitudes: newSolicitudes, vales: [valeAceptado, ...state.vales] }
           })
 
           console.log(data)

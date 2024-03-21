@@ -131,16 +131,22 @@ export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
                   />
                 </li>
                 <li className='w-[max(10%,_90px)]'>
-                  <BotonDetalles
-                    onMouseDown={() => {
-                      setCurrentData(data[idx])
-                    }}
-                    onClick={() => {
-                      valeMovilidadModal.current.showModal()
-                    }}
-                  >
-                    Detalles
-                  </BotonDetalles>
+                  {/* si se puede mejorar esto despues */}
+                  {
+                    solicitudes &&
+                    estado === estados.aprobado
+                      ? ''
+                      : (
+                        <BotonDetalles
+                          onClick={() => {
+                            setCurrentData(data[idx])
+                            valeMovilidadModal.current.showModal()
+                          }}
+                        >
+                          Detalles
+                        </BotonDetalles>
+                        )
+                  }
                 </li>
               </ListStyle>
             )

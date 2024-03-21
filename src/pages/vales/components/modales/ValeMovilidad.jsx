@@ -12,6 +12,7 @@ import { useVales } from '../../../../store/vales/useVales'
 import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
 import { InputSelect } from '../../../../components/select/InputSelect'
 import { getImage } from '../../../../consts/api'
+import { formatearFechaCorta, formatearHoraCorta } from '../../../../utils/formatear'
 
 const fields = {
   taxista: 'taxista_id',
@@ -31,6 +32,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
       id: supervisorId
     }
   } = useUsuarioSupervisor()
+
   const { aceptarVale } = useVales()
 
   const [costo, setCosto] = useState({
@@ -44,8 +46,6 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
 
   const formRef = useRef()
 
-  if (!data) return null
-
   const {
     request: {
       id,
@@ -58,30 +58,20 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
       request_time: horaSolicitada,
       arrival_time: horaLlegada,
       departure_time: horaSalida
-    },
+    } = {},
     area_corporative: {
       area_name: area,
       discount: descuento
-    },
+    } = {},
     user: {
       user_name: nombre,
       surnames: apellidos
-    },
+    } = {},
     user_corporative: {
       signature: firma
-    }
+    } = {}
 
-  } = data
-
-  function formatearHora (date) {
-    const options = {
-      hour: '2-digit',
-      minute: '2-digit'
-    }
-
-    const hora = new Date(date).toLocaleTimeString('es-PE', options)
-    return hora
-  }
+  } = data || {}
 
   return (
     <ModalBase
@@ -150,19 +140,19 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
           >
             <LabelText
               label='Funcionario'
-              value={`${nombre} ${apellidos}`}
+              defaultValue={nombre && `${nombre} ${apellidos}`}
               readOnly
             />
 
             <LabelText
               label='Área'
-              value={area}
+              defaultValue={area}
               readOnly
             />
 
             <LabelText
               label='Pasajero'
-              value={pasajero}
+              defaultValue={pasajero}
               readOnly
             />
 
@@ -171,20 +161,20 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
             >
               <LabelText
                 label='Fecha'
-                value={new Date(fecha).toLocaleDateString('es-PE')}
+                defaultValue={fecha && formatearFechaCorta(fecha)}
                 readOnly
               />
 
               <LabelText
                 label='Distrito'
-                value={distrito}
+                defaultValue={distrito}
                 readOnly
               />
             </fieldset>
 
             <LabelText
               label='Destino'
-              value={destino}
+              defaultValue={destino}
               readOnly
             />
 
@@ -196,7 +186,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
               >
                 <TextArea
                   className='w-full h-[84px] cursor-default bg-white'
-                  value={observaciones}
+                  defaultValue={observaciones}
                   readOnly
                 />
               </LabelText>
@@ -206,7 +196,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
               >
                 <NormalCheck
                   labelClass='scale-[80%] cursor-default'
-                  checked={solicitarCarga}
+                  defaultChecked={solicitarCarga}
                   disabled
                 />
 
@@ -219,19 +209,19 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
             >
               <LabelText
                 label='Hora Solicitada'
-                value={formatearHora(horaSolicitada)}
+                defaultValue={horaSolicitada && formatearHoraCorta(horaSolicitada)}
                 readOnly
               />
 
               <LabelText
                 label='Hora de Salida'
-                value={formatearHora(horaSalida)}
+                defaultValue={horaSalida && formatearHoraCorta(horaSalida)}
                 readOnly
               />
 
               <LabelText
                 label='Hora de Llegada'
-                value={formatearHora(horaLlegada)}
+                defaultValue={horaLlegada && formatearHoraCorta(horaLlegada)}
                 readOnly
               />
             </fieldset>

@@ -21,3 +21,26 @@ export function formatearFechaLarga (date) {
 
   return fecha.toLocaleDateString('es-PE', options)
 }
+
+export function formatearHoraCorta (date) {
+  const hora = new Date(date)
+
+  const options = {
+    hour: '2-digit',
+    minute: '2-digit'
+  }
+
+  return hora.toLocaleTimeString('es-PE', options)
+}
+
+export function formatearHoraLarga (date) {
+  const hora = new Date(date)
+
+  const options = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }
+
+  return hora.toLocaleTimeString('es-PE', options)
+}

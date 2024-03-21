@@ -2,8 +2,8 @@ import { NormalCheck } from '../../../../components/checkbox/Checkbox'
 import { TextArea } from '../../../../components/inputs/TextArea'
 import { LabelText } from '../../../../components/labels/LabelText'
 import { ModalBase } from '../../../../components/modales/ModalBase'
-import { InputSelect } from '../../../../components/select/InputSelect'
 import { getImage } from '../../../../consts/api'
+import { formatearFechaCorta, formatearHoraLarga } from '../../../../utils/formatear'
 import { formatearASoles } from '../../../../utils/formatearASoles'
 
 export function ValeMovilidadReadOnly ({
@@ -11,40 +11,14 @@ export function ValeMovilidadReadOnly ({
   data,
   onClose
 }) {
-  function formatearHora (date) {
-    const options = {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    }
-
-    const hora = new Date(date).toLocaleTimeString('es-PE', options)
-
-    return hora
-  }
-
-  function formatearFecha (date) {
-    const options = {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }
-
-    const fecha = new Date(date).toLocaleDateString('es-PE', options)
-
-    return fecha
-  }
-
-  if (!data) return null
-
   const {
     detail_user_corporate: {
       user_name: nombres,
       surnames: apellidos
-    },
+    } = {},
     area: {
       area_name: area
-    },
+    } = {},
     requestVale: {
       passenger: pasajero,
       date: fecha,
@@ -55,7 +29,7 @@ export function ValeMovilidadReadOnly ({
       request_time: horaSolicitada,
       departure_time: horaSalida,
       arrival_time: horaLlegada
-    },
+    } = {},
     submitVale: {
       cost_actual: costoReal,
       discount: descuento,
@@ -63,16 +37,16 @@ export function ValeMovilidadReadOnly ({
       igv,
       peaje,
       total_cost: total
-    },
+    } = {},
     driver: {
       fullName: taxista
-    },
+    } = {},
     user_corporative: {
       signature: firma
-    }
-  } = data
+    } = {}
+  } = data || {}
 
-  return data && (
+  return (
     <ModalBase
       refModal={thisModal}
       onClose={onClose}
@@ -89,39 +63,39 @@ export function ValeMovilidadReadOnly ({
           <fieldset className='flex flex-col gap-5 h-full w-[358px] [&_input[type=text]]:bg-white [&_input[type=text]]:cursor-default'>
             <LabelText
               label='Funcionario'
-              value={`${nombres} ${apellidos}`}
+              defaultValue={nombres && `${nombres} ${apellidos}`}
               readOnly
             />
 
             <LabelText
               label='Área'
-              value={area}
+              defaultValue={area}
               readOnly
             />
 
             <LabelText
               label='Pasajero'
-              value={pasajero}
+              defaultValue={pasajero}
               readOnly
             />
 
             <fieldset className='flex gap-5 justify-between [&>label]:w-[170px]'>
               <LabelText
                 label='Fecha'
-                value={formatearFecha(fecha)}
+                defaultValue={fecha && formatearFechaCorta(fecha)}
                 readOnly
               />
 
               <LabelText
                 label='Distrito'
-                value={distrito}
+                defaultValue={distrito}
                 readOnly
               />
             </fieldset>
 
             <LabelText
               label='Destino'
-              value={destino}
+              defaultValue={destino}
               readOnly
             />
 
@@ -129,7 +103,7 @@ export function ValeMovilidadReadOnly ({
               <LabelText label='Observaciones'>
                 <TextArea
                   className='w-full h-[84px] cursor-default bg-white'
-                  value={observaciones}
+                  defaultValue={observaciones}
                   readOnly
                 />
               </LabelText>
@@ -137,7 +111,7 @@ export function ValeMovilidadReadOnly ({
               <label className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'>
                 <NormalCheck
                   labelClass='scale-[80%] cursor-default'
-                  checked={llevarCarga}
+                  defaultChecked={llevarCarga}
                   disabled
                 />
                 Solicitar para llevar carga
@@ -147,19 +121,19 @@ export function ValeMovilidadReadOnly ({
             <fieldset className='flex gap-5 justify-between w-full max-w-full [&>label]:flex-1 [&>label]:max-w-[106px]'>
               <LabelText
                 label='Hora Solicitada'
-                value={formatearHora(horaSolicitada)}
+                defaultValue={horaSolicitada && formatearHoraLarga(horaSolicitada)}
                 readOnly
               />
 
               <LabelText
                 label='Hora de Salida'
-                value={formatearHora(horaSalida)}
+                defaultValue={horaSalida && formatearHoraLarga(horaSalida)}
                 readOnly
               />
 
               <LabelText
                 label='Hora de Llegada'
-                value={formatearHora(horaLlegada)}
+                defaultValue={horaLlegada && formatearHoraLarga(horaLlegada)}
                 readOnly
               />
             </fieldset>
@@ -170,42 +144,42 @@ export function ValeMovilidadReadOnly ({
           <fieldset className='flex flex-col gap-5 h-full'>
             <LabelText
               label='Costo Real'
-              value={formatearASoles({ numero: costoReal })}
+              defaultValue={formatearASoles({ numero: costoReal })}
               inputClass='bg-white cursor-default'
               readOnly
             />
 
             <LabelText
               label='Descuento'
-              value={formatearASoles({ numero: descuento })}
+              defaultValue={formatearASoles({ numero: descuento })}
               inputClass='bg-white cursor-default'
               readOnly
             />
 
             <LabelText
               label='Sub Total'
-              value={formatearASoles({ numero: subTotal })}
+              defaultValue={formatearASoles({ numero: subTotal })}
               inputClass='bg-white cursor-default'
               readOnly
             />
 
             <LabelText
               label='+ I.G.V.'
-              value={formatearASoles({ numero: igv })}
+              defaultValue={formatearASoles({ numero: igv })}
               inputClass='bg-white cursor-default'
               readOnly
             />
 
             <LabelText
               label='Peaje / Est.'
-              value={formatearASoles({ numero: peaje })}
+              defaultValue={formatearASoles({ numero: peaje })}
               readOnly
               inputClass='bg-white cursor-default'
             />
 
             <LabelText
               label='Total a pagar'
-              value={formatearASoles({ numero: total })}
+              defaultValue={formatearASoles({ numero: total })}
               inputClass='bg-white cursor-default'
               readOnly
             />
@@ -220,12 +194,11 @@ export function ValeMovilidadReadOnly ({
           </fieldset>
         </fieldset>
 
-        <LabelText label='Taxista'>
-          <InputSelect
-            defaultLabel={taxista}
-            readOnly
-          />
-        </LabelText>
+        <LabelText
+          label='Taxista'
+          defaultValue={taxista}
+          readOnly
+        />
 
         <button
           className='boton-terciario-marca w-[100px] self-end'
