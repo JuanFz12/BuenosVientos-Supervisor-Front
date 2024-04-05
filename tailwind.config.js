@@ -9,8 +9,13 @@ export default {
       colors: {
         bordesIdle: '#a9bcf0',
         textoPrincipal: '#18273a',
+        textoTitulo: '#4c64a6',
         bordesSeparador: '#dce5ff',
+        dashboardGraficoColor1: '#dce5ff',
+        dashboardGraficoColor2: '#4c64a6',
+        dashboardGraficoColor3: '#a9bcf0',
         superficiesInputEditable: '#F3F7FF',
+        textoSuave: '#98A2B3',
         verdeExito: {
           100: '#effff6',
           600: '#0cab61',
@@ -23,7 +28,8 @@ export default {
           700: '#195E25'
         },
         rojoMarca: {
-          100: '#FFF0EF'
+          100: '#FFF0EF',
+          600: '#E43530'
         },
         wireframe: {
           0: '#f9fafb',
@@ -43,6 +49,9 @@ export default {
           700: '#3d4b60',
           800: '#18273a',
           900: '#060d1a'
+        },
+        azulMarca: {
+          100: '#F3F7FF'
         },
         azul: {
           100: '#e0e9ff',
@@ -75,7 +84,29 @@ export default {
           100: '#FFFAEB',
           600: '#EE8C0B',
           700: '#B54708'
+        },
+        sombras: {
+          principal: '#dce5ff'
         }
+      },
+      gap: {
+        xs: '4px',
+        s: '8px',
+        m: '20px',
+        l: '32px',
+        xl: '52px',
+        botones: '20px'
+      },
+      borderRadius: {
+        boton: '8px',
+        componentes: '8px',
+        tarjetas: '16px',
+        tablas: '20px',
+        modal: '32px'
+      },
+      width: {
+        modalS: '400px',
+        modalM: '500px'
       },
       fontFamily: {
         'dm-sans': 'var(--dm-sans)'
@@ -89,6 +120,7 @@ export default {
       sm: '640px',
       md: '768px',
       lg: '1080px',
+      lgMax: { max: '1079px' },
       xl: '1280px',
       '2xl': '1536px'
     }

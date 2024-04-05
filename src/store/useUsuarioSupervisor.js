@@ -7,12 +7,16 @@ export const useUsuarioSupervisor = create(set => {
       ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
       : {}
 
-  return {
+  const usuarioSupervisor = {
     usuarioSupervisor: user.usuarioSupervisor,
     usuario: user.usuario,
     denominacion: user.denominacion,
     zona: user.zona,
     area: user.area,
     corporacion: user.corporacion
+  }
+
+  return {
+    ...usuarioSupervisor
   }
 })
