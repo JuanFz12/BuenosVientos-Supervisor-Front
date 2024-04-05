@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Abajo } from '../../assets/icons/elements/Abajo'
 
 /**
  * @param {object} props
  * @param {string} props.placeholder - Texto que aparece como placeholder
- * @param {string} props.selectClass - Clase CSS para el select
+ * @param {string} props.className - Clase CSS para el contenedor, es lo mismo que selectClass
+ * @param {string} props.selectClass - Clase CSS para el select, es lo mismo que className
  * @param {string} props.placeholderClass - Clase CSS para el placeholder
  * @param {string} props.listClass - Clase CSS para la lista
  * @param {number} props.maxVisibleOptions - Cantidad de opciones visibles
@@ -18,26 +19,60 @@ import { Abajo } from '../../assets/icons/elements/Abajo'
  * @param {boolean} props.visibleScroll - Indica si se debe mostrar la barra de desplazamiento de la lista
  * @param {function({value: string, label: string}): void} props.onChange - Función que se ejecuta al cambiar el valor
  * @param {boolean} props.disabled - Indica si el select esta deshabilitado
- * @param {function(clickEvent): void} props.onDisabled - Función que se ejecuta cuando el select este deshabilitado
+ * @param {function(?clickEvent): void} props.onDisabled - Función que se ejecuta cuando el select este deshabilitado, se deshabilite, o se haga click cuando el select este deshabilitado
+ * @param {object} props.selected - Es el value de un objeto de las options, es lo que sera seleccionado por defecto
  * @returns {JSX.Element}
  */
-export function Select ({ placeholder = 'Seleccione una opción', selectClass, placeholderClass, listClass, maxVisibleOptions, optionClass, name, options, arrowImg, arrowWidth, arrowHeight, arrowColor, visibleScroll, onChange, disabled, onDisabled }) {
+export function Select ({ placeholder = 'Seleccione una opción', className, selectClass, placeholderClass, listClass, maxVisibleOptions, optionClass, name, options, arrowImg, arrowWidth, arrowHeight, arrowColor, visibleScroll, onChange, disabled, onDisabled, selected }) {
   const [label, setLabel] = useState({
     label: placeholder,
     value: ''
   })
 
+  useEffect(() => {
+    if (disabled) {
+      setLabel({
+        label: placeholder,
+        value: ''
+      })
+
+      onDisabled && onDisabled()
+
+      setOpen(false)
+
+      itemsList.current.style.height = '0px'
+    }
+  }, [placeholder, disabled, onDisabled])
+
+  useEffect(() => {
+    if (selected && options.length) {
+      const option = options.find(({ value }) => value === selected)
+
+      if (!option) return
+
+      setLabel(option)
+
+      onChange && onChange(option)
+
+      itemsList.current.style.height = '0px'
+      setOpen(false)
+    }
+  }, [selected, options, onChange])
+
+  const itemsList = useRef()
+
   const [open, setOpen] = useState(false)
 
   const parent = useRef()
 
-  function handleHeight (e) {
-    const { currentTarget } = e
-    const list = currentTarget.querySelector('ul')
+  function handleHeight () {
+    const list = itemsList.current
     if (maxVisibleOptions && list.children.length) {
       const itemHeight = list.children[0].scrollHeight
+
       const heightList = ((itemHeight * maxVisibleOptions) + 18) + maxVisibleOptions * 2
       const final = list.scrollHeight + 18 > heightList ? heightList : list.scrollHeight + 18
+
       list.style.height = list.clientHeight ? '0px' : `${final}px`
     } else {
       list.style.height = list.clientHeight ? '0px' : `${list.scrollHeight + 18}px`
@@ -46,11 +81,13 @@ export function Select ({ placeholder = 'Seleccione una opción', selectClass, p
   }
 
   return (
-    <>
+    <div
+      className='relative'
+    >
       <input
         type='text'
         name={name}
-        className='absolute left-1/2 top-1/2 w-0 h-0 pointer-events-none hidden'
+        className='absolute inset-1/2 w-0 h-0 pointer-events-none'
         value={label.value}
         readOnly
       />
@@ -59,7 +96,7 @@ export function Select ({ placeholder = 'Seleccione una opción', selectClass, p
         onClick={disabled ? onDisabled : handleHeight}
         ref={parent}
         onKeyDown={e => !disabled && (e.key === 'Enter' || e.key === ' ') && e.currentTarget.click()}
-        className={`relative ${!disabled ? 'focus:border-azul-600 cursor-pointer' : 'cursor-not-allowed opacity-50'} transition-colors duration-300 ease-in-out before:content-[""] before:absolute before:inset-0 before:w-full before:h-full flex items-center justify-between w-auto py-2 px-3 bg-superficiesInputEditable outline-none border border-bordesIdle rounded-lg h-9 ${selectClass || ''}`}
+        className={`relative ${!disabled ? 'focus:border-azul-600 cursor-pointer' : 'cursor-not-allowed opacity-50'} transition-colors duration-300 ease-in-out before:content-[""] before:absolute before:inset-0 before:w-full before:h-full flex items-center justify-between gap-2 w-auto py-2 px-3 bg-superficiesInputEditable outline-none border border-bordesIdle rounded-lg h-9 ${className || selectClass || ''}`}
         role='listbox'
       >
         <span
@@ -85,33 +122,35 @@ export function Select ({ placeholder = 'Seleccione una opción', selectClass, p
               )
         }
         <ul
-          className={`absolute z-10 overscroll-contain cursor-auto bg-superficiesInputEditable overflow-y-auto ${visibleScroll ? 'scroll-neutral' : 'scroll-hide'} rounded-lg border-azul-600 left-0 w-full overflow-clip top-[${(parent.current?.clientHeight + 8)}px] ${open ? 'py-2 border' : 'py-0'} px-3 h-0 transition-all duration-200 ease-in-out flex flex-col gap-1 ${listClass || ''}`}
+          style={{ top: parent.current?.clientHeight ? `${parent.current?.clientHeight + 8}px` : '' }}
+          className={`absolute z-10 overscroll-contain cursor-auto bg-superficiesInputEditable overflow-y-auto ${visibleScroll ? 'scroll-neutral' : 'scroll-hide'} rounded-lg border-azul-600 left-0 w-full overflow-clip top-[42px] ${open ? 'py-2 border' : 'py-0'} px-3 h-0 transition-all duration-200 ease-in-out flex flex-col gap-1 ${listClass || ''}`}
           role='list'
+          ref={itemsList}
         >
           {
-          options && options.map(({ label, value, img }) => (
-            <li
-              key={value}
-              tabIndex={0}
-              role='option'
-              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && e.currentTarget.click()}
-              className={`cursor-pointer max-w-full text-ellipsis texto-m text-textoPrincipal flex items-center ${img ? 'gap-2' : ''} px-1 py-2 rounded-lg hover:bg-azul-100 transition-colors duration-200 ease-out ${optionClass || ''}`}
-              onClick={() => {
-                setLabel({ label, value })
-                onChange && onChange({ label, value })
-              }}
-            >
-              {
-                img && (
-                  <img src={img} className='w-5 h-5 object-cover' />
-                )
-              }
-              {label}
-            </li>
-          ))
-        }
+            !disabled && options && options.map(({ label, value, img }) => (
+              <li
+                key={value}
+                tabIndex={0}
+                role='option'
+                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && e.currentTarget.click()}
+                className={`cursor-pointer max-w-full text-ellipsis texto-m text-textoPrincipal flex items-center ${img ? 'gap-2' : ''} px-1 py-2 rounded-lg hover:bg-azul-100 transition-colors duration-200 ease-out ${optionClass || ''}`}
+                onClick={() => {
+                  setLabel({ label, value })
+                  onChange && onChange({ label, value })
+                }}
+              >
+                {
+                  img && (
+                    <img src={img} className='w-5 h-5 object-cover' />
+                  )
+                }
+                {label}
+              </li>
+            ))
+          }
         </ul>
       </div>
-    </>
+    </div>
   )
 }
