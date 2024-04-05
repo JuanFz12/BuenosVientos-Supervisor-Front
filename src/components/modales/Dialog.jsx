@@ -5,10 +5,12 @@ import { useEffect, useState } from 'react'
  * @param {object} props - Propiedades del Dialog component
  * @param {React.RefObject<HTMLDialogElement>} props.selfRef - Referencia al dialog
  * @param {boolean} props.overflowHidden - Indica si se debe limitar el scroll del body aplicandole la clase 'overflow-hidden'
+ * @param {React.ReactEventHandler<HTMLDialogElement> | undefined} props.onClose - Función que se ejecuta cuando se cierra el dialog
+ * @param {string} props.className - Clases css para el dialog
  * @param {React.HTMLAttributes<HTMLDialogElement>} props - El resto de atributos que tendrá el dialog
  * @returns {JSX.Element}
  */
-export function Dialog ({ selfRef, overflowHidden, ...props }) {
+export function Dialog ({ selfRef, overflowHidden, onClose, className = '', ...props }) {
   const [key, setKey] = useState(Math.random())
 
   useEffect(() => {
@@ -43,12 +45,17 @@ export function Dialog ({ selfRef, overflowHidden, ...props }) {
       {...props}
       key={key}
       onClose={e => {
-        overflowHidden && document.body.classList.remove('overflow-hidden')
-        props?.onClose && props.onClose(e)
+        const dialogs = document.querySelectorAll('dialog')
+
+        if (![...dialogs].some(dialog => dialog.open)) {
+          overflowHidden && document.body.classList.remove('overflow-hidden')
+        }
+
+        onClose && onClose(e)
         setKey(key + 1)
       }}
       ref={selfRef}
-      className={`opacity-0 bg-transparent -translate-y-full transition-all duration-[400ms] backdrop:opacity-0 backdrop:transition-all backdrop:duration-[400ms] backdrop:ease-in-out ease-in-out scale-75 [&.active-show]:scale-100 [&.active-show]:opacity-100 [&.active-show]:translate-y-0 backdrop:[&.active-show]:opacity-100 backdrop:[&.active-show]:backdrop-blur-[3px] ${props.className || ''}`}
+      className={`opacity-0 bg-transparent -translate-y-full transition-all duration-[400ms] backdrop:opacity-0 backdrop:transition-all backdrop:duration-[400ms] backdrop:ease-in-out ease-in-out scale-75 [&.active-show]:scale-100 [&.active-show]:opacity-100 [&.active-show]:translate-y-0 backdrop:[&.active-show]:opacity-100 backdrop:[&.active-show]:backdrop-blur-[3px] ${className}`}
     />
   )
 }

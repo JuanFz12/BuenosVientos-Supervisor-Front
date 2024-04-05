@@ -7,7 +7,7 @@ export function PasswordInput ({ name, placeholder, labelClass, inputClass, ...p
 
   return (
     <label
-      className={`relative bg-superficiesInputEditable rounded-lg flex items-center border border-bordesIdle has-[:focus]:border-azul-500 transition-colors duration-300 ease-in-out h-9 ${labelClass || ''}`}
+      className={`relative bg-superficiesInputEditable rounded-lg flex items-center border border-bordesIdle has-[input:read-only]:bg-white texto-m has-[:focus]:[&:not(:has(input:read-only))]:border-azul-600 transition-colors duration-200 ease-in-out h-9 ${labelClass || ''}`}
     >
       <input
         {...props}
@@ -15,7 +15,7 @@ export function PasswordInput ({ name, placeholder, labelClass, inputClass, ...p
         ref={inputRef}
         type='password'
         placeholder={placeholder}
-        className={`bg-transparent texto-m w-full placeholder:text-textoSuave outline-none caret-textoSuave rounded-lg py-2 pl-3 h-full text-black ${inputClass || ''}`}
+        className={`bg-transparent texto-m w-full [&:read-only]:cursor-default placeholder:text-textoSuave outline-none caret-textoSuave rounded-lg py-2 pl-3 h-full text-black ${inputClass || ''}`}
       />
       <button
         tabIndex={-1}
