@@ -2,13 +2,29 @@ import './PerfilSupervisor.css'
 
 import { Link, useLocation } from 'react-router-dom'
 import { EtiquetaVerde } from '../etiquetas/Etiquetas'
-import personaPerfil from '/src/assets/img/personaPerfil.jpeg'
 import { routes } from '../../routes'
 import { Usuario } from '../../assets/icons/elements/Usuario'
 import { useEffect, useState } from 'react'
+import { useUsuarioSupervisor } from '../../store/useUsuarioSupervisor'
 
 export function PerfilSupervisor () {
-  const denominaciones = ['Tupac', 'Denominacion 1', 'Denominacion 2']
+  const {
+    usuario: {
+      photo_user: fotoPerfil,
+      user_name: nombre,
+      surnames: apellidos,
+      email,
+      type_user: tipoUsuario
+    },
+    corporacion: {
+      corporation_name: terminal
+    },
+    denominacion: {
+      denomination_name: denominacion
+    }
+  } = useUsuarioSupervisor()
+
+  const denominaciones = [denominacion]
 
   const [open, setOpen] = useState(false)
 
@@ -37,7 +53,7 @@ export function PerfilSupervisor () {
         <strong
           className='text-base leading-5 font-normal text-textoPrincipal'
         >
-          Supervisor
+          {`${nombre} ${apellidos}`}
         </strong>
         <Usuario fill='#4C64A6' />
       </section>
@@ -52,7 +68,7 @@ export function PerfilSupervisor () {
             className='mb-5 w-[72px] h-20 border border-bordesIdle rounded-lg'
           >
             <img
-              src={personaPerfil}
+              src={fotoPerfil}
               className='w-full h-full object-cover rounded-lg'
             />
 
@@ -61,20 +77,20 @@ export function PerfilSupervisor () {
           <h2
             className='text-azul-500 text-base leading-5 font-semibold text-center max-w-full line-clamp-2'
           >
-            Nombre Nombre Apellido Apellido
+            {`${nombre} ${apellidos}`}
           </h2>
 
           <span
             className='mt-2 text-sm block leading-4 font-normal text-textoPrincipal max-w-full overflow-hidden text-ellipsis text-nowrap whitespace-nowrap'
           >
-            usuario@buenosvientos.com
+            {email}
           </span>
         </header>
 
         <strong
           className='text-sm leading-4 font-semibold text-textoPrincipal'
         >
-          Supervisor
+          {tipoUsuario}
         </strong>
 
         <hr className='w-[200px] border-bordesSeparador' />
@@ -85,7 +101,7 @@ export function PerfilSupervisor () {
           <header
             className='text-sm leading-4 font-normal'
           >
-            <strong className='font-semibold'>Terminal:</strong> Mall del Sur
+            <strong className='font-semibold'>Terminal:</strong> {terminal}
           </header>
 
           <EtiquetaVerde text='Asistido' />
