@@ -4,7 +4,7 @@ import { HeaderSupervisor } from './components/header/HeaderSupervisor'
 import { useLayout } from './store/useLayout'
 
 export function Layout ({ children }) {
-  const { displayHeader, title, backTo } = useLayout()
+  const { displayHeader, titulo, backTo } = useLayout()
 
   return (
     <section
@@ -14,8 +14,8 @@ export function Layout ({ children }) {
       <MenuSupervisor />
       <section
         className='md:ml-0 ml-14 flex-1 min-w-px bg-neutrales-200 min-h-svh p-8'
-      >
-        {displayHeader && <HeaderSupervisor title={title} backTo={backTo} />}
+      >titulo
+        {displayHeader && <HeaderSupervisor title={titulo} backTo={backTo} />}
         <section
           className={`w-full ${displayHeader ? 'pt-8' : ''}`}
         >

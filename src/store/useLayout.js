@@ -5,8 +5,8 @@ export const useLayout = create(set => {
     set({ displayHeader: boolean })
   }
 
-  function setTitle (title) {
-    set({ title })
+  function setTitulo (titulo) {
+    set({ titulo })
   }
 
   function setBackTo (backTo) {
@@ -15,11 +15,11 @@ export const useLayout = create(set => {
 
   return {
     displayHeader: true,
-    title: undefined,
+    titulo: undefined,
     backTo: undefined,
 
     setDisplayHeader,
-    setTitle,
+    setTitulo,
     setBackTo
   }
 })
