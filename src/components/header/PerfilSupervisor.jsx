@@ -26,11 +26,9 @@ export function PerfilSupervisor () {
   return (
     <section
       tabIndex={1}
-      onMouseDown={handleOpen}
-      onMouseUp={handleOpen}
+      // regresar el onMouseDown y onMouseUp a su estado original si se necesita
       onClick={handleOpen}
-      onFocus={() => setOpen(true)}
-      onBlur={() => setOpen(false)}
+      onBlur={e => e.relatedTarget && setOpen(false)}
       className='relative before:content-[""] before:absolute before:inset-0 before:w-full before:h-full outline-none cursor-pointer flex items-center justify-end px-3 w-[280px] h-9 rounded-lg border border-bordesIdle'
     >
       <section

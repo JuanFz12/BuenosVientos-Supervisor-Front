@@ -8,19 +8,19 @@ export function Layout ({ children }) {
 
   return (
     <section
-      className='flex'
+      tabIndex={0}
+      className='flex max-w-full overflow-clip outline-none'
     >
       <MenuSupervisor />
       <section
-        className='flex-1 bg-neutrales-200 min-h-svh p-8'
+        className='md:ml-0 ml-14 flex-1 min-w-px bg-neutrales-200 min-h-svh p-8'
       >
-        {/* arreglar y colocar el estado todo dentro del aside - MenuSupervisor */}
         {displayHeader && <HeaderSupervisor title={title} backTo={backTo} />}
-        <div
-          className='w-full pt-8'
+        <section
+          className={`w-full ${displayHeader ? 'pt-8' : ''}`}
         >
           {children || <Outlet />}
-        </div>
+        </section>
       </section>
     </section>
   )
