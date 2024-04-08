@@ -15,6 +15,7 @@ import { RenderVales } from './pages/vales/components/RenderVales'
 import { Logout } from './pages/Logout'
 import { Exoneraciones } from './pages/exoneraciones/Exoneraciones'
 import { Pagos } from './pages/pagos/Pagos'
+import { ProtectRoutes, RedirectIfLogged } from './ProtectRoutes'
 
 const {
   logout,
@@ -36,22 +37,25 @@ const {
 
 const router = createBrowserRouter([
   {
+    path: home,
+    element: <RedirectIfLogged><Home /></RedirectIfLogged>
+  },
+  {
     path: logout,
     element: <Logout />
   },
   {
-    path: home,
-    element: <Home />
-  },
-  {
     // se separa porque necesita un titulo diferente, tambien se podria controlar con un estado, cambiar a eso si se necesita
+
+    // UPDATE!! ----> ya no es necesario que este fuera del layout ya que ahora se puede cambiar las props del layout
+    // usando useLayout()
     path: asistencias,
     element: <Layout title='Registro de Asistencias'><Asistencias /></Layout>
   },
 
   {
     path: '/',
-    element: <Layout />,
+    element: <ProtectRoutes><Layout /></ProtectRoutes>,
     children: [
       {
         path: dashboard,
