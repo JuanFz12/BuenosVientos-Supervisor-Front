@@ -10,5 +10,10 @@ export const routes = {
   },
   asistencias: '/asistencias',
   exoneraciones: '/exoneraciones',
-  pagos: '/pagos'
+  pagos: '/pagos',
+  pagosRoutes: {
+    index: 'pagos',
+    detallesPago: ':idPago',
+    pagosDenominacion: ':idPago/:idDenominacion'
+  }
 }

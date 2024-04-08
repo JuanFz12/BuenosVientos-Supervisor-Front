@@ -1,13 +1,12 @@
 export function getCapitalizedLastPath (pathname) {
-  const path = (pathname || window.location.pathname)
-    .split('/')
+  const listPath = (pathname || window.location.pathname).split('/')
 
-  const lasPathname = path.pop()
+  const lasPathname = listPath.reduceRight((acc, el) => acc.trim() || el.trim())
 
-  const firstLetterUpper = lasPathname.charAt(0).toUpperCase()
-  const restLetters = lasPathname.slice(1)
+  const firstLetterToUpperCase = lasPathname.charAt(0).toUpperCase()
+  const restOfLetters = lasPathname.slice(1)
 
-  const result = `${firstLetterUpper}${restLetters}`.replace(/-/g, ' ')
+  const finalPath = `${firstLetterToUpperCase}${restOfLetters}`
 
-  return result
+  return finalPath.replace(/-/g, ' ')
 }

@@ -14,6 +14,7 @@ import { SolicitudesVales } from './pages/vales/solicitudes/Solicitudes'
 import { RenderVales } from './pages/vales/components/RenderVales'
 import { Logout } from './pages/Logout'
 import { Exoneraciones } from './pages/exoneraciones/Exoneraciones'
+import { Pagos } from './pages/pagos/Pagos'
 
 const {
   logout,
@@ -29,8 +30,8 @@ const {
   },
 
   asistencias,
-  exoneraciones
-  // pagos
+  exoneraciones,
+  pagos
 } = routes
 
 const router = createBrowserRouter([
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
       {
         path: exoneraciones,
         element: <Exoneraciones />
+      },
+      {
+        path: pagos,
+        element: <Pagos />
       }
     ]
   },
