@@ -1,0 +1,44 @@
+.render-exoneraciones {
+  & ul li {
+    flex-grow: 1;
+
+    &:nth-child(1) {
+      width: max(3%, 30px);
+      max-width: 120px;
+    }
+
+    &:nth-child(2) {
+      width: max(12%, 130px);
+    }
+
+    &:nth-child(3) {
+      width: max(8%, 90px);
+      max-width: 250px;
+    }
+
+    &:nth-child(4) {
+      width: max(12%, 130px);
+    }
+    
+    &:nth-child(5) {
+      width: max(8%, 100px);
+      max-width: 250px;
+    }
+    
+    &:nth-child(6) {
+      /* este es el boton de detalles */
+      width: max(3%, 95px);
+      max-width: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* lg: */
+    @media screen and (min-width: 1081px) {
+      &:nth-child(6) {
+        max-width: 250px;
+      }
+    }
+  }
+}
