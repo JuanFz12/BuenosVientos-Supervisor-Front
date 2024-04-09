@@ -13,7 +13,7 @@ export function Layout ({ children }) {
     >
       <MenuSupervisor />
       <section
-        className='md:ml-0 ml-14 flex-1 min-w-px bg-neutrales-200 min-h-svh p-8'
+        className='flex-1 min-w-px bg-neutrales-200 min-h-svh p-8'
       >
         {displayHeader && <HeaderSupervisor title={titulo} backTo={backTo} />}
         <section
