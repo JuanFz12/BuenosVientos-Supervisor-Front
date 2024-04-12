@@ -13,7 +13,9 @@ export const useUsuarioSupervisor = create(set => {
     denominacion: user.denominacion,
     zona: user.zona,
     area: user.area,
-    corporacion: user.corporacion
+    corporacion: user.corporacion,
+    token: user.token,
+    idSesion: user.idSesion
   }
 
   return {

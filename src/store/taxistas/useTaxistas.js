@@ -14,11 +14,13 @@ export const useTaxistas = create(set => {
 
   function getTaxistas () {
     return getData({ url: `${apiRequest.taxistas}/${corporacion.id}` })
-      .then(data => {
-        const { data: taxistas } = data
+      .then(dataRes => {
+        const {
+          payload: taxistas
+        } = dataRes.data
 
+        console.log(dataRes)
         set({ taxistas })
-        console.log(data)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)

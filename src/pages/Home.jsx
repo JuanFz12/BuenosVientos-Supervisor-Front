@@ -33,7 +33,8 @@ export function Home () {
       .then(data => {
         const {
           data: dataResponse,
-          token
+          token,
+          id_sesion: idSesion
         } = data
 
         console.log(data)
@@ -60,7 +61,9 @@ export function Home () {
           denominacion,
           zona,
           area,
-          corporacion
+          corporacion,
+          token,
+          idSesion
         }
 
         window.localStorage.setItem(

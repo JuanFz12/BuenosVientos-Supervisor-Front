@@ -13,10 +13,13 @@ export const useVales = create(set => {
     const url = `${apiRequest.vales}/${corporacion.id}`
 
     return getData({ url })
-      .then(({ data: vales }) => {
-        // const newState = vales.map(({ vale }) => vale)
+      .then(dataRes => {
+        const {
+          payload: vales
+        } = dataRes.data
+
+        console.log(dataRes)
         set({ vales })
-        console.log(vales)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
@@ -29,9 +32,14 @@ export const useVales = create(set => {
   function getSolicitudes () {
     const url = `${apiRequest.valesSolicitudes}/${corporacion.id}`
     return getData({ url })
-      .then(({ data: solicitudes }) => {
+      .then(dataRes => {
+        const {
+          payload: solicitudes
+        } = dataRes.data
+
+        console.log(dataRes)
+
         set({ solicitudes })
-        console.log(solicitudes)
       })
       .catch(err => {
         alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
