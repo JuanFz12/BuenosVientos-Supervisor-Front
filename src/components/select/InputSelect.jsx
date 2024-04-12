@@ -21,6 +21,8 @@ export function InputSelect ({
     value: ''
   })
 
+  // ARREGLAR Y REFACTORIZAR ESTE COMPONENTE URGENTEMENTE
+
   useEffect(() => {
     setLabelInput({
       label: defaultLabel ?? '',
@@ -40,6 +42,11 @@ export function InputSelect ({
 
   function handleHeight (e) {
     const list = itemsList.current
+
+    console.log(e)
+    if (e.type === 'blur' && e.currentTarget.contains(e.relatedTarget)) {
+      return
+    }
 
     if (openList || e.type === 'blur') {
       list.style.height = '0px'
@@ -143,11 +150,12 @@ export function InputSelect ({
             <li
               key={value}
               tabIndex={0}
-              onFocus={handleHeight}
               role='option'
               onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && e.currentTarget.click()}
               className={`cursor-pointer max-w-full text-ellipsis texto-m text-textoPrincipal flex items-center px-1 py-2 rounded-lg focus:bg-azul-100 hover:bg-azul-100 transition-colors duration-200 ease-out ${optionClass || ''}`}
-              onMouseDown={() => {
+              onClick={e => {
+                e.stopPropagation()
+                handleHeight(e)
                 setLabelInput({ label, value })
                 onSelect && onSelect({ label, value })
               }}

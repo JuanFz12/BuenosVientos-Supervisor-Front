@@ -3,9 +3,9 @@ import './PerfilSupervisor.css'
 import { Link, useLocation } from 'react-router-dom'
 import { EtiquetaVerde } from '../etiquetas/Etiquetas'
 import { routes } from '../../routes'
-import { Usuario } from '../../assets/icons/elements/Usuario'
 import { useEffect, useState } from 'react'
 import { useUsuarioSupervisor } from '../../store/useUsuarioSupervisor'
+import { getImage } from '../../consts/api'
 
 export function PerfilSupervisor () {
   const {
@@ -24,7 +24,7 @@ export function PerfilSupervisor () {
     }
   } = useUsuarioSupervisor()
 
-  const denominaciones = [denominacion]
+  const denominaciones = [denominacion, 'hola que tal', 'siuuuu', 'yes yes yes yes']
 
   const [open, setOpen] = useState(false)
 
@@ -48,14 +48,17 @@ export function PerfilSupervisor () {
       className='relative before:content-[""] before:absolute before:inset-0 before:w-full before:h-full outline-none cursor-pointer flex items-center justify-end px-3 w-[280px] h-9 rounded-lg border border-bordesIdle'
     >
       <section
-        className='flex items-center gap-2'
+        className='max-w-full flex items-center gap-2'
       >
         <strong
-          className='text-base leading-5 font-normal text-textoPrincipal'
+          className='text-base leading-5 font-normal text-textoPrincipal truncate'
         >
           {`${nombre} ${apellidos}`}
         </strong>
-        <Usuario fill='#4C64A6' />
+        <img
+          src={getImage(`/${fotoPerfil}`)}
+          className='size-5 flex-shrink-0 object-cover rounded-full'
+        />
       </section>
 
       <article
@@ -68,7 +71,7 @@ export function PerfilSupervisor () {
             className='mb-5 w-[72px] h-20 border border-bordesIdle rounded-lg'
           >
             <img
-              src={fotoPerfil}
+              src={getImage(`/${fotoPerfil}`)}
               className='w-full h-full object-cover rounded-lg'
             />
 
@@ -129,7 +132,7 @@ export function PerfilSupervisor () {
             className='flex flex-col gap-2 items-center max-w-full'
           >
             {
-              denominaciones.map((denominacion) => (
+              denominaciones.slice(0, 3).map((denominacion) => (
                 <li
                   key={denominacion}
                   className='text-xs max-w-full overflow-hidden text-ellipsis text-nowrap whitespace-nowrap leading-4 font-normal text-textoPrincipal'
