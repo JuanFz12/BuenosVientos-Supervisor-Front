@@ -1,37 +1,55 @@
-.render-vales ul > li {
-  flex-grow: 1;
-  flex-shrink: 0;
-  &:nth-child(2) {
-    width: max(10%, 90px);
-    max-width: 380px;
-  }
-}
+.render-vales {
+  & ul > li {
+    flex-grow: 1;
 
-@media (max-width: 1023px) {
-  .render-vales ul > li {
-    &:nth-child(2) {
-      width: max(10%, 70px);
-    }
-  }
-}
-
-@media (min-width: 640px) {
-  .render-vales ul > li {
-    /* flex-grow: 0; */
     &:nth-child(1) {
-      width: max(5%, 30px);
+      width: max(3%, 30px);
+      max-width: 110px;
+    }
+
+    &:nth-child(2) {
+      width: max(13%, 120px);
     }
 
     &:nth-child(3) {
       width: max(10%, 90px);
+      max-width: 180px;
     }
 
     &:nth-child(4) {
-      width: max(8%, 80px);
+      width: max(5%, 80px);
+      max-width: 220px;
+    }
+    
+    &:nth-child(5) {
+      width: max(8%, 100px);
+      max-width: 200px;
     }
 
-    &:nth-child(5) {
-      width: max(8%, 70px);
+    &:nth-child(6) {
+      width: max(13%, 70px);
+    }
+
+    &:nth-child(7) {
+      width: max(8%, 95px);
+      max-width: 120px;
+    }
+    
+    &:nth-child(8) {
+      /* este es el boton de detalles */
+      width: max(3%, 95px);
+      max-width: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* lg: */
+    @media screen and (min-width: 1081px) {
+      /* este es para el boton de detalles */
+      &:nth-child(8) {
+        max-width: 250px;
+      }
     }
   }
 }

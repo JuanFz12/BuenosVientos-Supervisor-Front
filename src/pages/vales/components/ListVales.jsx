@@ -8,6 +8,7 @@ import { ValeMovilidad } from './modales/ValeMovilidad'
 import { useRef, useState } from 'react'
 import { formatearFechaCorta } from '../../../utils/formatear'
 import { ValeMovilidadReadOnly } from './modales/ValeMovilidadReadOnly'
+import { tipoServicio } from '../consts/tiposServicio'
 
 const colors = {
   celeste: 'celeste',
@@ -32,7 +33,7 @@ const status = {
   }
 }
 
-export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
+export function ListVales ({ loading, data, solicitudes = false }) {
   const valeMovilidadModal = useRef()
 
   const [currentData, setCurrentData] = useState(null)
@@ -45,7 +46,6 @@ export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
               !loading && Boolean(data?.length) &&
                 (
                   <ValeMovilidad
-                    taxistas={taxistas}
                     refModal={valeMovilidadModal}
                     data={currentData}
                     onClose={() => setCurrentData(null)}
@@ -71,7 +71,7 @@ export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
             <li>Corporación</li>
             <li>Área</li>
             <li>Fecha</li>
-            <li>Distrito</li>
+            <li>Tipo de Servicio</li>
             {!solicitudes && <li className='w-[max(14%,_105px)]'>Taxista</li>}
             <li className='w-[max(10%,_90px)]'>Estado</li>
             <li className='w-[max(10%,_90px)]' />
@@ -90,16 +90,17 @@ export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
           !loading &&
           Boolean(data?.length) &&
           data.map(({
-            [solicitudes ? 'request' : 'submitVale']: { id },
+            [solicitudes ? 'requestVale' : 'submitVale']: { id },
             [solicitudes ? 'area_corporative' : 'area']: { area_name: area },
             corporation: { corporation_name: corporacion },
-            [solicitudes ? 'request' : 'requestVale']: {
-              district: distrito,
+            requestVale: {
+              service: servicioParam,
               application_status: estado,
-              arrival_time: fechaParam
+              date: fechaParam
             }
           }, idx) => {
             const fecha = formatearFechaCorta(fechaParam)
+            const servicio = tipoServicio[servicioParam]
 
             const taxista = !solicitudes && `${data[idx].driver.fullName}`
 
@@ -112,7 +113,7 @@ export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
                 <li title={corporacion}>{corporacion}</li>
                 <li title={area}>{area}</li>
                 <li title={fecha}>{fecha}</li>
-                <li title={distrito}>{distrito}</li>
+                <li title={servicio}>{servicio}</li>
                 {
                   !solicitudes && (
                     <li title={taxista} className='w-[max(14%,_105px)]'>
@@ -139,6 +140,7 @@ export function ListVales ({ taxistas, loading, data, solicitudes = false }) {
                       : (
                         <BotonDetalles
                           onClick={() => {
+                            // alert('Funcionalidad no disponible en este momento')
                             setCurrentData(data[idx])
                             valeMovilidadModal.current.showModal()
                           }}

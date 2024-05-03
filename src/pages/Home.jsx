@@ -10,6 +10,7 @@ import { PasswordInput } from '../components/inputs/PasswordInput'
 import { NormalCheck } from '../components/checkbox/Checkbox'
 import { Link } from 'react-router-dom'
 import { localStorageNames } from '../consts/localStorageNames'
+import { setUsuarioSupervisorToLS } from '../utils/setUsuarioSupervisorToLS'
 
 export function Home () {
   const fields = {
@@ -45,7 +46,7 @@ export function Home () {
           denomination: denominacion,
           zone: zona,
           area,
-          corporation: corporacion
+          terminal
         } = dataResponse
 
         if (usuario.type_user !== TIPOS_USUARIOS.supervisor) {
@@ -61,15 +62,12 @@ export function Home () {
           denominacion,
           zona,
           area,
-          corporacion,
+          terminal,
           token,
           idSesion
         }
 
-        window.localStorage.setItem(
-          localStorageNames.USER_INFO_GENERAL,
-          btoa(JSON.stringify(userToSet))
-        )
+        setUsuarioSupervisorToLS(userToSet)
 
         if (e.target[fields.remember].checked) {
           const pass = btoa(body.password)

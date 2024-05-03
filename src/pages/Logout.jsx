@@ -23,11 +23,14 @@ export function Logout () {
       id: idSesion
     }
 
-    createData({ url, body })
-      .catch(err => {
-        console.log(err)
-        alert('Se ha eliminado la informacion del usuario de manera forzada (No autorizada), no fue posible cerrar la sesión.')
-      })
-      .finally(() => window.location.replace(routes.home))
+    if (idSesion || idSesion === 0) {
+      createData({ url, body })
+        .catch(() => {
+          alert('Parece que esta sesión no existe.\nNo fue posible cerrar la sesión.')
+        })
+        .finally(() => window.location.replace(routes.home))
+    } else {
+      window.location.replace(routes.home)
+    }
   }, [idSesion])
 }

@@ -16,15 +16,15 @@ export function PerfilSupervisor () {
       email,
       type_user: tipoUsuario
     },
-    corporacion: {
-      corporation_name: terminal
+    terminal: {
+      terminal_name: terminal
     },
     denominacion: {
       denomination_name: denominacion
     }
   } = useUsuarioSupervisor()
 
-  const denominaciones = [denominacion, 'hola que tal', 'siuuuu', 'yes yes yes yes']
+  const denominaciones = [denominacion]
 
   const [open, setOpen] = useState(false)
 

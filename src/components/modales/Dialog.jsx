@@ -6,11 +6,12 @@ import { useEffect, useState } from 'react'
  * @param {React.RefObject<HTMLDialogElement>} props.selfRef - Referencia al dialog
  * @param {boolean} props.overflowHidden - Indica si se debe limitar el scroll del body aplicandole la clase 'overflow-hidden'
  * @param {React.ReactEventHandler<HTMLDialogElement> | undefined} props.onClose - Función que se ejecuta cuando se cierra el dialog
+ * @param {boolean} props.preventRemount - Indica si el dialog debe evitar remontarse cada vez que se cierra
  * @param {string} props.className - Clases css para el dialog
  * @param {React.HTMLAttributes<HTMLDialogElement>} props - El resto de atributos que tendrá el dialog
  * @returns {JSX.Element}
  */
-export function Dialog ({ selfRef, overflowHidden, onClose, className = '', ...props }) {
+export function Dialog ({ selfRef, overflowHidden, onClose, preventRemount, className = '', ...props }) {
   const [key, setKey] = useState(Math.random())
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export function Dialog ({ selfRef, overflowHidden, onClose, className = '', ...p
         }
 
         onClose && onClose(e)
-        setKey(key + 1)
+        !preventRemount && setKey(key + 1)
       }}
       ref={selfRef}
       className={`opacity-0 bg-transparent -translate-y-full transition-all duration-[400ms] backdrop:opacity-0 backdrop:transition-all backdrop:duration-[400ms] backdrop:ease-in-out ease-in-out scale-75 [&.active-show]:scale-100 [&.active-show]:opacity-100 [&.active-show]:translate-y-0 backdrop:[&.active-show]:opacity-100 backdrop:[&.active-show]:backdrop-blur-[3px] ${className}`}

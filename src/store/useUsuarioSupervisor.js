@@ -1,24 +1,17 @@
 import { create } from 'zustand'
-import { USER_INFO_GENERAL } from '../consts/consts'
+import { getUsuarioSupervisor } from '../utils/getUsuarioSupervisor'
 
 export const useUsuarioSupervisor = create(set => {
-  const user =
-    window.localStorage.getItem(USER_INFO_GENERAL)
-      ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
-      : {}
+  const usuarioSupervisor = getUsuarioSupervisor()
 
-  const usuarioSupervisor = {
-    usuarioSupervisor: user.usuarioSupervisor,
-    usuario: user.usuario,
-    denominacion: user.denominacion,
-    zona: user.zona,
-    area: user.area,
-    corporacion: user.corporacion,
-    token: user.token,
-    idSesion: user.idSesion
+  function updateUsuarioSupervisor () {
+    const nuevaData = getUsuarioSupervisor()
+
+    set({ ...nuevaData })
   }
 
   return {
-    ...usuarioSupervisor
+    ...usuarioSupervisor,
+    updateUsuarioSupervisor
   }
 })

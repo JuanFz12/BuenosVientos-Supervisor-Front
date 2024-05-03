@@ -29,6 +29,8 @@ export function Select ({ placeholder = 'Seleccione una opción', className, sel
     value: ''
   })
 
+  const originalOptions = useRef(options)
+
   useEffect(() => {
     if (disabled) {
       setLabel({
@@ -59,6 +61,48 @@ export function Select ({ placeholder = 'Seleccione una opción', className, sel
     }
   }, [selected, options, onChange])
 
+  useEffect(() => {
+    function isIqualOptions (ops) {
+      const orgOptions = originalOptions.current
+
+      if (ops?.length !== orgOptions?.length) return false
+
+      const result = ops.some(({ label, value }, idx) => {
+        return label !== orgOptions?.[idx]?.label || value !== orgOptions?.[idx]?.value
+      })
+
+      return !result
+    }
+
+    function reduceHeight () {
+      setOpen(false)
+
+      const list = itemsList.current
+
+      list.style.height = '0px'
+    }
+
+    if (!options || !options.length) {
+      reduceHeight()
+      // si es necesario aqui tambien disparar el onChange
+      setLabel({ label: placeholder, value: '' })
+      originalOptions.current = options
+
+      return
+    }
+
+    if (isIqualOptions(options)) {
+      reduceHeight()
+      return
+    }
+
+    if (!isIqualOptions(options)) {
+      reduceHeight()
+      setLabel({ label: placeholder, value: '' })
+      originalOptions.current = options
+    }
+  }, [options, placeholder])
+
   const itemsList = useRef()
 
   const [open, setOpen] = useState(false)
@@ -81,9 +125,7 @@ export function Select ({ placeholder = 'Seleccione una opción', className, sel
   }
 
   return (
-    <div
-      className='relative'
-    >
+    <>
       <input
         type='text'
         name={name}
@@ -151,6 +193,6 @@ export function Select ({ placeholder = 'Seleccione una opción', className, sel
           }
         </ul>
       </div>
-    </div>
+    </>
   )
 }

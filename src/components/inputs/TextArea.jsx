@@ -1,4 +1,4 @@
-export function TextArea ({ className, placeholder, name, defaultValue, readOnly, ...props }) {
+export function TextArea ({ className, placeholder, name, defaultValue, readOnly, maxLength, minLength, ...props }) {
   return (
     <textarea
       {...props}
@@ -7,6 +7,8 @@ export function TextArea ({ className, placeholder, name, defaultValue, readOnly
       name={name}
       readOnly={readOnly}
       defaultValue={defaultValue}
+      maxLength={maxLength}
+      minLength={minLength}
     />
   )
 }

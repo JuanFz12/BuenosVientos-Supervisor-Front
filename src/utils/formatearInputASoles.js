@@ -7,10 +7,23 @@ export function formatearInputASoles ({ event, controlled = false }) {
   let value
   const valorParseado = parsearSoles(target.value)
 
-  if (!valorParseado) return 0
+  if (!valorParseado) {
+    if (!controlled) {
+      target.value = target.ariaLabel
+      if (!target.ariaLabel) return 0
+    } else {
+      return 0
+    }
+  }
 
+  // verifica si el ultimo valor es un numero
   if (isNaN(Number(target.value.slice(-1)))) {
-    return parsearSoles(target.ariaLabel)
+    if (!controlled) {
+      target.value = target.ariaLabel
+      return
+    } else {
+      return parsearSoles(target.ariaLabel)
+    }
   }
 
   // tal vez se pueda refactorizar esto

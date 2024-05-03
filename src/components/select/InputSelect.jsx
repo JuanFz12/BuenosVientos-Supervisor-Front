@@ -8,7 +8,10 @@ export function InputSelect ({
   visibleScroll,
   listClass,
   optionClass,
+  className = '',
   onSelect,
+  onDeselect,
+  onChange,
   maxVisibleOptions,
   maxOptions,
   defaultLabel,
@@ -21,6 +24,8 @@ export function InputSelect ({
     value: ''
   })
 
+  const initialOptions = useRef(options)
+
   // ARREGLAR Y REFACTORIZAR ESTE COMPONENTE URGENTEMENTE
 
   useEffect(() => {
@@ -32,9 +37,47 @@ export function InputSelect ({
 
   const [internOptions, setInternOptions] = useState([])
 
+  // arreglar todo este lio
   useEffect(() => {
+    function isIqualOptions (options) {
+      const orgOptions = initialOptions.current
+
+      if (options?.length !== orgOptions?.length) return false
+
+      const result = options.some(({ label, value }, idx) => {
+        return label !== orgOptions?.[idx]?.label || value !== orgOptions?.[idx]?.value
+      })
+
+      return !result
+    }
+
+    function reduceHeight () {
+      setOpenList(false)
+
+      const list = itemsList.current
+
+      list.style.height = '0px'
+    }
+
+    if (!options || !options.length) {
+      // si es necesario aqui tambien disparar el onSelect
+      reduceHeight()
+      setLabelInput({ label: defaultLabel ?? '', value: defaultValue ?? '' })
+
+      setInternOptions(options)
+      initialOptions.current = options
+
+      return
+    }
+
+    if (!isIqualOptions(options)) {
+      initialOptions.current = options
+      setLabelInput({ label: defaultLabel ?? '', value: defaultValue ?? '' })
+    }
+    reduceHeight()
+
     setInternOptions(options)
-  }, [options])
+  }, [options, defaultLabel, defaultValue])
 
   const [openList, setOpenList] = useState(false)
 
@@ -43,7 +86,6 @@ export function InputSelect ({
   function handleHeight (e) {
     const list = itemsList.current
 
-    console.log(e)
     if (e.type === 'blur' && e.currentTarget.contains(e.relatedTarget)) {
       return
     }
@@ -68,13 +110,29 @@ export function InputSelect ({
 
   function handleChange (e) {
     setOpenList(true)
+    // no tiene sentido setear el mismo estado dos veces, luego lo cambiare y refactorizare pero por ahora no
     setLabelInput(prev => ({ ...prev, label: e.target.value }))
 
+    if (!options) return onChange && onChange(e)
+
     const newOptions = options.filter(({ label }) => label.toLowerCase().includes(e.target.value.toLowerCase()))
+
+    // arreglar este desorden
+    const prevOptions = internOptions
+    if (
+      newOptions.length === 1 &&
+      prevOptions[0]?.label.length === labelInput.label.length &&
+      newOptions[0].label.length !== e.target.value.length
+    ) {
+      onDeselect && onDeselect({ label: prevOptions[0].label, value: prevOptions[0].value })
+    }
 
     if (newOptions.length === 1) {
       const isValid = newOptions[0].label.toLowerCase() === e.target.value.toLowerCase()
 
+      if (isValid) {
+        onSelect && onSelect({ label: newOptions[0].label, value: newOptions[0].value })
+      }
       setLabelInput(prev => ({ ...prev, value: isValid ? newOptions[0].value : '' }))
     } else if (newOptions.length === 0) {
       setLabelInput(prev => ({ ...prev, value: '' }))
@@ -84,13 +142,17 @@ export function InputSelect ({
 
     setInternOptions(newOptions)
 
+    onChange && onChange(e)
+
     const list = itemsList.current
 
     if (!newOptions.length) {
       list.style.paddingTop = '0'
       list.style.paddingBottom = '0'
       e.target.style.border = '1px solid rgb(239 68 68)'
-      // console.log('se cumple')
+
+      onDeselect && onDeselect({ label: null, value: null })
+      console.log('se cumple')
     } else {
       list.classList.add('py-2')
       list.style.paddingTop = ''
@@ -122,7 +184,7 @@ export function InputSelect ({
 
   return (
     <label
-      className='relative'
+      className={`relative w-full ${className}`}
       onBlur={handleHeight}
     >
       <TextInput
@@ -171,6 +233,7 @@ export function InputSelect ({
         name={name}
         className='absolute inset-0 w-0 h-0 pointer-events-none'
         value={labelInput.value}
+        required={required}
         readOnly
       />
       {

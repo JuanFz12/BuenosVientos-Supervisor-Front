@@ -1,17 +1,27 @@
 import { TOKEN } from '../consts/api'
 
+const abortController = new AbortController()
+
 const options = {
   method: 'GET',
   headers: {
     Authorization: `Bearer ${TOKEN}`
-  }
+  },
+  signal: abortController.signal
 }
 
+let isPageReloading = false
+
+window.addEventListener('beforeunload', () => {
+  isPageReloading = true
+  abortController.abort()
+})
+
 export function getData ({ url }) {
-  return fetch(url, options)
+  return new Promise((resolve, reject) => fetch(url, options)
     .then(res => {
       if (res.ok) {
-        return res.json()
+        return res.json().then(data => resolve(data))
       } else {
         // aqui solo estoy abarcando un solo caso de error
         if (res.status === 404) {
@@ -27,4 +37,8 @@ export function getData ({ url }) {
         }
       }
     })
+    .catch(err => {
+      !isPageReloading && reject(err)
+    })
+  )
 }

@@ -1,19 +1,21 @@
 import { create } from 'zustand'
 import { getData } from '../../services/getData'
-import { apiRequest } from '../../consts/api'
-import { USER_INFO_GENERAL } from '../../consts/consts'
+import { apiRequest, apiRequestParams } from '../../consts/api'
+import { getUsuarioSupervisor } from '../../utils/getUsuarioSupervisor'
+import { generateUrl } from '../../utils/generateUrl'
 
 export const useTaxistas = create(set => {
-  const { corporacion } = window.localStorage.getItem(USER_INFO_GENERAL)
-    ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
-    : {
-        usuarioSupervisor: {
-          denomination_id: null
-        }
-      }
+  const { terminal } = getUsuarioSupervisor()
+
+  if (!terminal) return
+
+  const idTerminal = terminal.id
 
   function getTaxistas () {
-    return getData({ url: `${apiRequest.taxistas}/${corporacion.id}` })
+    const paramIdTerminal = apiRequestParams.taxistas.idTerminal
+    const url = generateUrl(apiRequest.taxistas, { [paramIdTerminal]: idTerminal })
+
+    return getData({ url })
       .then(dataRes => {
         const {
           payload: taxistas

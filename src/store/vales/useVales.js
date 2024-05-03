@@ -1,16 +1,13 @@
 import { create } from 'zustand'
 import { getData } from '../../services/getData'
-import { apiRequest } from '../../consts/api'
+import { apiRequest, apiRequestParams } from '../../consts/api'
 import { createData } from '../../services/createData'
-import { USER_INFO_GENERAL } from '../../consts/consts'
+
+import { generateUrl } from '../../utils/generateUrl'
 
 export const useVales = create(set => {
-  const { corporacion } = window.localStorage.getItem(USER_INFO_GENERAL)
-    ? JSON.parse(atob(window.localStorage.getItem(USER_INFO_GENERAL)))
-    : {}
-
   function getVales () {
-    const url = `${apiRequest.vales}/${corporacion.id}`
+    const url = apiRequest.vales
 
     return getData({ url })
       .then(dataRes => {
@@ -22,7 +19,7 @@ export const useVales = create(set => {
         set({ vales })
       })
       .catch(err => {
-        alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
+        alert(`Error en vales: ${err.error ?? err.message ?? 'Error desconocido'}`)
       })
       .finally(() => {
         set({ loading: false })
@@ -30,7 +27,8 @@ export const useVales = create(set => {
   }
 
   function getSolicitudes () {
-    const url = `${apiRequest.valesSolicitudes}/${corporacion.id}`
+    const url = apiRequest.valesSolicitudes
+
     return getData({ url })
       .then(dataRes => {
         const {
@@ -51,30 +49,54 @@ export const useVales = create(set => {
 
   function aceptarVale ({ id, body }) {
     return new Promise((resolve, reject) => {
-      createData({ url: `${apiRequest.aceptarVale}/${id}`, body })
+      const paramIdVale = apiRequestParams.vales.idVale
+      const url = generateUrl(apiRequest.aceptarVale, { [paramIdVale]: id })
+
+      createData({ url, body })
         .then((data) => {
+          console.log(data)
           const { data: valeAceptado } = data
 
           const { requestVale: { id } } = valeAceptado
 
           set(state => {
             // esto es para cambiar el estado del vale de 'enviado' a -> 'aceptado'
-            const index = state.solicitudes.findIndex(({ request: vale }) => vale.id === id)
+            // en la pagina de solicitudes
+
+            const index = state.solicitudes.findIndex(({ requestVale: vale }) => vale.id === id)
 
             const newSolicitudes = [...state.solicitudes]
 
             const valeAModificar = newSolicitudes[index]
 
-            valeAModificar.request.application_status = valeAceptado.requestVale.application_status
+            valeAModificar.requestVale.application_status = valeAceptado.requestVale.application_status
 
             return { solicitudes: newSolicitudes, vales: [valeAceptado, ...state.vales] }
           })
 
-          console.log(data)
           resolve(valeAceptado)
         })
         .catch(err => {
           alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
+          reject(err)
+        })
+    })
+  }
+
+  function crearVale ({ body }) {
+    return new Promise((resolve, reject) => {
+      const url = apiRequest.crearVale
+
+      createData({ url, body })
+        .then(dataRes => {
+          const { data: nuevoVale } = dataRes
+
+          console.log(dataRes)
+          set(state => ({ vales: [nuevoVale, ...state.vales] }))
+          resolve(nuevoVale)
+        })
+        .catch(err => {
+          alert(`Error al crear un vale: ${err.error ?? err.reason ?? err.message ?? 'Error desconocido'}`)
           reject(err)
         })
     })
@@ -87,6 +109,7 @@ export const useVales = create(set => {
     solicitudes: [],
     getVales,
     getSolicitudes,
-    aceptarVale
+    aceptarVale,
+    crearVale
   }
 })

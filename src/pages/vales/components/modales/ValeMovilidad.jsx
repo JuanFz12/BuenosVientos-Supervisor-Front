@@ -13,6 +13,9 @@ import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
 import { InputSelect } from '../../../../components/select/InputSelect'
 import { getImage } from '../../../../consts/api'
 import { formatearFechaCorta, formatearHoraCorta } from '../../../../utils/formatear'
+import { useTaxistas } from '../../../../store/taxistas/useTaxistas'
+import { useVehiculos } from '../../../../store/vehiculos/useVehiculos'
+import { tipoServicio, tiposServicioApi } from '../../consts/tiposServicio'
 
 const fields = {
   taxista: 'taxista_id',
@@ -26,7 +29,7 @@ const fields = {
   firma: 'signature'
 }
 
-export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas }) {
+export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
   const {
     usuarioSupervisor: {
       id: supervisorId
@@ -34,6 +37,8 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
   } = useUsuarioSupervisor()
 
   const { aceptarVale } = useVales()
+  const { taxistas } = useTaxistas()
+  const { vehiculos } = useVehiculos()
 
   const [costo, setCosto] = useState({
     costoReal: '',
@@ -47,17 +52,19 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
   const formRef = useRef()
 
   const {
-    request: {
+    requestVale: {
       id,
-      capacity: solicitarCarga,
       date: fecha,
       destiny: destino,
-      district: distrito,
-      passenger: pasajero,
+      hours: horas,
       remarks: observaciones,
       request_time: horaSolicitada,
-      arrival_time: horaLlegada,
-      departure_time: horaSalida
+      departure_time: horaSalida,
+      service,
+      vehicle_id: idVehiculo,
+      passengers: pasajeros,
+      request_to_load: carga,
+      request_to_extraload: extraCarga
     } = {},
     area_corporative: {
       area_name: area,
@@ -72,6 +79,21 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
     } = {}
 
   } = data || {}
+
+  const vehiculo = vehiculos.find(v => parseInt(v.id) === parseInt(idVehiculo))
+
+  const getPrice = (key) => vehiculo && vehiculo?.[key] !== 'undefined' && formatearASoles({ numero: vehiculo?.[key] })
+
+  const costoCargaVehiculo = getPrice('load')
+  const costoExtraCargaVehiculo = getPrice('extra_load')
+
+  const vehiculoNombre = vehiculo?.vehicle_name
+  const primerPasajeroNombre = pasajeros && pasajeros[0].firstName
+  const servicio = tipoServicio[service]
+
+  const isDestiny = tiposServicioApi.destino === service
+
+  const costoCarga = carga ? costoCargaVehiculo : extraCarga ? costoExtraCargaVehiculo : 'S/ 00.00'
 
   return (
     <ModalBase
@@ -107,8 +129,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
 
           const body = Object.fromEntries(formData)
           body[fields.supervisor] = supervisorId
-          body[fields.firma] = 'algunafoto.pdf'
-          body[fields.taxista] = Number(body[fields.taxista])
+          body[fields.firma] = firma
 
           atenuarFormulario({ form: e.target })
 
@@ -136,7 +157,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
         >
 
           <fieldset
-            className='flex flex-col gap-5 h-full w-[358px] [&_input[type=text]]:bg-white [&_input[type=text]]:cursor-default'
+            className='flex flex-col gap-5 h-full flex-grow'
           >
             <LabelText
               label='Funcionario'
@@ -144,20 +165,43 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
               readOnly
             />
 
-            <LabelText
-              label='Área'
-              defaultValue={area}
-              readOnly
-            />
+            <fieldset
+              className='flex gap-5 justify-between max-w-full'
+            >
+              <LabelText
+                label='Área'
+                defaultValue={area}
+                readOnly
+              />
 
-            <LabelText
-              label='Pasajero'
-              defaultValue={pasajero}
-              readOnly
-            />
+              <LabelText
+                label='Vehículo'
+                defaultValue={vehiculoNombre}
+                readOnly
+              />
+            </fieldset>
 
             <fieldset
-              className='flex gap-5 justify-between [&>label]:w-[170px]'
+              className='flex gap-m justify-between'
+            >
+              <LabelText
+                label='Pasajeros'
+                labelClass='flex-1'
+                defaultValue={primerPasajeroNombre}
+                readOnly
+              />
+
+              <button
+                className='boton-primario-marca h-9 self-end'
+                type='button'
+                onClick={() => alert('En construccion')}
+              >
+                Ver más
+              </button>
+            </fieldset>
+
+            <fieldset
+              className='flex gap-5 justify-between max-w-full'
             >
               <LabelText
                 label='Fecha'
@@ -166,15 +210,15 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
               />
 
               <LabelText
-                label='Distrito'
-                defaultValue={distrito}
+                label='Servicio'
+                defaultValue={servicio}
                 readOnly
               />
             </fieldset>
 
             <LabelText
-              label='Destino'
-              defaultValue={destino}
+              label={isDestiny ? 'Destino' : 'Horas'}
+              defaultValue={isDestiny ? destino : horas}
               readOnly
             />
 
@@ -191,21 +235,37 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
                 />
               </LabelText>
 
-              <label
-                className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'
+              <fieldset
+                className='flex justify-between gap-2 max-w-full'
               >
-                <NormalCheck
-                  labelClass='scale-[80%] cursor-default'
-                  defaultChecked={solicitarCarga}
-                  disabled
-                />
+                <label
+                  className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'
+                >
+                  <NormalCheck
+                    labelClass='scale-[80%] cursor-default'
+                    defaultChecked={carga}
+                    disabled
+                  />
 
-                Solicitar para llevar carga
-              </label>
+                  Solicitar carga
+                </label>
+
+                <label
+                  className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'
+                >
+                  <NormalCheck
+                    labelClass='scale-[80%] cursor-default'
+                    defaultChecked={extraCarga}
+                    disabled
+                  />
+
+                  Solicitar extra carga
+                </label>
+              </fieldset>
             </fieldset>
 
             <fieldset
-              className='flex gap-5 justify-between w-full max-w-full [&>label]:flex-1 [&>label]:max-w-[106px]'
+              className='flex gap-5 justify-between w-full max-w-full'
             >
               <LabelText
                 label='Hora Solicitada'
@@ -218,22 +278,16 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
                 defaultValue={horaSalida && formatearHoraCorta(horaSalida)}
                 readOnly
               />
-
-              <LabelText
-                label='Hora de Llegada'
-                defaultValue={horaLlegada && formatearHoraCorta(horaLlegada)}
-                readOnly
-              />
             </fieldset>
 
           </fieldset>
 
           <hr
-            className='w-px h-full border-l border-bordesSeparador'
+            className='w-px h-[584px] border-l border-bordesSeparador'
           />
 
           <fieldset
-            className='flex flex-col gap-5 h-full'
+            className='flex flex-col w-[202px] gap-3 h-full'
           >
             <LabelText
               label='Costo Real'
@@ -304,15 +358,27 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose, taxistas })
               name={fields.total}
               value={costo.total}
               required
-              inputClass='bg-white cursor-default'
               readOnly
             />
 
-            <fieldset className='cursor-default border-2 w-[202px] h-[128px] border-bordesIdle rounded-lg flex items-center justify-center'>
+            <LabelText
+              label='Costo adicional de carga'
+              value={costoCarga}
+              readOnly
+            />
+
+            <fieldset className='relative cursor-default border-2 w-[202px] h-[108px] border-bordesIdle rounded-lg flex items-center justify-center'>
               <img
-                className='w-[198px] h-[124px] object-cover rounded-md'
+                className='w-[198px] h-[104px] object-cover rounded-md'
                 src={getImage(firma)}
                 alt='Imagen'
+              />
+
+              <input
+                className='absolute -z-50 inset-0 opacity-0 size-0 pointer-events-none'
+                type='text'
+                defaultValue={firma}
+                readOnly
               />
             </fieldset>
           </fieldset>
