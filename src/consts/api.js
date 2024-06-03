@@ -8,7 +8,14 @@ export const apiImages = `${api}/images`
 
 export function getImage (url) {
   if (typeof url !== 'string') return null
-  return `${apiImages}${url}`
+
+  const haveInitialSlash = url[0] === '/'
+
+  if (haveInitialSlash) {
+    return `${apiImages}${url}`
+  }
+
+  return `${apiImages}/${url}`
 }
 
 export const TOKEN = localStorage.getItem(TOKEN_NAME)
@@ -19,7 +26,8 @@ export const apiRequestParams = {
   },
   vales: {
     idTerminal: 'idTerminal',
-    idVale: 'idVale'
+    idVale: 'idVale',
+    idRequestVale: 'idRequestVale'
   }
 }
 
@@ -47,6 +55,7 @@ export const apiRequest = {
   valesSolicitudes: `${api}/user-supervisor/vales`,
   aceptarVale: `${api}/user-supervisor/vales/accept/:${apiRequestParams.vales.idVale}`,
   crearVale: `${api}/user-supervisor/vales/register`,
+  actualizarVale: `${api}/user-supervisor/vales/edit/:${apiRequestParams.vales.idRequestVale}`,
 
   // otrosTemporales
   corporativos: `${api}/supervisor-prueba`,
