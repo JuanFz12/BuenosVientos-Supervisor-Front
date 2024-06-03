@@ -39,12 +39,17 @@ export function PerfilSupervisor () {
     setOpen(!open)
   }
 
+  function handleBlur (e) {
+    if (e.currentTarget.contains(e.relatedTarget)) return // Previene el blur al hacer click sobre un hijo del padre
+    e.relatedTarget && setOpen(false)
+  }
+
   return (
     <section
       tabIndex={1}
       // regresar el onMouseDown y onMouseUp a su estado original si se necesita
       onClick={handleOpen}
-      onBlur={e => e.relatedTarget && setOpen(false)}
+      onBlur={handleBlur}
       className='relative before:content-[""] before:absolute before:inset-0 before:w-full before:h-full outline-none cursor-pointer flex items-center justify-end px-3 w-[280px] h-9 rounded-lg border border-bordesIdle'
     >
       <section
@@ -112,6 +117,7 @@ export function PerfilSupervisor () {
           <Link
             to={routes.asistencias}
             className='text-azul-500 text-xs font-normal leading-4 hover:underline'
+            unstable_viewTransition
           >
             Mis Asistencias
           </Link>
