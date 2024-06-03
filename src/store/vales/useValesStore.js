@@ -4,8 +4,9 @@ import { apiRequest, apiRequestParams } from '../../consts/api'
 import { createData } from '../../services/createData'
 
 import { generateUrl } from '../../utils/generateUrl'
+import { updateData } from '../../services/updateData'
 
-export const useVales = create(set => {
+export const useValesStore = create(set => {
   function getVales () {
     const url = apiRequest.vales
 
@@ -102,6 +103,47 @@ export const useVales = create(set => {
     })
   }
 
+  function updateEstadoVale ({ idRequestVale, status }) {
+    if (isNaN(+idRequestVale) || !status) {
+      throw new Error('No existe idRequestVale o status')
+    }
+
+    const paramId = apiRequestParams.vales.idRequestVale
+    const url = generateUrl(apiRequest.actualizarVale, { [paramId]: idRequestVale })
+
+    return new Promise((resolve, reject) => {
+      const body = {
+        application_status: status
+      }
+
+      updateData({ url, body })
+        .then(dataRes => {
+          console.log(dataRes)
+
+          const {
+            data: valeActualizado
+          } = dataRes
+
+          set(state => {
+            const index = state.vales.findIndex(({ requestVale: { id } }) => id === idRequestVale)
+
+            const newVales = [...state.vales]
+
+            const valeAModificar = newVales[index]
+            valeAModificar.requestVale.application_status = valeActualizado.requestVale.application_status
+
+            return { vales: newVales }
+          })
+          resolve(dataRes)
+        })
+        .catch(err => {
+          alert(`Error al actualizar el estado del vale: ${err.error ?? err.message ?? 'Error desconocido'}`)
+          reject(err)
+          set(state => ({ vales: [...state.vales] })) // esto es para hacer un re-render del listado
+        })
+    })
+  }
+
   return {
     loading: true,
     loadingSolicitudes: true,
@@ -110,6 +152,7 @@ export const useVales = create(set => {
     getVales,
     getSolicitudes,
     aceptarVale,
-    crearVale
+    crearVale,
+    updateEstadoVale
   }
 })
