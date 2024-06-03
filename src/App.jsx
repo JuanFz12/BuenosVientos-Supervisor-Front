@@ -45,15 +45,6 @@ const router = createBrowserRouter([
     element: <Logout />
   },
   {
-    // se separa porque necesita un titulo diferente, tambien se podria controlar con un estado, cambiar a eso si se necesita
-
-    // UPDATE!! ----> ya no es necesario que este fuera del layout ya que ahora se puede cambiar las props del layout
-    // usando useLayout()
-    path: asistencias,
-    element: <Layout title='Registro de Asistencias'><Asistencias /></Layout>
-  },
-
-  {
     path: '/',
     element: <ProtectRoutes><Layout /></ProtectRoutes>,
     children: [
@@ -82,6 +73,10 @@ const router = createBrowserRouter([
             element: <SolicitudesVales />
           }
         ]
+      },
+      {
+        path: asistencias,
+        element: <Asistencias />
       },
       {
         path: exoneraciones,

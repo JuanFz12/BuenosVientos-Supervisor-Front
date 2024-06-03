@@ -4,9 +4,18 @@ import { Buscador } from '../../components/buscador/Buscador'
 import { SelectorFecha } from '../../components/selectorFecha/SelectorFecha'
 import { changeDocTitle, titlePages } from '../../consts/titlePage'
 import { RenderAsistencias } from './components/RenderAsistencias'
+import { useLayout } from '../../store/useLayout'
 
 export function Asistencias () {
   useEffect(() => changeDocTitle(titlePages.asistencias), [])
+
+  const { setTitulo } = useLayout()
+
+  useEffect(() => {
+    setTitulo('Registro de Asistencias')
+
+    return () => setTitulo(undefined)
+  }, [setTitulo])
 
   return (
     <main>
