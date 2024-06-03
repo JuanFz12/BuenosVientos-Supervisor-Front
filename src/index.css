@@ -289,6 +289,28 @@ nav {
     }
   }
 
+  .boton-secundario-rojo {
+    @apply boton-base;
+
+    color: #E43530;
+    background-color: #FFF0EF;
+
+    &:hover {
+      color: #B70F0B;
+      background-color: #FFD2D1;
+    }
+
+    &:active {
+      color: #E43530;
+      background-color: #FFADAB;
+    }
+
+    &:disabled {
+      color: #FFADAB;
+      background-color: #F9FAFB
+    }
+  }
+
   .boton-terciario-rojo {
     @apply boton-base;
 

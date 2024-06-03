@@ -27,7 +27,23 @@
     background-color: #FFFAEB;
     color: #B54708;
     &::before {
-	  background-color: #EE8C0B;
+      background-color: #EE8C0B;
+    }
+  }
+
+  &.neutral{
+    @apply bg-neutrales-200;
+    color: #3D4D64;
+    &::before {
+      background-color: #667085;
+    }
+  }
+
+  &.rojo{
+    background-color: #FEF3F2;
+    color: #B42318;
+    &::before {
+      background-color: #F03B2E;
     }
   }
 }

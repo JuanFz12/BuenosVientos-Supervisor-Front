@@ -13,9 +13,10 @@ export function EtiquetaVerde ({ text }) {
 }
 
 /**
- * @typedef {'verde' | 'celeste' | 'amarillo'} Color
+ * @typedef {'verde' | 'celeste' | 'amarillo' | 'neutral' | 'rojo'} Color
  *
  * @typedef {Object} EtiquetaProps
+ * @property {string} className - Clase CSS para la etiqueta.
  * @property {string} text - Texto de la etiqueta.
  * @property {Color} color - Color de la etiqueta ('verde', 'celeste' o 'amarillo').
  */
@@ -25,13 +26,13 @@ export function EtiquetaVerde ({ text }) {
  * @param {EtiquetaProps} props - Propiedades del componente.
  * @returns {JSX.Element} Elemento JSX que representa la etiqueta.
  */
-export function Etiqueta ({ text, color, ...props }) {
+export function Etiqueta ({ className = '', text, color, ...props }) {
   return (
     <span
       {...props}
-      className={`relative etiqueta ${color} flex items-center gap-[6px] minm-w-max rounded-2xl 
+      className={`relative cursor-default etiqueta ${color} flex items-center gap-[6px] minm-w-max rounded-2xl 
       text-xs leading-3 font-medium text-center py-[4.5px] px-2
-      ${props.className || ''}`}
+      ${className}`}
     >
       {text}
     </span>
