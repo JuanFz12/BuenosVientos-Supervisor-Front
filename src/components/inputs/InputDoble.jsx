@@ -1,5 +1,8 @@
 import { TextInput } from './TextInput'
 
+/**
+ * Sirve para Mostrar un Input en la UI (label) y tener un valor verdadero que no se vera en la UI (value)
+ */
 export function InputDoble ({ placeholder, required, label, defaultLabel, defaultValue, value, name, className }) {
   return (
     <>

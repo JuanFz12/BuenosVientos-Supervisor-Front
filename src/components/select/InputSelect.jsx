@@ -17,6 +17,7 @@ export function InputSelect ({
   defaultLabel,
   defaultValue,
   readOnly,
+  errMessage,
   required
 }) {
   const [labelInput, setLabelInput] = useState({
@@ -239,9 +240,9 @@ export function InputSelect ({
       {
         Boolean(input.current?.value.length) && internOptions && !internOptions.length && (
           <span
-            className='absolute right-0 -top-5 text-red-500'
+            className='absolute left-0 -bottom-3.5 text-red-500'
           >
-            No se encontraron resultados
+            {errMessage || 'No se encontraron resultados'}
           </span>
         )
       }

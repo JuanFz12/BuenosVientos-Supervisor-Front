@@ -4,7 +4,8 @@ import { useDebounce } from '../../hooks/useDebounce'
 
 export function InputSearchSelect ({
   onChange = () => {},
-  onSelect,
+  onSelect = () => {},
+  onDeselect = () => {},
   className = '',
   optionClass,
   listClass,
@@ -104,6 +105,7 @@ export function InputSearchSelect ({
       handleHeight(false)
       setLabelInput({ label: e.target.value, value: '' })
 
+      onDeselect(e)
       onChangeDebounce(e)
 
       return
