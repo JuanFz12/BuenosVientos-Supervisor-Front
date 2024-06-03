@@ -7,3 +7,8 @@ export const TIPOS_USUARIOS = {
 
 // localStorage
 export const USER_INFO_GENERAL = 'uig-c'
+
+// Logica tal vez
+export const IGV = 0.18
+
+export const ceroSoles = 'S/ 00.00'

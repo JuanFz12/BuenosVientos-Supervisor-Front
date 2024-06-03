@@ -1,6 +1,7 @@
 import { formatearASoles } from './formatearASoles'
 import { parsearSoles } from './parsearSoles'
 
+// arreglar esta cosa
 export function formatearInputASoles ({ event, controlled = false }) {
   const { target } = event
 
