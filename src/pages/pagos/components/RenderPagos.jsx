@@ -13,7 +13,7 @@ const estados = {
   pendiente: 'Pending'
 }
 
-const status = {
+const tagStatus = {
   [estados.pendiente]: {
     text: 'Pendiente',
     color: COLORES_ETIQUETAS.amarillo
@@ -63,7 +63,7 @@ export function RenderPagos () {
             <li
               title={
                 fecha === estados.pendiente
-                  ? status[fecha].text
+                  ? tagStatus[fecha].text
                   : formatearFechaCorta(fecha)
               }
             >
@@ -71,8 +71,8 @@ export function RenderPagos () {
                 fecha === estados.pendiente
                   ? (
                     <Etiqueta
-                      text={status[fecha].text}
-                      color={status[fecha].color}
+                      text={tagStatus[fecha].text}
+                      color={tagStatus[fecha].color}
                       className='w-fit'
                     />
                     )

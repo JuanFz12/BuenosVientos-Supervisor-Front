@@ -14,7 +14,7 @@ const estados = {
   enRevision: 'submitted'
 }
 
-const status = {
+const tagStatus = {
   [estados.completo]: {
     text: 'Completo',
     color: COLORES_ETIQUETAS.verde
@@ -82,8 +82,8 @@ export function RenderExoneraciones () {
               title='Estado'
             >
               <Etiqueta
-                text={status[estado].text}
-                color={status[estado].color}
+                text={tagStatus[estado].text}
+                color={tagStatus[estado].color}
                 className='w-fit'
               />
             </li>

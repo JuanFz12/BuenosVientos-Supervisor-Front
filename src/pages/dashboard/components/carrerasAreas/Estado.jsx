@@ -9,7 +9,7 @@ const estados = {
   tardanza: 'Late'
 }
 
-const status = {
+const tagStatus = {
   [estados.asistido]: {
     text: 'Asistido',
     color: COLORES_ETIQUETAS.verde
@@ -48,8 +48,8 @@ export function Estado ({ className = '', estado = estados.asistido }) {
       >
         <li>
           <Etiqueta
-            text={status[estado].text}
-            color={status[estado].color}
+            text={tagStatus[estado].text}
+            color={tagStatus[estado].color}
             className='h-6 w-fit'
           />
         </li>
