@@ -141,6 +141,7 @@ export function Home () {
               label='Correo electrónico'
               placeholder='Ingrese su dirección de correo electrónico'
               type='email'
+              autoFocus
               name={fields.email}
               autoComplete='off'
               required
