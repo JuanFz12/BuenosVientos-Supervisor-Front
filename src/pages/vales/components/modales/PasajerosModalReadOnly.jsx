@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { BotonCerrar } from '../../../../components/botones/BotonCerrar'
 import { ModalBase } from '../../../../components/modales/ModalBase'
 import { LabelText } from '../../../../components/labels/LabelText'
-import { getImage } from '../../../../consts/api'
 
 export function PasajerosModalReadOnly ({ refModal: thisModal, onClose, pasajeros }) {
   const detallesPasajeroModal = useRef()
@@ -12,8 +11,8 @@ export function PasajerosModalReadOnly ({ refModal: thisModal, onClose, pasajero
     <>
       <ModalBase
         refModal={thisModal}
-        onClose={() => {
-          onClose && onClose()
+        onClose={e => {
+          onClose && onClose(e)
         }}
       >
         <section
@@ -27,7 +26,7 @@ export function PasajerosModalReadOnly ({ refModal: thisModal, onClose, pasajero
             </h4>
           </header>
 
-          <ul
+          <menu
             className='w-full flex flex-grow flex-col gap-5 min-h-[100px] overflow-x-clip overflow-y-auto scroll-neutral'
           >
             {
@@ -60,7 +59,7 @@ export function PasajerosModalReadOnly ({ refModal: thisModal, onClose, pasajero
                   )
                 })
             }
-          </ul>
+          </menu>
 
           <BotonCerrar
             className='self-end'
@@ -82,10 +81,8 @@ function DetallesPasajero ({ refModal: thisModal, onClose, pasajero }) {
   const {
     firstName: nombre,
     lastName: apellido,
-    photo_passenger: fotoPasajero,
     travels: viajes,
-    contact_number: numeroContacto,
-    dni
+    contact_number: numeroContacto
   } = pasajero || {}
 
   const nombreCompleto = `${nombre} ${apellido}`
@@ -116,22 +113,6 @@ function DetallesPasajero ({ refModal: thisModal, onClose, pasajero }) {
         <LabelText
           label='Nombre Completo'
           value={nombreCompleto}
-          readOnly
-        />
-
-        <LabelText
-          label='Foto'
-          labelClass='h-[100px]'
-        >
-          <img
-            className='w-full h-[calc(100%-20px)] max-w-full max-h-full object-contain rounded-lg'
-            src={getImage(`/${fotoPasajero}`)}
-          />
-        </LabelText>
-
-        <LabelText
-          label='DNI'
-          defaultValue={dni}
           readOnly
         />
 

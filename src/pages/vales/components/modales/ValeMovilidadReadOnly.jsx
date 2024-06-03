@@ -7,8 +7,9 @@ import { getImage } from '../../../../consts/api'
 import { useVehiculos } from '../../../../store/vehiculos/useVehiculos'
 import { formatearFechaCorta, formatearHoraLarga } from '../../../../utils/formatear'
 import { formatearASoles } from '../../../../utils/formatearASoles'
-import { tipoServicio, tiposServicioApi } from '../../consts/tiposServicio'
+import { serviciosLabel, tipoServicio, tiposServicioApi } from '../../consts/tiposServicio'
 import { PasajerosModalReadOnly } from './PasajerosModalReadOnly'
+import { labelRutasFijasFromApi } from '../../consts/vales'
 
 export function ValeMovilidadReadOnly ({
   refModal: thisModal,
@@ -29,6 +30,7 @@ export function ValeMovilidadReadOnly ({
       date: fecha,
       hours: horas,
       destiny: destino,
+      destiny_fixed: rutaFija,
       remarks: observaciones,
       request_time: horaSolicitada,
       departure_time: horaSalida,
@@ -56,7 +58,7 @@ export function ValeMovilidadReadOnly ({
 
   // Vehiculo
   const vehiculo = vehiculos.find(v => parseInt(v.id) === parseInt(idVehiculo))
-  const getPrice = (key) => vehiculo && vehiculo?.[key] !== 'undefined' && formatearASoles({ numero: vehiculo?.[key] })
+  const getPrice = (key) => vehiculo && Boolean(parseFloat(vehiculo?.[key])) && formatearASoles({ numero: vehiculo?.[key] })
 
   const costoCargaVehiculo = getPrice('load')
   const costoExtraCargaVehiculo = getPrice('extra_load')
@@ -64,13 +66,17 @@ export function ValeMovilidadReadOnly ({
   const vehiculoNombre = vehiculo?.vehicle_name
 
   // Pasajeros
-  const pasajeorsModal = useRef()
-
-  const primerPasajeroNombre = pasajeros && pasajeros[0].firstName
-  const servicio = tipoServicio[service]
+  const pasajerosModal = useRef()
+  const primerPasajeroNombre = pasajeros && `${pasajeros[0].firstName} ${pasajeros[0].lastName}`
 
   // Tipo de servicio
+  const servicio = tipoServicio[service]
+
   const isDestiny = tiposServicioApi.destino === service
+  const isRutaFija = tiposServicioApi.rutasFijas === service
+
+  const servicioLabel = serviciosLabel[service]
+  const rutaFijaValor = labelRutasFijasFromApi[rutaFija]
 
   // Costo carga
   const costoCarga = carga ? costoCargaVehiculo : extraCarga ? costoExtraCargaVehiculo : 'S/ 00.00'
@@ -91,7 +97,7 @@ export function ValeMovilidadReadOnly ({
 
           {/* En un ideal el alto deberia ser de 584px */}
           <fieldset className='flex gap-5 h-fit justify-between'>
-            <fieldset className='flex flex-col gap-5 h-full w-[358px] [&_input[type=text]]:bg-white [&_input[type=text]]:cursor-default'>
+            <fieldset className='flex flex-col gap-5 h-full w-[358px]'>
               <LabelText
                 label='Funcionario'
                 defaultValue={nombres && `${nombres} ${apellidos}`}
@@ -127,13 +133,13 @@ export function ValeMovilidadReadOnly ({
                 <button
                   className='boton-primario-marca h-9 self-end'
                   type='button'
-                  onClick={() => pasajeorsModal.current.showModal()}
+                  onClick={() => pasajerosModal.current.showModal()}
                 >
                   Ver más
                 </button>
               </fieldset>
 
-              <fieldset className='flex gap-5 justify-between [&>label]:w-[170px]'>
+              <fieldset className='flex gap-5 justify-between'>
                 <LabelText
                   label='Fecha'
                   defaultValue={fecha && formatearFechaCorta(fecha)}
@@ -148,17 +154,26 @@ export function ValeMovilidadReadOnly ({
               </fieldset>
 
               <LabelText
-                label={isDestiny ? 'Destino' : 'Horas'}
-                defaultValue={horas}
+                label={servicioLabel}
+                defaultValue={isRutaFija ? rutaFijaValor : horas}
                 readOnly
               >
                 {
-                  isDestiny && (
-                    <TextArea
-                      defaultValue={destino}
-                      readOnly
-                    />
-                  )
+                  // Renderizar condicionalmente dependiendo del tipo de servicio
+                  (() => {
+                    if (!isDestiny && !isRutaFija) return null
+
+                    if (isDestiny) {
+                      return (
+                        <TextArea
+                          defaultValue={destino}
+                          readOnly
+                        />
+                      )
+                    }
+
+                    return null
+                  })()
                 }
               </LabelText>
 
@@ -257,7 +272,8 @@ export function ValeMovilidadReadOnly ({
               <LabelText
                 label='Total a pagar'
                 defaultValue={formatearASoles({ numero: total })}
-                inputClass='bg-white cursor-default'
+                labelClass='text-amarilloAdvertencia-700 font-medium'
+                inputClass='!text-amarilloAdvertencia-700 font-medium !border-[#EE8C0B] !bg-amarilloAdvertencia-100'
                 readOnly
               />
 
@@ -267,9 +283,9 @@ export function ValeMovilidadReadOnly ({
                 readOnly
               />
 
-              <fieldset className='cursor-default border-2 w-[202px] h-[108px] border-bordesIdle rounded-lg flex items-center justify-center'>
+              <fieldset className='cursor-default border-2 w-[190px] h-[108px] border-bordesIdle rounded-lg flex items-center justify-center'>
                 <img
-                  className='w-[198px] h-[104px] object-cover rounded-md'
+                  className='max-w-[186px] h-[104px] object-contain rounded-md'
                   src={getImage(firma)}
                   alt='Imagen'
                 />
@@ -295,7 +311,7 @@ export function ValeMovilidadReadOnly ({
       </ModalBase>
 
       <PasajerosModalReadOnly
-        refModal={pasajeorsModal}
+        refModal={pasajerosModal}
         pasajeros={pasajeros}
       />
     </>

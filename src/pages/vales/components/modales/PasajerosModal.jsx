@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { LabelText } from '../../../../components/labels/LabelText'
 import { ModalBase } from '../../../../components/modales/ModalBase'
 import { InputSearchSelect } from '../../../../components/select/InputSearchSelect'
@@ -13,7 +13,7 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
 
   const [editMode, setEditMode] = useState(true)
 
-  const { pasajerosSearch, buscarPasajero, resetPasajerosSearch } = usePasajeros()
+  const { pasajerosSearchList, buscarPasajero, resetPasajerosSearchList } = usePasajeros()
   const initialPasajerosSelected = useRef(pasajerosSelected)
 
   const initialPasajeroTarget = useRef(null).current
@@ -31,14 +31,22 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
 
   // hacer un slice(0, capacidadMaxima) de pasajeros internos al setear el estado actualizarPasajerosSelected
 
-  const vehiculo = vehiculos.find(({ id }) => parseInt(id) === parseInt(vehiculoId))
+  const vehiculo = useMemo(() => vehiculos.find(({ id }) => parseInt(id) === parseInt(vehiculoId)), [vehiculoId, vehiculos])
 
   const capacidadMaxima = vehiculo?.number_people || 0
+
+  const placeholderInputSearch = 'Buscar nombre del pasajero'
+
+  const inputHasValue = (() => {
+    const inputSearch = document.querySelector(`input[placeholder="${placeholderInputSearch}"]`) // Este es el input donde se esta ejecutando la busqueda
+
+    return Boolean(inputSearch && inputSearch.value)
+  })()
 
   function handleEditCancel () {
     if (isEqual(pasajerosInternos, pasajerosSelected)) return setEditMode(false)
 
-    const isCancel = window.confirm('¿Está seguro de que desea descartar los cambios?')
+    const isCancel = window.confirm('¿Desea descartar los cambios?')
 
     if (isCancel) {
       setEditMode(false)
@@ -47,9 +55,9 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
   }
 
   function handleEditConfirm () {
-    if (isEqual(pasajerosInternos, pasajerosSelected)) return setEditMode(false)
+    if (isEqual(pasajerosInternos, pasajerosSelected) && !inputHasValue) return setEditMode(false)
 
-    const isConfirm = window.confirm('¿Está seguro de que desea guardar los cambios?')
+    const isConfirm = window.confirm('¿Desea guardar los cambios?')
 
     if (isConfirm) {
       setEditMode(false)
@@ -60,10 +68,14 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
   return (
     <ModalBase
       refModal={thisModal}
-      onClose={() => {
-        resetPasajerosSearch()
+      onClose={e => {
+        resetPasajerosSearchList()
         setQuery(initialQuery)
-        onClose && onClose()
+        setPasajeroTarget(initialPasajeroTarget) // quitar si ocurre algun error
+
+        setPasajerosInternos(pasajerosSelected) // se hace esto para asegurarse de que siempre mantenga el estado verdadero de los pasajeros seleccionados
+
+        onClose && onClose(e)
       }}
     >
       <section
@@ -95,10 +107,10 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
                 className='flex gap-m'
               >
                 <InputSearchSelect
-                  placeholder='Buscar nombre del pasajero'
+                  placeholder={placeholderInputSearch}
                   readOnly={pasajerosInternos.length >= capacidadMaxima || !editMode}
                   options={
-                    pasajerosSearch
+                    pasajerosSearchList
                       .map(({ fullName, id: idPasajero }) => ({
                         label: fullName,
                         value: idPasajero
@@ -124,6 +136,7 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
                   disabled={pasajerosInternos.length >= capacidadMaxima}
                   onClick={() => {
                     if (pasajerosInternos.length >= capacidadMaxima) return alert('No puede agregar mas pasajeros, verifique la capacidad máxima de este vehículo')
+
                     if (pasajeroTarget) {
                       const isPassengerAlreadyInList = pasajerosInternos.some(({ id }) => parseInt(id) === parseInt(pasajeroTarget.id))
 

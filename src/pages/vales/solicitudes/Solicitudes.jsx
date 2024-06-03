@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
-import { useVales } from '../../../store/vales/useVales'
+import { useValesStore } from '../../../store/vales/useValesStore'
 import { ListVales } from '../components/ListVales'
 import { useLayout } from '../../../store/useLayout'
 import { routes } from '../../../routes'
 
 export function SolicitudesVales () {
-  const { solicitudes, getSolicitudes, loadingSolicitudes } = useVales()
+  const { solicitudes, getSolicitudes, loadingSolicitudes } = useValesStore()
 
   const { setBackTo } = useLayout()
 

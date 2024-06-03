@@ -26,7 +26,7 @@ export const useCorporativos = create(set => {
     if (queryParam === undefined || queryParam === null) throw new Error('Query es requerida para realizar la búsqueda')
 
     const query = queryParam.toString().trim()
-    if (!query) return resetCorporativosSearch()
+    if (!query) return resetCorporativosSearchList()
 
     set({ loadingSearch: true })
 
@@ -40,10 +40,10 @@ export const useCorporativos = create(set => {
     return new Promise((resolve, reject) => getData({ url })
       .then(dataRes => {
         const {
-          data: corporativosSearch
+          data: corporativosSearchList
         } = dataRes
 
-        set({ corporativosSearch })
+        set({ corporativosSearchList })
 
         console.log(dataRes)
         resolve(dataRes)
@@ -56,16 +56,16 @@ export const useCorporativos = create(set => {
     )
   }
 
-  function resetCorporativosSearch () {
-    set({ corporativosSearch: [] })
+  function resetCorporativosSearchList () {
+    set({ corporativosSearchList: [] })
   }
 
   return {
     corporativos: [],
-    corporativosSearch: [],
+    corporativosSearchList: [],
     loading: true,
     loadingSearch: false,
     buscarCorporativo,
-    resetCorporativosSearch
+    resetCorporativosSearchList
   }
 })

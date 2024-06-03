@@ -26,7 +26,7 @@ export const usePasajeros = create(set => {
     if (queryParam === undefined || queryParam === null) throw new Error('Query es requerida para realizar la búsqueda')
 
     const query = queryParam.toString().trim()
-    if (!query) return resetPasajerosSearch()
+    if (!query) return resetPasajerosSearchList()
 
     set({ loadingSearch: true })
 
@@ -40,10 +40,10 @@ export const usePasajeros = create(set => {
     return new Promise((resolve, reject) => getData({ url })
       .then(dataRes => {
         const {
-          data: pasajerosSearch
+          data: pasajerosSearchList
         } = dataRes
 
-        set({ pasajerosSearch })
+        set({ pasajerosSearchList })
 
         console.log(dataRes)
         resolve(dataRes)
@@ -56,16 +56,16 @@ export const usePasajeros = create(set => {
     )
   }
 
-  function resetPasajerosSearch () {
-    set({ pasajerosSearch: [] })
+  function resetPasajerosSearchList () {
+    set({ pasajerosSearchList: [] })
   }
 
   return {
     pasajeros: [],
-    pasajerosSearch: [],
+    pasajerosSearchList: [],
     loading: true,
     loadingSearch: false,
     buscarPasajero,
-    resetPasajerosSearch
+    resetPasajerosSearchList
   }
 })
