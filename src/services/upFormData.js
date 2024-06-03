@@ -1,6 +1,6 @@
 import { TOKEN } from '../consts/api'
 
-export function upFormData ({ url, method, body }) {
+export function upFormData ({ url, method = 'POST', body }) {
   const options = {
     method,
     headers: {
