@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
-import { useVales } from '../../../store/vales/useVales'
+import { useValesStore } from '../../../store/vales/useValesStore'
 import { ListVales } from './ListVales'
 
 export function RenderVales () {
-  const { vales, getVales, loading } = useVales()
+  const { vales, getVales, loading } = useValesStore()
 
   useEffect(() => {
     getVales()

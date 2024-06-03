@@ -7,7 +7,7 @@ import { routes } from '../../routes'
 import { useEffect, useRef } from 'react'
 import { changeDocTitle, titlePages } from '../../consts/titlePage'
 import { useLayout } from '../../store/useLayout'
-import { NuevoVale } from './components/modales/NuevoVale'
+import { NuevoVale } from './components/modales/nuevoVale/NuevoVale'
 import { useTaxistas } from '../../store/taxistas/useTaxistas'
 import { useVehiculos } from '../../store/vehiculos/useVehiculos'
 
