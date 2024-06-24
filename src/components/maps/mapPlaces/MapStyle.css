@@ -1,0 +1,20 @@
+.pac-container {
+  padding: 10px 6px;
+  border-radius: 8px;
+  margin-top: 5px;
+  font-family: var(--dm-sans);
+
+  .pac-item {
+    cursor: pointer;
+    transition: background-color 0.08s ease-out;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: rgb(240, 240, 240);
+    }
+  }
+
+  &::after {
+    margin-top: 10px;
+  }
+}
