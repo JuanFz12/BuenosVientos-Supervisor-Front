@@ -167,7 +167,7 @@ export function CalendarInput ({ className = '', name, ...props }) {
         className='absolute z-50 flex flex-col gap-3 top-10 left-0 right-0 size-[230px] h-0 px-2 py-0 transition-all duration-300 ease-in-out rounded-tarjetas bg-white shadow-1 shadow-sombras-principal'
       >
         <header
-          className='flex items-center justify-between w-full h-4 overflow-clip'
+          className='flex items-center justify-between w-full h-4 overflow-hidden'
         >
           <strong
             className='texto-semi-bold-m text-textoTitulo'
@@ -225,7 +225,7 @@ export function CalendarInput ({ className = '', name, ...props }) {
         </header>
 
         <section
-          className='flex flex-col gap-3 overflow-clip'
+          className='flex flex-col gap-3 overflow-hidden'
         >
           <header
             className='w-full max-w-full h-4'
@@ -287,7 +287,7 @@ export function CalendarInput ({ className = '', name, ...props }) {
         </section>
 
         <footer
-          className='w-fit max-h-[26px] overflow-clip self-end'
+          className='w-fit max-h-[26px] overflow-hidden self-end'
         >
           <button
             className='boton-fantasma-marca p-1 px-3'
