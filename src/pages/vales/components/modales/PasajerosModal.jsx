@@ -7,9 +7,12 @@ import { BotonEliminar } from '../../../../components/botones/BotonEliminar'
 import { isEqual } from '../../../../utils/isEqual'
 import { useVehiculos } from '../../../../store/vehiculos/useVehiculos'
 import { MenuComun } from '../../../../components/menus/MenuComun'
+import { NuevoPasajero } from '../../../pasajeros/components/modales/NuevoPasajero'
+import { BotonAgregar } from '../../../../components/botones/BotonAgregar'
 
 export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelected, actualizarPasajerosSelected, vehiculoId }) {
   const { vehiculos } = useVehiculos()
+  const nuevoPasajeroModalRef = useRef()
 
   const [editMode, setEditMode] = useState(true)
 
@@ -65,46 +68,66 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
     }
   }
 
+  function agregarPasajeroInterno (pasajero) {
+    return new Promise((resolve, reject) => {
+      if (!pasajero) {
+        return alert('Debe seleccionar un pasajero')
+      }
+
+      if (pasajerosInternos.length >= capacidadMaxima) {
+        return alert('No puede agregar mas pasajeros, verifique la capacidad máxima de este vehículo')
+      }
+
+      const isPassengerAlreadyInList = pasajerosInternos.some(({ id }) => parseInt(id) === parseInt(pasajero.id))
+
+      if (isPassengerAlreadyInList) reject(pasajero)
+
+      setPasajerosInternos(prev => [...prev, pasajero])
+      resolve(pasajero)
+    })
+  }
+
   return (
-    <ModalBase
-      refModal={thisModal}
-      onClose={e => {
-        resetPasajerosSearchList()
-        setQuery(initialQuery)
-        setPasajeroTarget(initialPasajeroTarget) // quitar si ocurre algun error
+    <>
+      <ModalBase
+        refModal={thisModal}
+        onClose={e => {
+          resetPasajerosSearchList()
+          setQuery(initialQuery)
+          setPasajeroTarget(initialPasajeroTarget) // quitar si ocurre algun error
 
-        setPasajerosInternos(pasajerosSelected) // se hace esto para asegurarse de que siempre mantenga el estado verdadero de los pasajeros seleccionados
+          setPasajerosInternos(pasajerosSelected) // se hace esto para asegurarse de que siempre mantenga el estado verdadero de los pasajeros seleccionados
 
-        onClose && onClose(e)
-      }}
-    >
-      <section
-        className='w-[400px] h-[320px] max-h-[85dvh] gap-5 flex flex-col p-5 rounded-[32px] overflow-x-clip overflow-y-auto scroll-neutral'
+          onClose && onClose(e)
+        }}
       >
-        <header
-          className='flex justify-between gap-3 items-center'
+        <section
+          className='w-[400px] h-[320px] max-h-[85dvh] gap-5 flex flex-col p-5 rounded-[32px] overflow-x-clip overflow-y-auto scroll-neutral'
         >
-          <h4
-            className='titulo-h4 text-azul-500'
+          <header
+            className='flex justify-between gap-3 items-center'
           >
-            Pasajeros
-          </h4>
+            <h4
+              className='titulo-h4 text-azul-500'
+            >
+              Pasajeros
+            </h4>
 
-          <strong
-            title={`Capacidad máxima: ${capacidadMaxima}`}
-            className='texto-regular-l text-textoPrincipal truncate'
-          >
-            Capacidad máxima: {capacidadMaxima}
-          </strong>
-        </header>
+            <strong
+              title={`Capacidad máxima: ${capacidadMaxima}`}
+              className='texto-regular-l text-textoPrincipal truncate'
+            >
+              Capacidad máxima: {capacidadMaxima}
+            </strong>
+          </header>
 
-        {
+          {
           editMode && (
             <LabelText
               label='Buscar pasajeros'
             >
               <fieldset
-                className='flex gap-m'
+                className='flex gap-xs'
               >
                 <InputSearchSelect
                   placeholder={placeholderInputSearch}
@@ -152,69 +175,81 @@ export function PasajerosModal ({ refModal: thisModal, onClose, pasajerosSelecte
                   }}
                 />
 
+                <BotonCrearPasajero
+                  onClick={() => nuevoPasajeroModalRef.current.showModal()}
+                />
+
               </fieldset>
             </LabelText>
           )
         }
 
-        <ul
-          className='flex flex-grow flex-col gap-5 min-h-[100px] overflow-x-clip overflow-y-auto scroll-neutral'
-        >
-          {
-            pasajerosSelected &&
-            pasajerosInternos
-              .map(({ id, fullName: nombreCompleto }, idx) => (
-                <li
-                  key={id}
-                  className='flex items-center justify-between gap-5'
-                >
-                  <strong
-                    title={nombreCompleto}
-                    className='texto-regular-l text-textoPrincipal truncate'
+          <ul
+            className='flex flex-grow flex-col gap-5 min-h-[100px] overflow-x-clip overflow-y-auto scroll-neutral'
+          >
+            {
+              pasajerosSelected &&
+              pasajerosInternos
+                .map(({ id, fullName: nombreCompleto }, idx) => (
+                  <li
+                    key={id}
+                    className='flex items-center justify-between gap-5'
                   >
-                    {nombreCompleto}
-                  </strong>
+                    <strong
+                      title={nombreCompleto}
+                      className='texto-regular-l text-textoPrincipal truncate'
+                    >
+                      {nombreCompleto}
+                    </strong>
 
-                  {
-                    editMode && (
-                      <BotonEliminar
-                        onClick={() => {
-                          const nuevosPasajerosInternos = [...pasajerosInternos]
+                    {
+                      editMode && (
+                        <BotonEliminar
+                          onClick={() => {
+                            const nuevosPasajerosInternos = [...pasajerosInternos]
 
-                          nuevosPasajerosInternos.splice(idx, 1)
+                            nuevosPasajerosInternos.splice(idx, 1)
 
-                          setPasajerosInternos(nuevosPasajerosInternos)
-                        }}
-                      />
-                    )
-                  }
-                </li>
-              ))
+                            setPasajerosInternos(nuevosPasajerosInternos)
+                          }}
+                        />
+                      )
+                    }
+                  </li>
+                ))
           }
-        </ul>
+          </ul>
 
-        <MenuComun
-          cancelProps={{ type: 'button', className: 'w-[100px]' }}
-          handleCancel={() => {
-            if (editMode) {
-              return handleEditCancel()
-            }
+          <MenuComun
+            cancelProps={{ type: 'button', className: 'w-[100px]' }}
+            handleCancel={() => {
+              if (editMode) {
+                return handleEditCancel()
+              }
 
-            thisModal.current.close()
-          }}
-          cancelName={editMode ? 'Cancelar' : 'Cerrar'}
-          confirmName={editMode ? 'Guardar' : 'Editar'}
-          confirmProps={{ type: 'button', className: 'w-[160px]' }}
-          handleConfirm={() => {
-            if (editMode) {
-              return handleEditConfirm()
-            }
+              thisModal.current.close()
+            }}
+            cancelName={editMode ? 'Cancelar' : 'Cerrar'}
+            confirmName={editMode ? 'Guardar' : 'Editar'}
+            confirmProps={{ type: 'button', className: 'w-[160px]' }}
+            handleConfirm={() => {
+              if (editMode) {
+                return handleEditConfirm()
+              }
 
-            setEditMode(true)
-          }}
-        />
-      </section>
-    </ModalBase>
+              setEditMode(true)
+            }}
+          />
+        </section>
+      </ModalBase>
+
+      <NuevoPasajero
+        refModal={nuevoPasajeroModalRef}
+        onSuccess={({ passenger: { firstName, lastName, id } }) => {
+          agregarPasajeroInterno({ fullName: `${firstName} ${lastName}`, id })
+        }}
+      />
+    </>
   )
 }
 
@@ -228,5 +263,14 @@ function BotonAgregarPasajero ({ onClick, ...props }) {
     >
       Añadir
     </button>
+  )
+}
+
+function BotonCrearPasajero ({ onClick, ...props }) {
+  return (
+    <BotonAgregar
+      {...props}
+      onClick={onClick}
+    />
   )
 }

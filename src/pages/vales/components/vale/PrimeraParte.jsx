@@ -10,6 +10,7 @@ import { TIPOS_SERVICIO_LIST } from '../modales/nuevoVale/consts/nuevo-vale'
 import { serviciosLabel, tiposServicioApi } from '../../consts/tiposServicio'
 import { TextArea } from '../../../../components/inputs/TextArea'
 import { NormalCheck } from '../../../../components/checkbox/Checkbox'
+import { formatearHoraCorta } from '../../../../utils/formatear'
 
 export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
   const {
@@ -45,6 +46,8 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
     setIsCarga,
     setIsExtraCarga,
     resetSolicitarCarga,
+    addCostoCarga,
+    restCostoCarga,
 
     costoCarga,
     costoExtraCarga,
@@ -138,6 +141,7 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
           onDeselect={() => {
             resetUsuarioCorporativo()
             resetCosto()
+            resetSolicitarCarga({ onlyCarga: true })
             resetTipoServicioActual()
           }}
           onSelect={handleChangeFuncionario}
@@ -272,7 +276,11 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
 
               if (isRuta === isRutaFija) return
 
-              if (isRuta) return resetCosto()
+              if (isRuta) {
+                resetCosto()
+                resetSolicitarCarga({ onlyCarga: true })
+                return
+              }
               if (!isRuta || isRutaFija) resetCosto()
             }}
           />
@@ -347,10 +355,16 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
               labelClass='scale-[80%] has-[:disabled]:cursor-not-allowed'
               name={fields.carga}
               checked={isCarga}
-              disabled={!costoCarga}
+              disabled={!costoCarga || isRutaFija}
               onChange={e => {
                 if (!costoCarga) return
                 setIsCarga(e.target.checked)
+
+                if (e.target.checked) {
+                  addCostoCarga({ carga: true })
+                } else {
+                  restCostoCarga({ carga: true })
+                }
               }}
             />
 
@@ -368,11 +382,17 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
               labelClass='scale-[80%] has-[:disabled]:cursor-not-allowed'
               name={fields.extraCarga}
               checked={isExtraCarga}
-              disabled={!costoExtraCarga}
+              disabled={!costoExtraCarga || isRutaFija}
               onChange={e => {
                 if (!costoExtraCarga) return
 
                 setIsExtraCarga(e.target.checked)
+
+                if (e.target.checked) {
+                  addCostoCarga({ extraCarga: true })
+                } else {
+                  restCostoCarga({ extraCarga: true })
+                }
               }}
             />
 
@@ -412,7 +432,7 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
                 const inputHoraSalida = container.querySelector(`input[name="${fields.horaSalida}"]`)
 
                 if (e.target.checked) {
-                  inputHoraSalida.value = new Date().toLocaleTimeString('es-PE').split(':', 2).join(':')
+                  inputHoraSalida.value = formatearHoraCorta(new Date())
                   inputHoraSalida.readOnly = true
                 } else {
                   inputHoraSalida.readOnly = false

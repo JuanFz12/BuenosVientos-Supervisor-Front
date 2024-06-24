@@ -10,7 +10,7 @@ export function BotonDetalles ({ to, className = '', onClick, children, ...props
           unstable_viewTransition
           {...props}
         >
-          {children}
+          {children || 'Detalles'}
         </Link>
         )
       : (

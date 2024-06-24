@@ -151,8 +151,19 @@ export function useVales () {
     }))
   }
 
-  function resetSolicitarCarga () {
+  function resetSolicitarCarga ({ onlyCarga = false } = {}) {
     resetStateProp('solicitarCarga')
+
+    if (onlyCarga) return
+
+    const total = parsearSoles(valeState.costo.total) - parsearSoles(costoAdicionalCarga)
+    setValeState(state => ({
+      ...state,
+      costo: {
+        ...state.costo,
+        total: formatearASoles({ numero: total }) || ceroSoles
+      }
+    }))
   }
 
   // Costo
@@ -162,12 +173,14 @@ export function useVales () {
     const valorFormateado = formatearInputASoles({ event, controlled: true })
 
     if (!valorFormateado) {
+      const total = parsearSoles(costoAdicionalCarga) + parsearSoles(valeState.costo.peaje)
+
       setValeState(state => ({
         ...state,
         costo: {
           ...initialState.costo,
           peaje: state.costo.peaje,
-          total: state.costo.peaje || ceroSoles
+          total: formatearASoles({ numero: total }) || ceroSoles
         }
       }))
 
@@ -178,7 +191,7 @@ export function useVales () {
     const subTotal = parseFloat((valorFormateado * (1 - descuentoFormateado)).toFixed(2))
     const igv = parseFloat((subTotal * IGV).toFixed(2))
     const peaje = parsearSoles(valeState.costo.peaje) // peaje solo se usa para sumar el total
-    const total = parseFloat((subTotal + igv + peaje).toFixed(2))
+    const total = parsearSoles(costoAdicionalCarga) + parseFloat((subTotal + igv + peaje).toFixed(2))
 
     setValeState(state => ({
       ...state,
@@ -193,13 +206,57 @@ export function useVales () {
     }))
   }
 
+  function addCostoCarga ({ carga, extraCarga }) {
+    let total
+
+    if (!costoAdicionalCarga) {
+      total = parsearSoles(valeState.costo.total) + parsearSoles(carga ? costoCarga : costoExtraCarga)
+    } else {
+      if (carga) {
+        total = parsearSoles(valeState.costo.total) - parsearSoles(costoAdicionalCarga) + parsearSoles(costoCarga)
+      } else {
+        total = parsearSoles(valeState.costo.total) - parsearSoles(costoAdicionalCarga) + parsearSoles(costoExtraCarga)
+      }
+    }
+
+    setValeState(state => ({
+      ...state,
+      costo: {
+        ...state.costo,
+        total: formatearASoles({ numero: total }) || ceroSoles
+      }
+    }))
+  }
+
+  function restCostoCarga ({ carga, extraCarga }) {
+    let total
+
+    if (costoAdicionalCarga) {
+      total = parsearSoles(valeState.costo.total) - parsearSoles(carga ? costoCarga : costoExtraCarga)
+    } else {
+      if (carga) {
+        total = parsearSoles(valeState.costo.total) + parsearSoles(costoAdicionalCarga) - parsearSoles(costoCarga)
+      } else {
+        total = parsearSoles(valeState.costo.total) + parsearSoles(costoAdicionalCarga) - parsearSoles(costoExtraCarga)
+      }
+    }
+
+    setValeState(state => ({
+      ...state,
+      costo: {
+        ...state.costo,
+        total: formatearASoles({ numero: total }) || ceroSoles
+      }
+    }))
+  }
+
   function setPeaje (event) {
     const valorFormateado = formatearInputASoles({ event, controlled: true })
 
     const subTotal = parsearSoles(valeState.costo.subTotal)
     const igv = parsearSoles(valeState.costo.igv)
 
-    const total = subTotal + igv + valorFormateado
+    const total = parsearSoles(costoAdicionalCarga) + subTotal + igv + valorFormateado
 
     setValeState(state => ({
       ...state,
@@ -304,6 +361,8 @@ export function useVales () {
     setCostoFijo,
     setCostoReal,
     setPeaje,
+    addCostoCarga,
+    restCostoCarga,
     resetCosto,
     setPasajerosSelected,
     resetPasajerosSelected,

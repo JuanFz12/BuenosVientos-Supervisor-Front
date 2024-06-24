@@ -2,25 +2,49 @@ import { create } from 'zustand'
 import { getData } from '../../services/getData'
 import { apiRequest, apiRequestSearchParams } from '../../consts/api'
 import { generateUrlSearchParams } from '../../utils/generateUrlSearchParams'
+import { createData } from '../../services/createData'
 
 export const usePasajeros = create(set => {
-  // function getPasajeros () {
-  //   const url = apiRequest.pasajeros
+  function getPasajeros () {
+    const url = apiRequest.pasajeros
 
-  //   return getData({ url })
-  //     .then(dataRes => {
-  //       const {
-  //         payload: pasajeros
-  //       } = dataRes.data
+    return getData({ url })
+      .then(dataRes => {
+        const {
+          payload: pasajeros
+        } = dataRes.data
 
-  //       console.log(dataRes)
-  //       set({ pasajeros })
-  //     })
-  //     .catch(err => {
-  //       alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
-  //     })
-  //     .finally(() => set({ loading: false }))
-  // }
+        console.log(dataRes)
+        set({ pasajeros })
+      })
+      .catch(err => {
+        alert(`Error al obtener los pasajeros: ${err.error ?? err.message ?? 'Error desconocido'}`)
+      })
+      .finally(() => set({ isLoading: false }))
+  }
+
+  function crearPasajero ({ body }) {
+    if (!body) throw new Error('Body es requerido para crear un nuevo pasajero')
+
+    const url = apiRequest.crearPasajero
+
+    return new Promise((resolve, reject) => createData({ url, body })
+      .then(dataRes => {
+        const {
+          data: nuevoPasajero
+        } = dataRes
+
+        console.log(dataRes)
+        set(state => ({ pasajeros: [nuevoPasajero, ...state.pasajeros] }))
+        resolve(nuevoPasajero)
+      })
+      .catch(err => {
+        alert(`Error al crear el pasajero: ${err.error ?? err.message ?? 'Error desconocido'}`)
+        console.warn(err)
+        reject(err)
+      })
+    )
+  }
 
   function buscarPasajero (queryParam) {
     if (queryParam === undefined || queryParam === null) throw new Error('Query es requerida para realizar la búsqueda')
@@ -63,8 +87,10 @@ export const usePasajeros = create(set => {
   return {
     pasajeros: [],
     pasajerosSearchList: [],
-    loading: true,
+    isLoading: true,
     loadingSearch: false,
+    getPasajeros,
+    crearPasajero,
     buscarPasajero,
     resetPasajerosSearchList
   }

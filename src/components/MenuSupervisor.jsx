@@ -13,6 +13,7 @@ import { Dashboard } from '../assets/icons/elements/Dashboard'
 import { Usuario } from '../assets/icons/elements/Usuario'
 import { Carro } from '../assets/icons/elements/Carro'
 import { Vale } from '../assets/icons/elements/Vale'
+import { Pasajeros } from '../assets/icons/elements/Pasajeros'
 import { Calendario } from '../assets/icons/elements/Calendario'
 import { Alerta } from '../assets/icons/elements/Alerta'
 import { Finanzas } from '../assets/icons/elements/Finanzas'
@@ -38,6 +39,11 @@ export function MenuSupervisor () {
       label: 'Vales',
       path: routes.vales,
       Icon: Vale
+    },
+    {
+      label: 'Pasajeros',
+      path: routes.pasajeros,
+      Icon: Pasajeros
     },
     {
       label: 'Asistencias',
@@ -108,6 +114,7 @@ export function MenuSupervisor () {
                   >
                     <Icon
                       fill={pathname.includes(path) ? 'white' : '#4C64A6'}
+                      color={pathname.includes(path) ? 'white' : '#4C64A6'}
                     />
                     {label}
                   </div>

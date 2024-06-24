@@ -1,4 +1,5 @@
 import { ListStyle } from '../listStyle/ListStyle'
+import { ListStyleRow } from '../listStyle/ListStyleRow'
 import { FooterPaginacion } from '../paginacion/FooterPaginacion'
 
 export function TablaBase ({ className = '', classContainer = '', classTable = '', headers = [], headersClassName = [], additionalHeaders = <></>, loading, paginaActual, totalPaginas, anteriorPagina, siguientePagina, footer = true, rounded = true, overflow = false, children }) {
@@ -31,6 +32,14 @@ export function TablaBase ({ className = '', classContainer = '', classTable = '
               {additionalHeaders}
             </ListStyle>
           </header>
+
+          {
+            loading && (
+              <ListStyleRow>
+                Cargando...
+              </ListStyleRow>
+            )
+          }
 
           {children}
 

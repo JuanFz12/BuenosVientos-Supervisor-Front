@@ -57,14 +57,20 @@ export const apiRequest = {
   crearVale: `${api}/user-supervisor/vales/register`,
   actualizarVale: `${api}/user-supervisor/vales/edit/:${apiRequestParams.vales.idRequestVale}`,
 
+  // Otros
+  descargarReporteVales: `${api}/supervisor-excel`,
+
   // otrosTemporales
   corporativos: `${api}/supervisor-prueba`,
-  buscarCorporativo: `${api}/supervisor-search/users`,
+  buscarCorporativo: `${api}/supervisor-search/users`, // querys disponibles --> [query]
 
-  pasajeros: `${api}/supervisor-prueba/passenger`,
+  pasajeros: `${api}/passenger`,
+  crearPasajero: `${api}/passenger/register`,
   buscarPasajero: `${api}/supervisor-search/passengers`, // querys disponibles --> [query]
 
   vehiculos: `${api}/vehicle-type`,
+
+  corporaciones: `${api}/corporation`,
 
   // Autenticacion
   renovarToken: `${api}/auth/renew-token-supervisor`

@@ -10,6 +10,7 @@ import { formatearASoles } from '../../../../utils/formatearASoles'
 import { serviciosLabel, tipoServicio, tiposServicioApi } from '../../consts/tiposServicio'
 import { PasajerosModalReadOnly } from './PasajerosModalReadOnly'
 import { labelRutasFijasFromApi } from '../../consts/vales'
+import { SelectTaxista } from '../vale/SelectTaxista'
 
 export function ValeMovilidadReadOnly ({
   refModal: thisModal,
@@ -45,6 +46,7 @@ export function ValeMovilidadReadOnly ({
       discount: descuento,
       sub_total: subTotal,
       igv,
+      payment_to_driver: pagoTaxista,
       peaje,
       total_cost: total
     } = {},
@@ -293,10 +295,10 @@ export function ValeMovilidadReadOnly ({
             </fieldset>
           </fieldset>
 
-          <LabelText
-            label='Taxista'
-            defaultValue={taxista}
+          <SelectTaxista
             readOnly
+            defaultValue={taxista}
+            pagoTaxista={pagoTaxista}
           />
 
           <button

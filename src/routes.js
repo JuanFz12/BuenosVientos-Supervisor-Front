@@ -6,6 +6,7 @@ export const routes = {
   taxistas: '/taxistas',
   carreras: '/carreras',
   vales: '/vales',
+  pasajeros: '/pasajeros',
   valesRoutes: {
     solicitudes: 'solicitudes-de-vale'
   },

@@ -48,7 +48,10 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
     isCarga,
     isExtraCarga,
     pasajerosSelected,
-    setPasajerosSelected
+    setPasajerosSelected,
+    costo: {
+      total: costoTotal
+    }
   } = useVales()
 
   return (
@@ -164,6 +167,7 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
           <SelectTaxista
             vehiculoId={vehiculoId}
             taxistas={taxistas}
+            costoTotal={costoTotal}
           />
 
           <MenuComun

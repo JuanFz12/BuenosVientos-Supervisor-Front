@@ -1,0 +1,28 @@
+.render-pasajeros {
+  & ul li {
+    flex-grow: 1;
+
+    &:nth-child(1) {
+      width: max(3%, 30px);
+      max-width: 120px;
+    }
+
+    &:nth-child(2) {
+      width: max(12%, 120px);
+    }
+
+    &:nth-child(3) {
+      width: max(12%, 90px);
+    }
+    
+    &:nth-child(4) {
+      width: max(8%, 90px);
+      max-width: 300px;
+    }
+    
+    &:nth-child(5) {
+      width: max(8%, 80px);
+      max-width: 300px;
+    }
+  }
+}

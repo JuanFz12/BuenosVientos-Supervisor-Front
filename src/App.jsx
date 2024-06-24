@@ -16,6 +16,7 @@ import { Logout } from './pages/Logout'
 import { Exoneraciones } from './pages/exoneraciones/Exoneraciones'
 import { Pagos } from './pages/pagos/Pagos'
 import { ProtectRoutes, RedirectIfLogged } from './ProtectRoutes'
+import { Pasajeros } from './pages/pasajeros/Pasajeros'
 
 const {
   logout,
@@ -30,6 +31,7 @@ const {
     solicitudes: solicitudesVales
   },
 
+  pasajeros,
   asistencias,
   exoneraciones,
   pagos
@@ -73,6 +75,10 @@ const router = createBrowserRouter([
             element: <SolicitudesVales />
           }
         ]
+      },
+      {
+        path: pasajeros,
+        element: <Pasajeros />
       },
       {
         path: asistencias,

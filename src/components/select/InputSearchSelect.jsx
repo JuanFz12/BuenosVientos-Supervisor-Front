@@ -101,11 +101,11 @@ export function InputSearchSelect ({
   const onChangeDebounce = useDebounce(onChange, delay)
 
   function handleChange (e) {
+    if (!e.target.value) onDeselect(e)
     if (!e.target.value || !options || !options.length) {
       handleHeight(false)
       setLabelInput({ label: e.target.value, value: '' })
 
-      onDeselect(e)
       onChangeDebounce(e)
 
       return
