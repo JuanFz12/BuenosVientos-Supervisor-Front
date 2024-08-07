@@ -4,6 +4,7 @@ import { apiRequest, apiRequestSearchParams } from '../../consts/api'
 import { generateUrlSearchParams } from '../../utils/generateUrlSearchParams'
 
 export const useCorporativos = create(set => {
+  // No recuerdo por que comente esta función, pero la dejo por si acaso
   // function getCorporativos () {
   //   const url = apiRequest.corporativos
 
@@ -50,6 +51,7 @@ export const useCorporativos = create(set => {
       })
       .catch(err => {
         console.warn(err)
+        alert('No se pudo realizar la búsqueda')
         reject(err)
       })
       .finally(() => set({ loadingSearch: false }))
