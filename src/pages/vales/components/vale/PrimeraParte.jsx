@@ -1,18 +1,21 @@
 import { LabelText } from '../../../../components/labels/LabelText'
 import { useVales } from './hooks/useVales'
 import { InputSearchSelect } from '../../../../components/select/InputSearchSelect'
-import { costoRutasFijas, fields, rutasFijasEspeciales } from '../../consts/vales'
+import { costoRutasFijas, fields, latLngValuesFromRutasFijas, rutasFijasEspeciales } from '../../consts/vales'
 import { InputDoble } from '../../../../components/inputs/InputDoble'
 import { Select } from '../../../../components/select/Select'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { InputTime } from '../../../../components/inputs/InputTime'
 import { TIPOS_SERVICIO_LIST } from '../modales/nuevoVale/consts/nuevo-vale'
 import { serviciosLabel, tiposServicioApi } from '../../consts/tiposServicio'
 import { TextArea } from '../../../../components/inputs/TextArea'
 import { NormalCheck } from '../../../../components/checkbox/Checkbox'
 import { formatearHoraCorta } from '../../../../utils/formatear'
+import { Marker } from '@react-google-maps/api'
 
-export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
+import greenPointer from '/src/assets/icons/greenPointer.png'
+
+export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef, modalMapsStartRef, modalMapsEndRef, propsModalMapsPlaces, setPropsModalMapsPlaces }) {
   const {
     // FUNCIONARIO
     usuarioCorporativo,
@@ -40,11 +43,17 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
     isDestiny,
     isRutaFija,
 
+    // Cuando es tipo destino: Coords y Names
+    coords,
+    startPlaceName,
+    endPlaceName,
+    setStartCoordsAndName,
+    setEndCoordsAndName,
+    resetCoordsAndName,
+
     // SOLICITAR CARGA
     isCarga,
     isExtraCarga,
-    setIsCarga,
-    setIsExtraCarga,
     resetSolicitarCarga,
     addCostoCarga,
     restCostoCarga,
@@ -110,6 +119,59 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
     setPasajerosSelected(nuevosPasajeros)
   }
 
+  const resetCoordsAndNameMemo = useRef(resetCoordsAndName).current
+  const setStartCoordsAndNameMemo = useRef(setStartCoordsAndName).current
+  const setEndCoordsAndNameMemo = useRef(setEndCoordsAndName).current
+
+  useEffect(() => {
+    function handlePlaceChanged (prop) {
+      // Se que es bastante jodido seguir el rastro, pero esta definición de
+      // por que se donde salen estas props viene del componente MapPlaces
+      return function ({ self, place, lat, lng }) {
+        // Esta función se ejecutara cada que cambie el lugar seleccionado con el buscador
+        const placeName = place.formatted_address
+        const payload = { lat, lng, placeName }
+
+        if (prop === 'start') {
+          setStartCoordsAndNameMemo(payload)
+        } else if (prop === 'end') {
+          setEndCoordsAndNameMemo(payload)
+        } else {
+          throw new Error('handlePlaceChanged: "prop" debería ser "start" o "end"')
+        }
+      }
+    }
+
+    setPropsModalMapsPlaces(prev => ({
+      start: {
+        ...prev.start,
+        title: 'Origen',
+        onPlaceChanged: handlePlaceChanged('start'),
+        onDeselectPlace: () => resetCoordsAndNameMemo('start')
+      },
+      end: {
+        ...prev.end,
+        title: 'Destino',
+        onPlaceChanged: handlePlaceChanged('end'),
+        onDeselectPlace: () => resetCoordsAndNameMemo('end')
+      }
+    }))
+  }, [setPropsModalMapsPlaces, resetCoordsAndNameMemo, setStartCoordsAndNameMemo, setEndCoordsAndNameMemo])
+  // Se cambian las dependencias por algo memo y no las normales porque el linter insiste y advierte sobre las dependencias
+
+  useEffect(() => {
+    setPropsModalMapsPlaces(prev => ({
+      start: {
+        ...prev.start,
+        mapsChildren: <MarkerManager cordProps={coords.end} />
+      },
+      end: {
+        ...prev.end,
+        mapsChildren: <MarkerManager cordProps={coords.start} />
+      }
+    }))
+  }, [setPropsModalMapsPlaces, coords])
+
   return (
     <fieldset
       className='flex flex-col gap-5 h-full w-[358px]'
@@ -135,7 +197,12 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
               }))
           }
           onChange={e => {
-            buscarCorporativo(e.target.value)
+            try {
+              buscarCorporativo(e.target.value) // Aveces puede ser undefined porque si !e.target.value entonces retorna resetCorporativosSearch() y eso devuelve undefined
+                .then(dataRes => {
+                  if (!dataRes.data.length) alert('No se encontraron resultados')
+                })
+            } catch {} // En el catch realmente no quiero hacer nada por ahora
           }}
           delay={350}
           onDeselect={() => {
@@ -264,13 +331,17 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
           labelClass='flex-1'
         >
           <Select
-            name={fields.servicio}
             placeholder='Seleccionar'
             options={TIPOS_SERVICIO_LIST}
             disabled={!usuarioCorporativo.nombreCompleto}
             onDisabled={() => alert('Por favor, primero seleccione un funcionario')}
             onChange={({ value }) => {
               setTipoServicioActual(value)
+
+              if (tipoServicioActual !== value) {
+                resetCoordsAndNameMemo('start')
+                resetCoordsAndNameMemo('end')
+              }
 
               const isRuta = value === tiposServicioApi.rutasFijas
 
@@ -287,48 +358,58 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
         </LabelText>
       </fieldset>
 
-      <LabelText
-        label={serviciosLabel[tipoServicioActual]}
-        name={fields.horas}
-        placeholder='Ingresar horas'
-        type='number'
-        required
-      >
-        {
-          // Renderizar condicionalmente dependiendo del tipo de servicio
-          (() => {
-            if (!isDestiny && !isRutaFija) return null
+      {
+        isDestiny
+          ? (
+            <fieldset
+              className='flex gap-5 justify-between'
+            >
+              <LabelText
+                label={serviciosLabel[tipoServicioActual].start}
+                value={startPlaceName}
+                placeholder='Click para buscar'
+                type='text'
+                inputClass='!cursor-pointer'
+                onClick={() => modalMapsStartRef.current.showModal()}
+                readOnly
+              />
 
-            if (isDestiny) {
-              return (
-                <TextArea
-                  name={fields.destino}
-                  placeholder='Ingrese información'
-                  maxLength={255}
-                  required
-                />
-              )
-            }
+              <LabelText
+                label={serviciosLabel[tipoServicioActual].end}
+                value={endPlaceName}
+                placeholder='Click para buscar'
+                type='text'
+                inputClass='!cursor-pointer'
+                onClick={() => modalMapsEndRef.current.showModal()}
+                readOnly
+              />
+            </fieldset>
+            )
+          : (
+            <LabelText
+              label={serviciosLabel[tipoServicioActual]}
+            >
+              <Select
+                options={rutasFijasEspeciales}
+                placeholder='Seleccione una ruta'
+                onChange={({ label, value }) => {
+                  const { costoReal, costoTotal } = costoRutasFijas[value]
 
-            if (isRutaFija) {
-              return (
-                <Select
-                  name={fields.rutasFijas}
-                  options={rutasFijasEspeciales}
-                  placeholder='Seleccione una ruta'
-                  onChange={({ value }) => {
-                    const { costoReal, costoTotal } = costoRutasFijas[value]
+                  setCostoFijo({ costoReal, costoTotal })
 
-                    setCostoFijo({ costoReal, costoTotal })
-                  }}
-                />
-              )
-            }
+                  const startCoords = latLngValuesFromRutasFijas[value].start
+                  const endCoords = latLngValuesFromRutasFijas[value].end
 
-            return null
-          })()
-        }
-      </LabelText>
+                  const startPayload = { ...startCoords, placeName: label }
+                  const endPayload = { ...endCoords, placeName: label }
+
+                  setStartCoordsAndNameMemo(startPayload)
+                  setEndCoordsAndNameMemo(endPayload)
+                }}
+              />
+            </LabelText>
+            )
+      }
 
       <fieldset
         className='flex flex-col gap-2'
@@ -358,7 +439,6 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
               disabled={!costoCarga || isRutaFija}
               onChange={e => {
                 if (!costoCarga) return
-                setIsCarga(e.target.checked)
 
                 if (e.target.checked) {
                   addCostoCarga({ carga: true })
@@ -385,8 +465,6 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
               disabled={!costoExtraCarga || isRutaFija}
               onChange={e => {
                 if (!costoExtraCarga) return
-
-                setIsExtraCarga(e.target.checked)
 
                 if (e.target.checked) {
                   addCostoCarga({ extraCarga: true })
@@ -452,5 +530,21 @@ export function PrimeraParteVale ({ vehiculos = [], pasajerosModalRef }) {
       </fieldset>
 
     </fieldset>
+  )
+}
+
+function MarkerManager ({ cordProps }) {
+  if (!cordProps) return null
+
+  return (
+    cordProps.lat && cordProps.lng && (
+      <Marker
+        icon={{
+          url: greenPointer,
+          scaledSize: new window.google.maps.Size(26, 38)
+        }}
+        position={cordProps}
+      />
+    )
   )
 }

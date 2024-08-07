@@ -23,6 +23,19 @@ const initialVehiculo = {
 
 // Tipo de servicio
 const initialTipoServicioActual = tiposServicioApi.destino
+// Cuando el tipo de servicio sea destino se usara esta información
+const initialCoords = {
+  start: {
+    lat: null,
+    lng: null
+  },
+  end: {
+    lat: null,
+    lng: null
+  }
+}
+const initialStartPlaceName = ''
+const initialEndPlaceName = ''
 
 // Pasajeros
 const initialPasajerosSelected = [] // los pasajeros seleccionados siempre tendran la estructura original de la response de la api
@@ -47,6 +60,9 @@ export const initialValeState = {
   usuarioCorporativo: initialUsuarioCorporativo,
   vehiculo: initialVehiculo,
   tipoServicioActual: initialTipoServicioActual,
+  coords: initialCoords,
+  startPlaceName: initialStartPlaceName,
+  endPlaceName: initialEndPlaceName,
   pasajerosSelected: initialPasajerosSelected,
   solicitarCarga: initialSolicitarCarga,
   costo: initialCosto

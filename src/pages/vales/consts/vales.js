@@ -10,8 +10,17 @@ export const fields = {
   servicio: 'service',
 
   // tipo de servicios
-  destino: 'destiny',
-  horas: 'hours',
+  destino: {
+    start: {
+      lat: 'startLat',
+      lng: 'startLng'
+    }, // Aquí ira la latitud y la longitud del inicio del destino como un string
+    end: {
+      lat: 'endLat',
+      lng: 'endLng'
+    } // Aquí ira la latitud y la longitud del fin del destino como un string
+  },
+  // horas: 'hours', // Creo que horas ya no existe
   rutasFijas: 'destiny_fixed',
 
   observaciones: 'remarks',
@@ -29,7 +38,8 @@ export const fields = {
   total: 'total_cost',
 
   firma: 'signature',
-  taxista: 'taxista_id'
+  taxista: 'taxista_id',
+  pagoTaxista: 'payment_to_driver'
 }
 
 export const rutasFijasApi = {
@@ -70,6 +80,48 @@ export const rutasFijasEspeciales = [
     value: rutasFijasApi.MLOS
   }
 ]
+
+const coordsPlazaNorte = {
+  lat: '-12.005175002319676',
+  lng: '-77.05492108071822'
+}
+
+const coordsMallSur = {
+  lat: '-12.153684614011063',
+  lng: '-76.98283197462827'
+}
+
+export const latLngValuesFromRutasFijas = {
+  [rutasFijasApi.PLMS]: {
+    start: coordsPlazaNorte,
+    end: coordsMallSur
+  },
+  [rutasFijasApi.MSPL]: {
+    start: coordsMallSur,
+    end: coordsPlazaNorte
+  },
+  [rutasFijasApi.MLCM]: {
+    start: coordsMallSur,
+    end: {
+      lat: '-12.082555471140475',
+      lng: '-76.93180585621735'
+    }
+  },
+  [rutasFijasApi.MLWX]: {
+    start: coordsMallSur,
+    end: {
+      lat: '-12.087278648137108',
+      lng: '-76.99202800306345'
+    }
+  },
+  [rutasFijasApi.MLOS]: {
+    start: coordsMallSur,
+    end: {
+      lat: '-12.106696355042672',
+      lng: '-76.96650000337321'
+    }
+  }
+}
 
 export const costoRutasFijas = {
   // las rutas fijas que tienen costoReal y costoTotal por lo general

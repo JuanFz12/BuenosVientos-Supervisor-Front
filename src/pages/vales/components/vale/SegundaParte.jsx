@@ -10,7 +10,6 @@ export function SegundaParteVale () {
     usuarioCorporativo,
 
     // Tipo de servicio
-    isDestiny,
     isRutaFija,
 
     // Carga
@@ -24,7 +23,7 @@ export function SegundaParteVale () {
 
   return (
     <fieldset
-      className={`flex flex-col ${isDestiny ? 'gap-[19px]' : 'gap-3'} h-full`}
+      className='flex flex-col gap-3 h-full'
     >
       <LabelText
         label='Costo Real'

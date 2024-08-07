@@ -98,6 +98,7 @@ export const useValesStore = create(set => {
         })
         .catch(err => {
           alert(`Error al crear un vale: ${err.error ?? err.reason ?? err.message ?? 'Error desconocido'}`)
+          console.warn(err)
           reject(err)
         })
     })

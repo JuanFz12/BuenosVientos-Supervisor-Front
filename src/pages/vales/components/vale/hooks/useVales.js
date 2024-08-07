@@ -5,10 +5,10 @@ import { initialValeState } from '../context/storeValeContext'
 import { formatearASoles } from '../../../../../utils/formatearASoles'
 import { usePasajeros } from '../../../../../store/pasajeros/usePasajeros'
 import { tiposServicioApi } from '../../../consts/tiposServicio'
-import { noNumbersRegex } from '../../../../../consts/regex'
 import { parsearSoles } from '../../../../../utils/parsearSoles'
 import { IGV, ceroSoles } from '../../../../../consts/consts'
 import { formatearInputASoles } from '../../../../../utils/formatearInputASoles'
+import { getNumbers } from '../../../../../helpers/getNumbers'
 
 // Si esto tuviera TypeScript seria mucho mejor
 // Este Hook siempre deve usarse dentro del Provider (ValeProvider) del ValeContext
@@ -32,12 +32,73 @@ export function useVales () {
   const isDestiny = valeState.tipoServicioActual === tiposServicioApi.destino
   const isRutaFija = valeState.tipoServicioActual === tiposServicioApi.rutasFijas
 
+  // Destino Info, cuando el tipo sea destino se usara esta información
+  // Coords and Names
+  function setCoords ({ coords, prop }) {
+    setValeState(state => ({
+      ...state,
+      coords: {
+        ...state.coords,
+        [prop]: coords
+      }
+    }))
+  }
+
+  function setPlaceName ({ placeName, prop }) {
+    setValeState(state => ({
+      ...state,
+      [`${prop}PlaceName`]: placeName
+    }))
+  }
+
+  function setStartCoordsAndName ({ lat, lng, placeName }) {
+    setCoords({ coords: { lat, lng }, prop: 'start' })
+    setPlaceName({ placeName, prop: 'start' })
+  }
+
+  function setEndCoordsAndName ({ lat, lng, placeName }) {
+    setCoords({ coords: { lat, lng }, prop: 'end' })
+    setPlaceName({ placeName, prop: 'end' })
+  }
+
+  function resetCoordsAndName (prop) {
+    setCoords({ coords: initialState.coords[prop], prop })
+    setPlaceName({ placeName: '', prop })
+  }
+
   // Carga
   const { isCarga, isExtraCarga } = valeState.solicitarCarga
   const costoAdicionalCarga = isCarga ? costoCarga : isExtraCarga ? costoExtraCarga : ceroSoles
 
-  // costo
-  const descuentoFormateado = valeState.usuarioCorporativo.descuento && (parseFloat(valeState.usuarioCorporativo.descuento.replace(noNumbersRegex, '')) / 100)
+  // Costo
+  const descuentoParsed = getNumbers({ string: valeState.usuarioCorporativo.descuento }) / 100
+
+  const costoComputed = (() => {
+    const costoReal = valeState.costo.costoReal
+    const costoRealParsed = getNumbers({ string: costoReal })
+
+    const peaje = valeState.costo.peaje
+    const peajeParsed = getNumbers({ string: peaje })
+
+    const descuento = costoRealParsed * descuentoParsed
+
+    const subTotal = getNumbers({ string: (costoRealParsed * (1 - descuentoParsed)), fixed: 2 })
+
+    const igv = getNumbers({ string: subTotal * IGV, fixed: 2 })
+
+    const total = parsearSoles(costoAdicionalCarga) + subTotal + igv + peajeParsed
+
+    const result = {
+      costoReal,
+      descuento: formatearASoles({ numero: descuento, cero: true }),
+      subTotal: formatearASoles({ numero: subTotal, cero: true }),
+      igv: formatearASoles({ numero: igv, cero: true }),
+      peaje,
+      total: formatearASoles({ numero: getNumbers({ string: total, fixed: 2 }), cero: true })
+    }
+
+    return result
+  })()
 
   // METHODS
   // Helpers
@@ -50,7 +111,7 @@ export function useVales () {
 
   function validate (data) {
     Object.entries(data).forEach(([key, value]) => {
-      if (!value) throw new Error(`Los campos no pueden ser null, false o undefined para el campo ${key} en el payload`)
+      if (typeof value !== 'string' && !value) throw new Error(`Los campos no pueden ser null, false o undefined para el campo ${key} en el payload`)
     })
   }
 
@@ -168,7 +229,7 @@ export function useVales () {
 
   // Costo
   function setCostoReal (event) {
-    if (!descuentoFormateado) throw new Error('No se ha seleccionado un usuario corporativo')
+    if (!descuentoParsed) throw new Error('No se ha seleccionado un usuario corporativo')
 
     const valorFormateado = formatearInputASoles({ event, controlled: true })
 
@@ -187,8 +248,8 @@ export function useVales () {
       return
     }
 
-    const descuento = valorFormateado * descuentoFormateado
-    const subTotal = parseFloat((valorFormateado * (1 - descuentoFormateado)).toFixed(2))
+    const descuento = valorFormateado * descuentoParsed
+    const subTotal = parseFloat((valorFormateado * (1 - descuentoParsed)).toFixed(2))
     const igv = parseFloat((subTotal * IGV).toFixed(2))
     const peaje = parsearSoles(valeState.costo.peaje) // peaje solo se usa para sumar el total
     const total = parsearSoles(costoAdicionalCarga) + parseFloat((subTotal + igv + peaje).toFixed(2))
@@ -207,6 +268,15 @@ export function useVales () {
   }
 
   function addCostoCarga ({ carga, extraCarga }) {
+    // if (!carga && !extraCarga) throw new Error('No se ha seleccionado una carga o extra-carga')
+    if (carga && extraCarga) throw new Error('No se puede agregar una carga y una extra-carga al mismo tiempo')
+
+    if (carga) {
+      setIsCarga(true)
+    } else if (extraCarga) {
+      setIsExtraCarga(true)
+    }
+
     let total
 
     if (!costoAdicionalCarga) {
@@ -214,10 +284,12 @@ export function useVales () {
     } else {
       if (carga) {
         total = parsearSoles(valeState.costo.total) - parsearSoles(costoAdicionalCarga) + parsearSoles(costoCarga)
-      } else {
+      } else if (extraCarga) {
         total = parsearSoles(valeState.costo.total) - parsearSoles(costoAdicionalCarga) + parsearSoles(costoExtraCarga)
       }
     }
+
+    // console.log({ totalActual: parsearSoles(valeState.costo.total), costoAdicionalCarga, costoCarga, costoExtraCarga })
 
     setValeState(state => ({
       ...state,
@@ -229,6 +301,15 @@ export function useVales () {
   }
 
   function restCostoCarga ({ carga, extraCarga }) {
+    // if (!carga && !extraCarga) throw new Error('No se ha seleccionado una carga o extra-carga')
+    if (carga && extraCarga) throw new Error('No se puede restar una carga y una extra-carga al mismo tiempo')
+
+    if (carga) {
+      setIsCarga(false)
+    } else if (extraCarga) {
+      setIsExtraCarga(false)
+    }
+
     let total
 
     if (costoAdicionalCarga) {
@@ -236,7 +317,7 @@ export function useVales () {
     } else {
       if (carga) {
         total = parsearSoles(valeState.costo.total) + parsearSoles(costoAdicionalCarga) - parsearSoles(costoCarga)
-      } else {
+      } else if (extraCarga) {
         total = parsearSoles(valeState.costo.total) + parsearSoles(costoAdicionalCarga) - parsearSoles(costoExtraCarga)
       }
     }
@@ -273,6 +354,8 @@ export function useVales () {
   }
 
   function setCostoFijo ({ costoReal, costoTotal }) {
+    if (!costoReal && !costoTotal) throw new Error('Debe pasar al menos costoReal o costoTotal')
+
     let costoInicial
     let descuento
     let subTotal
@@ -285,8 +368,8 @@ export function useVales () {
 
       costoInicial = costo
 
-      descuento = costo * descuentoFormateado
-      subTotal = parseFloat((costo * (1 - descuentoFormateado)).toFixed(2))
+      descuento = costo * descuentoParsed
+      subTotal = parseFloat((costo * (1 - descuentoParsed)).toFixed(2))
 
       igv = parseFloat((subTotal * IGV).toFixed(2))
 
@@ -296,17 +379,21 @@ export function useVales () {
     }
 
     if (!costoReal) {
-      subTotal = parseFloat((costoTotal / 1 + IGV).toFixed(2))
+      subTotal = parseFloat((costoTotal / (1 + IGV)).toFixed(2))
+
       igv = parseFloat((subTotal * IGV).toFixed(2))
 
-      costoInicial = parseFloat((subTotal / (1 - descuentoFormateado)).toFixed(2))
+      costoInicial = parseFloat((subTotal / (1 - descuentoParsed)).toFixed(2))
 
-      descuento = parseFloat((costoInicial * descuentoFormateado).toFixed(2))
+      descuento = parseFloat((costoInicial * descuentoParsed).toFixed(2))
 
-      const prePeaje = parseFloat((costoTotal - (subTotal + igv)).toFixed(2))
-      peaje = prePeaje <= 0 ? 0 : prePeaje
+      // las rutas fijas que tienen costoReal y costoTotal por lo general
+      // van a ser rutas que tienen peaje
+      // Como esta no tiene costo real entonces el peaje es 0
+      peaje = 0
 
-      total = parseFloat((subTotal + igv + prePeaje).toFixed(2))
+      // total = parseFloat((subTotal + igv).toFixed(2)) // A veces sale un resultado exacto q no es igual al costoTotal, es minima la diferencia pero ahi esta
+      total = costoTotal
     }
 
     setValeState(state => ({
@@ -352,9 +439,15 @@ export function useVales () {
     isCarga,
     isExtraCarga,
 
+    // Costo
+    costoComputed,
+
     // METHODS
     setTipoServicioActual,
     resetTipoServicioActual,
+    setStartCoordsAndName,
+    setEndCoordsAndName,
+    resetCoordsAndName,
     setUsuarioCorporativo,
     resetUsuarioCorporativo,
     setVehiculo,

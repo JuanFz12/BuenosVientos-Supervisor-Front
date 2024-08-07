@@ -7,14 +7,15 @@ import { getNumbers } from '../../../../helpers/getNumbers'
 import { ceroSoles } from '../../../../consts/consts'
 
 export function SelectTaxista ({ defaultValue, readOnly, pagoTaxista: pagoTaxistaProp, vehiculoId = null, taxistas = [], costoTotal }) {
-  const totalCost = getNumbers(costoTotal)
+  const totalCost = getNumbers({ string: costoTotal, fixed: 2 })
 
   const [taxistaId, setTaxistaId] = useState(null)
 
   const taxista = taxistaId && taxistas.find(({ driver: { id } }) => parseInt(id) === parseInt(taxistaId))
-  const porcentajePagoTaxista = taxista && (getNumbers(taxista.voucher_payment) / 100)
+  const porcentajePagoTaxista = taxista && (getNumbers({ string: (taxista.driver.voucher_payment / 100), fixed: 2 }))
 
-  const pagoTaxista = parseInt(pagoTaxistaProp) || (totalCost && porcentajePagoTaxista && (costoTotal * porcentajePagoTaxista)) || 0 // Esto al final es un number | boolean
+  const pagoTaxista = (totalCost && porcentajePagoTaxista && (totalCost * porcentajePagoTaxista))
+  const pagoTaxistaFinal = parseFloat(pagoTaxistaProp) || (pagoTaxista && parseFloat(pagoTaxista.toFixed(2))) || 0 // Esto al final es un number | boolean
 
   return (
     <fieldset
@@ -34,7 +35,9 @@ export function SelectTaxista ({ defaultValue, readOnly, pagoTaxista: pagoTaxist
               readOnly={vehiculoId === null}
               required
               errMessage='No se encontraron coincidencias de taxistas para este tipo de vehiculo y/o terminal con supervisor'
+              classError='-bottom-[30px]'
               onSelect={({ label, value }) => setTaxistaId(value)}
+              onDeselect={() => setTaxistaId(null)}
               options={
                 taxistas
                   .filter(({ details_vehicle: { id } }) => parseInt(id) === parseInt(vehiculoId))
@@ -64,10 +67,11 @@ export function SelectTaxista ({ defaultValue, readOnly, pagoTaxista: pagoTaxist
       <LabelText
         label='Pago al taxista'
         labelClass='w-[190px]'
+        name={fields.pagoTaxista}
         readOnly
         required
-        value={parseInt(pagoTaxista) ? formatearASoles({ numero: pagoTaxista, cero: true }) : ceroSoles}
-        placeholder='no haga caso, falta implementar, Elija un corporativo'
+        value={parseFloat(pagoTaxistaFinal) ? formatearASoles({ numero: pagoTaxistaFinal, cero: true }) : ceroSoles}
+        placeholder='Elija un corporativo'
       />
     </fieldset>
   )
