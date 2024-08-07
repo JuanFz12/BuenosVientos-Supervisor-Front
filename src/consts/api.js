@@ -1,6 +1,6 @@
 import { TOKEN_NAME } from './consts'
 
-export const HOST = 'http://sv-e2ukmdxmyh.cloud.elastika.pe:81'
+export const HOST = 'https://node.bvientos.com.pe'
 
 export const api = `${HOST}/api`
 
