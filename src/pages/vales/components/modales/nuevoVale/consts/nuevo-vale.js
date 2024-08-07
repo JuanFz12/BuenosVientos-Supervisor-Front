@@ -6,10 +6,6 @@ export const TIPOS_SERVICIO_LIST = [
     value: tiposServicioApi.destino
   },
   {
-    label: tipoServicio[tiposServicioApi.horas],
-    value: tiposServicioApi.horas
-  },
-  {
     label: tipoServicio[tiposServicioApi.rutasFijas],
     value: tiposServicioApi.rutasFijas
   }

@@ -7,7 +7,6 @@ import { ValeMovilidad } from './modales/ValeMovilidad'
 import { useRef, useState } from 'react'
 import { formatearFechaCorta } from '../../../utils/formatear'
 import { ValeMovilidadReadOnly } from './modales/ValeMovilidadReadOnly'
-import { tipoServicio } from '../consts/tiposServicio'
 import { apiEstados, estadosNoEditables, optionsEstados, tagStatus } from '../consts/estados'
 import { EtiquetaSelect } from '../../../components/etiquetas/EtiquetaSelect'
 import { useValesStore } from '../../../store/vales/useValesStore'
@@ -53,7 +52,7 @@ export function ListVales ({ loading, data, solicitudes = false }) {
             <li>Corporación</li>
             <li>Área</li>
             <li>Fecha</li>
-            <li>Tipo de Servicio</li>
+            <li>Destino</li>
             {
               !solicitudes &&
                 <li
@@ -92,13 +91,16 @@ export function ListVales ({ loading, data, solicitudes = false }) {
             corporation: { corporation_name: corporacion },
             requestVale: {
               id: idRequestVale,
-              service: servicioParam,
+              destinyDestination,
               application_status: estado,
               date: fechaParam
             }
           }, idx) => {
             const fecha = formatearFechaCorta(fechaParam)
-            const servicio = tipoServicio[servicioParam]
+
+            // const destinyRegex = /, (.*?),/
+            // const destino = destinyDestination.match(destinyRegex)?.[1] || 'Sin destino'
+            const destino = destinyDestination || 'Sin destino' // No estoy seguro si usar o no regex.
 
             const taxista = !solicitudes && `${data[idx].driver.fullName}`
 
@@ -111,7 +113,7 @@ export function ListVales ({ loading, data, solicitudes = false }) {
                 <li title={corporacion}>{corporacion}</li>
                 <li title={area}>{area}</li>
                 <li title={fecha}>{fecha}</li>
-                <li title={servicio}>{servicio}</li>
+                <li title={destino}>{destino}</li>
                 {
                   !solicitudes && (
                     <li title={taxista} className='w-[max(14%,_105px)]'>

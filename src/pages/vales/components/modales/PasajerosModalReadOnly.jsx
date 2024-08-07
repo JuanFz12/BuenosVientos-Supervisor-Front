@@ -81,7 +81,6 @@ function DetallesPasajero ({ refModal: thisModal, onClose, pasajero }) {
   const {
     firstName: nombre,
     lastName: apellido,
-    travels: viajes,
     contact_number: numeroContacto
   } = pasajero || {}
 
@@ -119,12 +118,6 @@ function DetallesPasajero ({ refModal: thisModal, onClose, pasajero }) {
         <LabelText
           label='Número de contacto'
           defaultValue={numeroContacto}
-          readOnly
-        />
-
-        <LabelText
-          label='Viajes'
-          defaultValue={viajes}
           readOnly
         />
 

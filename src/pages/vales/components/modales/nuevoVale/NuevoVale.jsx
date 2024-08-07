@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { MenuComun } from '../../../../../components/menus/MenuComun'
 import { ModalBase } from '../../../../../components/modales/ModalBase'
 import { parsearSoles } from '../../../../../utils/parsearSoles'
@@ -14,6 +14,7 @@ import { SegundaParteVale } from '../../vale/SegundaParte'
 import { useVales } from '../../vale/hooks/useVales'
 import { ValeProvider } from '../../vale/context/ValeContext'
 import { SelectTaxista } from '../../vale/SelectTaxista'
+import { ModalMapsPlaces } from '../../../../../components/modales/ModalMapsPlaces'
 
 export function NuevoVale ({ refModal, onClose }) {
   return (
@@ -35,6 +36,32 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
 
   const pasajerosModalRef = useRef()
 
+  const [keyModalMapsPlaces, setKeyModalMapsPlaces] = useState(0)
+  const modalMapsPlacesStartRef = useRef(null)
+  const modalMapsPlacesEndRef = useRef(null)
+
+  const propsModalMapsPlacesScheme = {
+    title: undefined,
+    value: undefined,
+    onChange () {},
+    onDeselectPlace () {},
+    onPlaceChanged () {},
+    onClose () {},
+    mapsChildren: undefined
+  }
+
+  const initialPropsModalMapsPlaces = {
+    start: {
+      ref: modalMapsPlacesStartRef,
+      ...propsModalMapsPlacesScheme
+    },
+    end: {
+      ref: modalMapsPlacesEndRef,
+      ...propsModalMapsPlacesScheme
+    }
+  }
+  const [propsModalMapsPlaces, setPropsModalMapsPlaces] = useState(initialPropsModalMapsPlaces)
+
   const { vehiculos } = useVehiculos()
 
   // TAXISTA
@@ -43,6 +70,7 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
   const { crearVale } = useValesStore()
 
   const {
+    coords,
     resetValeState,
     vehiculoId,
     isCarga,
@@ -51,7 +79,8 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
     setPasajerosSelected,
     costo: {
       total: costoTotal
-    }
+    },
+    isDestiny
   } = useVales()
 
   return (
@@ -60,6 +89,7 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
         refModal={thisModal}
         onClose={e => {
           resetValeState()
+          setKeyModalMapsPlaces(keyModalMapsPlaces + 1) // Provocar un re renderizado del componente de mapas
 
           onClose && onClose(e)
         }}
@@ -123,6 +153,15 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
             body[fields.peaje] = !body[fields.peaje] ? '0' : parsearSoles(body[fields.peaje]).toString()
             body[fields.total] = parsearSoles(body[fields.total]).toString()
 
+            body[fields.pagoTaxista] = parsearSoles(body[fields.pagoTaxista]).toString()
+
+            // Coordenadas
+            body[fields.destino.start.lat] = (coords.start.lat).toString()
+            body[fields.destino.start.lng] = (coords.start.lng).toString()
+
+            body[fields.destino.end.lat] = (coords.end.lat).toString()
+            body[fields.destino.end.lng] = (coords.end.lng).toString()
+
             console.log(body)
 
             atenuarFormulario({ form: e.target })
@@ -151,6 +190,10 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
           >
             {/* Primera parte */}
             <PrimeraParteVale
+              modalMapsStartRef={modalMapsPlacesStartRef}
+              modalMapsEndRef={modalMapsPlacesEndRef}
+              propsModalMapsPlaces={propsModalMapsPlaces}
+              setPropsModalMapsPlaces={setPropsModalMapsPlaces}
               vehiculos={vehiculos}
               pasajerosModalRef={pasajerosModalRef}
             />
@@ -187,6 +230,40 @@ function NuevoValeManager ({ refModal: thisModal, onClose }) {
         actualizarPasajerosSelected={setPasajerosSelected}
         vehiculoId={vehiculoId}
       />
+
+      {
+        isDestiny && (
+          <>
+            <ModalMapsPlacesManager
+              key={`modalMapsPlacesStart-${keyModalMapsPlaces}`} // La key sirve para remontar el componente
+              refModal={modalMapsPlacesStartRef}
+              obj={propsModalMapsPlaces}
+              prop='start'
+            />
+
+            <ModalMapsPlacesManager
+              key={`modalMapsPlacesEnd-${keyModalMapsPlaces}`} // La key sirve para remontar el componente
+              refModal={modalMapsPlacesEndRef}
+              obj={propsModalMapsPlaces}
+              prop='end'
+            />
+          </>
+        )
+      }
     </>
+  )
+}
+
+function ModalMapsPlacesManager ({ refModal: thisModal, obj, prop }) {
+  return (
+    <ModalMapsPlaces
+      refModal={thisModal}
+      title={obj[prop].title}
+      onClose={obj[prop].onClose}
+      onChange={obj[prop].onChange}
+      onPlaceChanged={obj[prop].onPlaceChanged}
+      onDeselectPlace={obj[prop].onDeselectPlace}
+      mapsChildren={obj[prop].mapsChildren}
+    />
   )
 }

@@ -1,6 +1,4 @@
 import { useRef, useState } from 'react'
-import { NormalCheck } from '../../../../components/checkbox/Checkbox'
-import { TextArea } from '../../../../components/inputs/TextArea'
 import { LabelText } from '../../../../components/labels/LabelText'
 import { MenuComun } from '../../../../components/menus/MenuComun'
 import { ModalBase } from '../../../../components/modales/ModalBase'
@@ -11,13 +9,14 @@ import { useUsuarioSupervisor } from '../../../../store/useUsuarioSupervisor'
 import { useValesStore } from '../../../../store/vales/useValesStore'
 import { atenuarFormulario } from '../../../../utils/atenuarFormulario'
 import { getImage } from '../../../../consts/api'
-import { formatearFechaCorta, formatearHoraCorta } from '../../../../utils/formatear'
 import { useTaxistas } from '../../../../store/taxistas/useTaxistas'
-import { useVehiculos } from '../../../../store/vehiculos/useVehiculos'
-import { serviciosLabel, tipoServicio, tiposServicioApi } from '../../consts/tiposServicio'
-import { costoRutasFijas, labelRutasFijasFromApi } from '../../consts/vales'
 import { PasajerosModalReadOnly } from './PasajerosModalReadOnly'
 import { SelectTaxista } from '../vale/SelectTaxista'
+import { PrimeraParteRO } from '../valeReadOnly/PrimeraParteRO'
+import { costoRutasFijas, latLngValuesFromRutasFijas } from '../../consts/vales'
+import { isEqual } from '../../../../utils/isEqual'
+import { IGV, ceroSoles } from '../../../../consts/consts'
+import { getNumbers } from '../../../../helpers/getNumbers'
 
 const fields = {
   taxista: 'taxista_id',
@@ -40,83 +39,87 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
 
   const { aceptarVale } = useValesStore()
   const { taxistas } = useTaxistas()
-  const { vehiculos } = useVehiculos()
 
-  const [costo, setCosto] = useState({
+  const initialCosto = {
     costoReal: '',
-    descuento: 'S/ 00.00',
-    subTotal: 'S/ 00.00',
-    igv: 'S/ 00.00',
-    total: 'S/ 00.00',
+    descuento: ceroSoles,
+    subTotal: ceroSoles,
+    igv: ceroSoles,
+    total: ceroSoles,
     peaje: ''
-  })
+  }
+
+  const [costo, setCosto] = useState(initialCosto)
 
   const formRef = useRef()
-  const pasajerosModalRef = useRef()
+  const pasajerosModalReadOnlyRef = useRef()
+
+  const dataToUse = data || {}
 
   const {
     requestVale: {
       id,
-      date: fecha,
-      // servicios
-      destiny: destino,
-      hours: horas,
-      destiny_fixed: rutaFija,
-
-      remarks: observaciones,
-      request_time: horaSolicitada,
-      departure_time: horaSalida,
-      service,
-      vehicle_id: idVehiculo,
       passengers: pasajeros,
       request_to_load: carga,
-      request_to_extraload: extraCarga
+      request_to_extraload: extraCarga,
+      startLat,
+      startLng,
+      endLat,
+      endLng
     } = {},
     area_corporative: {
-      area_name: area,
       discount: descuento
-    } = {},
-    user: {
-      user_name: nombre,
-      surnames: apellidos
     } = {},
     user_corporative: {
       signature: firma
     } = {}
+  } = dataToUse
 
-  } = data || {}
+  const dataToSend = {
+    ...dataToUse,
+    detail_user_corporate: dataToUse.user,
+    area: dataToUse.area_corporative
+  }
 
   // vehiculo
-  const vehiculo = vehiculos.find(v => parseInt(v.id) === parseInt(idVehiculo))
+  const vehiculo = dataToUse.vehicle
 
   const getPrice = (key) => vehiculo && vehiculo?.[key] !== 'undefined' && formatearASoles({ numero: vehiculo?.[key] })
 
   const costoCargaVehiculo = getPrice('load')
   const costoExtraCargaVehiculo = getPrice('extra_load')
 
-  const vehiculoNombre = vehiculo?.vehicle_name
   const vehiculoId = vehiculo?.id
 
-  // Pasajeros
-  const primerPasajeroNombre = pasajeros && pasajeros[0].firstName
+  const startCoords = {
+    lat: startLat,
+    lng: startLng
+  }
 
-  // Tipo de servicio
-  const servicio = tipoServicio[service]
+  const endCoords = {
+    lat: endLat,
+    lng: endLng
+  }
 
-  const isDestiny = tiposServicioApi.destino === service
-  const isRutaFija = tiposServicioApi.rutasFijas === service
-
-  const servicioLabel = serviciosLabel[service]
-  const rutaFijaLabel = labelRutasFijasFromApi[rutaFija]
+  // Servicio
+  const isRutaFija = isRutaFijaFn({ startCoords, endCoords })
 
   // Carga
-  const costoCarga = carga ? costoCargaVehiculo : extraCarga ? costoExtraCargaVehiculo : 'S/ 00.00'
+  const costoCarga = carga ? costoCargaVehiculo : extraCarga ? costoExtraCargaVehiculo : ceroSoles
+
+  if (parsearSoles(costoCarga) > 0 && parsearSoles(costo.total) <= 0) {
+    console.log({ costoCarga })
+    setCosto(state => ({
+      ...state,
+      total: costoCarga
+    }))
+  }
 
   if (isRutaFija && !costo.costoReal) {
     const {
       costoReal,
       costoTotal
-    } = costoRutasFijas[rutaFija]
+    } = costoRutasFijas[isRutaFija]
 
     setCostoFijo({
       costoInicial: costoReal,
@@ -131,14 +134,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
       <ModalBase
         refModal={thisModal}
         onClose={e => {
-          setCosto({
-            costoReal: '',
-            descuento: 'S/ 00.00',
-            subTotal: 'S/ 00.00',
-            igv: 'S/ 00.00',
-            total: 'S/ 00.00',
-            peaje: ''
-          })
+          setCosto(initialCosto)
 
           onClose && onClose(e)
         }}
@@ -156,6 +152,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
                 return
               }
 
+              // Esto formatea todos los valores del formulario que puedan ser soles
               formData.append(key, parsearSoles(value))
             }
 
@@ -190,149 +187,11 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
           <fieldset
             className='flex gap-5 h-fit justify-between'
           >
-            <fieldset
-              className='flex flex-col gap-5 h-full flex-grow'
-            >
-              <LabelText
-                label='Funcionario'
-                defaultValue={nombre && `${nombre} ${apellidos}`}
-                readOnly
-              />
-
-              <fieldset
-                className='flex gap-5 justify-between max-w-full'
-              >
-                <LabelText
-                  label='Área'
-                  defaultValue={area}
-                  readOnly
-                />
-
-                <LabelText
-                  label='Vehículo'
-                  defaultValue={vehiculoNombre}
-                  readOnly
-                />
-              </fieldset>
-
-              <fieldset
-                className='flex gap-m justify-between'
-              >
-                <LabelText
-                  label='Pasajeros'
-                  labelClass='flex-1'
-                  defaultValue={primerPasajeroNombre}
-                  readOnly
-                />
-
-                <button
-                  className='boton-primario-marca h-9 self-end'
-                  type='button'
-                  onClick={() => pasajerosModalRef.current.showModal()}
-                >
-                  Ver más
-                </button>
-              </fieldset>
-
-              <fieldset
-                className='flex gap-5 justify-between max-w-full'
-              >
-                <LabelText
-                  label='Fecha'
-                  defaultValue={fecha && formatearFechaCorta(fecha)}
-                  readOnly
-                />
-
-                <LabelText
-                  label='Servicio'
-                  defaultValue={servicio}
-                  readOnly
-                />
-              </fieldset>
-
-              <LabelText
-                label={servicioLabel}
-                defaultValue={isRutaFija ? rutaFijaLabel : horas}
-                readOnly
-              >
-                {
-                // Renderizar condicionalmente dependiendo del tipo de servicio
-                (() => {
-                  if (!isDestiny && !isRutaFija) return null
-
-                  if (isDestiny) {
-                    return (
-                      <TextArea
-                        defaultValue={destino}
-                        readOnly
-                      />
-                    )
-                  }
-
-                  return null
-                })()
-              }
-              </LabelText>
-
-              <fieldset
-                className='flex flex-col gap-2'
-              >
-                <LabelText
-                  label='Observaciones'
-                >
-                  <TextArea
-                    className='w-full h-[84px] cursor-default bg-white'
-                    defaultValue={observaciones}
-                    readOnly
-                  />
-                </LabelText>
-
-                <fieldset
-                  className='flex justify-between gap-2 max-w-full'
-                >
-                  <label
-                    className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'
-                  >
-                    <NormalCheck
-                      labelClass='scale-[80%] cursor-default'
-                      defaultChecked={carga}
-                      disabled
-                    />
-
-                    Solicitar carga
-                  </label>
-
-                  <label
-                    className='flex items-center gap-2 h-4 texto-regular-m text-textoPrincipal'
-                  >
-                    <NormalCheck
-                      labelClass='scale-[80%] cursor-default'
-                      defaultChecked={extraCarga}
-                      disabled
-                    />
-
-                    Solicitar extra carga
-                  </label>
-                </fieldset>
-              </fieldset>
-
-              <fieldset
-                className='flex gap-5 justify-between w-full max-w-full'
-              >
-                <LabelText
-                  label='Hora Solicitada'
-                  defaultValue={horaSolicitada && formatearHoraCorta(horaSolicitada)}
-                  readOnly
-                />
-
-                <LabelText
-                  label='Hora de Salida'
-                  defaultValue={horaSalida && formatearHoraCorta(horaSalida)}
-                  readOnly
-                />
-              </fieldset>
-
-            </fieldset>
+            {/* Primera parte */}
+            <PrimeraParteRO
+              data={dataToSend}
+              pasajerosModalRef={pasajerosModalReadOnlyRef}
+            />
 
             <hr
               className='w-px h-[584px] border-l border-bordesSeparador'
@@ -340,7 +199,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
 
             {/* Segunda parte ----> Tener en cuenta que los servicios fijos ya tienen un precio establecido y no se pueden cambiar ok */}
             <fieldset
-              className={`flex flex-col ${isDestiny ? 'gap-[19px]' : 'gap-3'} h-full`}
+              className='flex flex-col gap-3 h-full'
             >
               <LabelText
                 label='Costo Real'
@@ -348,8 +207,8 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
                 value={costo.costoReal}
                 readOnly={isRutaFija}
                 required
-                onChange={e => handleCosto({ event: e, costo, setCosto, discountParam: descuento })}
-                placeholder='S/ 00.00'
+                onChange={e => setCostoReal({ event: e, costo, setCosto, initialCosto, costoAdicionalCarga: costoCarga, descuento })}
+                placeholder={ceroSoles}
               />
 
               <LabelText
@@ -385,27 +244,8 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
                 value={costo.peaje}
                 readOnly={isRutaFija}
                 required={false}
-                onChange={e => {
-                  const value = formatearInputASoles({ event: e, controlled: true })
-
-                  if (isNaN(Number(value))) return
-                  if (isNaN(Number(e.target.value.slice(-1)))) return
-
-                  const subTotal = parsearSoles(costo.subTotal)
-                  const igv = parsearSoles(costo.igv)
-
-                  const total =
-                  value
-                    ? value + subTotal + igv
-                    : subTotal + igv
-
-                  setCosto(prev => ({
-                    ...prev,
-                    peaje: formatearASoles({ numero: value }),
-                    total: formatearASoles({ numero: total }) || 'S/ 00.00'
-                  }))
-                }}
                 placeholder='S/ 00.00'
+                onChange={e => setPeaje({ event: e, costo, setCosto, costoAdicionalCarga: costoCarga })}
               />
 
               <LabelText
@@ -445,6 +285,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
           <SelectTaxista
             vehiculoId={vehiculoId}
             taxistas={taxistas}
+            costoTotal={costo.total}
           />
 
           <MenuComun
@@ -458,11 +299,29 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
       </ModalBase>
 
       <PasajerosModalReadOnly
-        refModal={pasajerosModalRef}
+        refModal={pasajerosModalReadOnlyRef}
         pasajeros={pasajeros}
       />
     </>
   )
+}
+
+function isRutaFijaFn ({ startCoords, endCoords }) {
+  let result = false
+
+  Object.entries(latLngValuesFromRutasFijas)
+    .some(([key, value]) => {
+      const isEqualStartCoords = isEqual(startCoords, value.start)
+      const isEqualEndCoords = isEqual(endCoords, value.end)
+
+      if (isEqualStartCoords && isEqualEndCoords) {
+        result = key
+        return true
+      }
+      return false
+    })
+
+  return result
 }
 
 function setCostoFijo ({ costoInicial, costoTotal, setCosto, discountParam }) {
@@ -515,35 +374,52 @@ function setCostoFijo ({ costoInicial, costoTotal, setCosto, discountParam }) {
   })
 }
 
-function handleCosto ({ event, costo, setCosto, discountParam }) {
-  const value = formatearInputASoles({ event, controlled: true })
+function setCostoReal ({ event, descuento: discount, initialCosto, costo, setCosto, costoAdicionalCarga }) {
+  const descuentoParsed = getNumbers({ string: discount }) / 100
 
-  const discount = parseFloat(discountParam.replace(/[^\d.]/g, '')) / 100
+  if (!descuentoParsed) throw new Error('No se ha seleccionado un usuario corporativo')
 
-  const descuento = value * discount
-  const subTotal = parseFloat((value * (1 - discount)).toFixed(2))
+  const valorFormateado = formatearInputASoles({ event, controlled: true })
 
-  const igv = parseFloat((subTotal * 0.18).toFixed(2))
+  if (!valorFormateado) {
+    const total = parsearSoles(costoAdicionalCarga) + parsearSoles(costo.peaje)
 
-  const total = parsearSoles(costo.peaje) + subTotal + igv
-
-  if (value === 0) {
-    setCosto(prev => ({
-      ...prev,
-      total: prev.peaje || 'S/ 00.00',
-      costoReal: '',
-      descuento: 'S/ 00.00',
-      subTotal: 'S/ 00.00',
-      igv: 'S/ 00.00'
+    setCosto(state => ({
+      ...initialCosto,
+      peaje: state.peaje,
+      total: formatearASoles({ numero: total }) || ceroSoles
     }))
-  } else {
-    setCosto(prev => ({
-      ...prev,
-      total: formatearASoles({ numero: total }),
-      costoReal: formatearASoles({ numero: value }),
-      descuento: formatearASoles({ numero: descuento }),
-      subTotal: formatearASoles({ numero: subTotal }),
-      igv: formatearASoles({ numero: igv, cero: true })
-    }))
+
+    return
   }
+
+  const descuento = valorFormateado * descuentoParsed
+  const subTotal = parseFloat((valorFormateado * (1 - descuentoParsed)).toFixed(2))
+  const igv = parseFloat((subTotal * IGV).toFixed(2))
+  const peaje = parsearSoles(costo.peaje) // peaje solo se usa para sumar el total
+  const total = parsearSoles(costoAdicionalCarga) + parseFloat((subTotal + igv + peaje).toFixed(2))
+
+  setCosto(state => ({
+    costoReal: formatearASoles({ numero: valorFormateado }),
+    descuento: formatearASoles({ numero: descuento, cero: true }),
+    subTotal: formatearASoles({ numero: subTotal, cero: true }),
+    igv: formatearASoles({ numero: igv, cero: true }),
+    peaje: state.peaje,
+    total: formatearASoles({ numero: total })
+  }))
+}
+
+function setPeaje ({ event, costo, setCosto, costoAdicionalCarga }) {
+  const valorFormateado = formatearInputASoles({ event, controlled: true })
+
+  const subTotal = parsearSoles(costo.subTotal)
+  const igv = parsearSoles(costo.igv)
+
+  const total = parsearSoles(costoAdicionalCarga) + subTotal + igv + valorFormateado
+
+  setCosto(state => ({
+    ...state,
+    peaje: formatearASoles({ numero: valorFormateado }),
+    total: formatearASoles({ numero: total }) || ceroSoles
+  }))
 }
