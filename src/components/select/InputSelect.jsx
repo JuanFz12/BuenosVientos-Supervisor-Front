@@ -9,6 +9,7 @@ export function InputSelect ({
   listClass,
   optionClass,
   className = '',
+  classError = '',
   onSelect,
   onDeselect,
   onChange,
@@ -118,15 +119,18 @@ export function InputSelect ({
 
     const newOptions = options.filter(({ label }) => label.toLowerCase().includes(e.target.value.toLowerCase()))
 
-    // arreglar este desorden
-    const prevOptions = internOptions
-    if (
-      newOptions.length === 1 &&
-      prevOptions[0]?.label.length === labelInput.label.length &&
-      newOptions[0].label.length !== e.target.value.length
-    ) {
-      onDeselect && onDeselect({ label: prevOptions[0].label, value: prevOptions[0].value })
+    if (!e.target.value) {
+      onDeselect && onDeselect()
     }
+    // arreglar este desorden
+    // const prevOptions = internOptions
+    // // if (
+    // //   newOptions.length === 1 &&
+    // //   prevOptions[0]?.label.length === labelInput.label.length &&
+    // //   newOptions[0].label.length !== e.target.value.length
+    // // ) {
+    // //   onDeselect && onDeselect({ label: prevOptions[0].label, value: prevOptions[0].value })
+    // // }
 
     if (newOptions.length === 1) {
       const isValid = newOptions[0].label.toLowerCase() === e.target.value.toLowerCase()
@@ -240,7 +244,7 @@ export function InputSelect ({
       {
         Boolean(input.current?.value.length) && internOptions && !internOptions.length && (
           <span
-            className='absolute left-0 -bottom-3.5 text-red-500'
+            className={`absolute left-0 -bottom-3.5 text-red-500 ${classError}`}
           >
             {errMessage || 'No se encontraron resultados'}
           </span>
