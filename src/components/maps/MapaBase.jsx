@@ -7,6 +7,7 @@ const libraries = ['places']
 
 const mapContainerStyle = {
   minWidth: '200px',
+  width: '100%',
   minHeight: '200px',
   maxWidth: '100%'
 }
