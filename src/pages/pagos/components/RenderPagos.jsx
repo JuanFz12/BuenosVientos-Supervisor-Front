@@ -1,108 +1,54 @@
 import './RenderPagos.css'
 
-import { useRef } from 'react'
+import { useEffect } from 'react'
 import { TablaBase } from '../../../components/tablas/TablaBase'
-import { COLORES_ETIQUETAS } from '../../../components/etiquetas/consts/etiquetas'
 import { ListStyleRow } from '../../../components/listStyle/ListStyleRow'
-import { formatearFechaCorta } from '../../../utils/formatear'
-import { formatearASoles } from '../../../utils/formatearASoles'
-import { Etiqueta } from '../../../components/etiquetas/Etiquetas'
 import { BotonDetalles } from '../../../components/botones/BotonDetalles'
+import { usePagosStore } from '../../../store/pagos/usePagosStore'
+import { useNavigate } from 'react-router-dom'
 
-const estados = {
-  pendiente: 'Pending'
-}
+export function RenderPagos() {
+  const navigate = useNavigate()
+  const { pagos, getPagos, loadingPagos: loading } = usePagosStore()
+  useEffect(() => {
+    getPagos()
+  }, [])
 
-const tagStatus = {
-  [estados.pendiente]: {
-    text: 'Pendiente',
-    color: COLORES_ETIQUETAS.amarillo
-  }
-}
-
-export function RenderPagos () {
-  const headers = ['Operacion', 'Terminal', 'Fecha de pago', 'Banco', 'Deuda', 'Pagado', '']
+  const headers = [
+    'Fecha',
+    'Taxista que Pagaron',
+    'Cuota Pagada',
+    'Taxista en Deuda',
+    'Cuota en Deuda',
+    ''
+  ]
 
   const claseCssRender = 'render-pagos-cuotas'
 
-  const pagos = useRef(Array.from({ length: 10 }, (_, index) => ({
-    id: index + 1,
-    operacion: 'Operacion ' + Math.floor(Math.random() * 10000000) + index,
-    terminal: 'Terminal ' + index + 1,
-    fecha: Math.random() * 10 > 5 ? new Date() : estados.pendiente,
-    banco: Math.random() * 10 > 5 ? 'Interbank' : 'BBVA',
-    deuda: Math.floor(Math.random() * 9000) + index,
-    pagado: Math.floor(Math.random() * 9000) + index
-  }))).current
-
-  const loading = false
+  const dateNavigate = date => {
+    navigate(`/cuotas?selectedDate=${date}`)
+  }
 
   return (
-    <TablaBase
-      headers={headers}
-      className={claseCssRender}
-    >
-      {
-        !loading &&
-        pagos.map(({ id, operacion, terminal, fecha, banco, deuda, pagado }) => (
-          <ListStyleRow
-            key={id}
-          >
-            <li
-              title={operacion}
-            >
-              {operacion}
-            </li>
+    <TablaBase headers={headers} className={claseCssRender}>
+      {!loading &&
+        pagos.map(
+          ({ selectedDate, isPayment, notPayment, feePaid, notFeePaid }) => (
+            <ListStyleRow key={selectedDate}>
+              <li title={selectedDate}>{selectedDate}</li>
 
-            <li
-              title={terminal}
-            >
-              {terminal}
-            </li>
+              <li title={isPayment}>{isPayment}</li>
 
-            <li
-              title={
-                fecha === estados.pendiente
-                  ? tagStatus[fecha].text
-                  : formatearFechaCorta(fecha)
-              }
-            >
-              {
-                fecha === estados.pendiente
-                  ? (
-                    <Etiqueta
-                      text={tagStatus[fecha].text}
-                      color={tagStatus[fecha].color}
-                      className='w-fit'
-                    />
-                    )
-                  : formatearFechaCorta(fecha)
-              }
-            </li>
-            <li
-              title={banco}
-            >
-              {banco}
-            </li>
-            <li
-              title={formatearASoles({ numero: deuda, cero: true })}
-            >
-              {formatearASoles({ numero: deuda, cero: true })}
-            </li>
-            <li
-              title={formatearASoles({ numero: pagado, cero: true })}
-            >
-              {formatearASoles({ numero: pagado, cero: true })}
-            </li>
+              <li title={feePaid}>S/. {feePaid}</li>
+              <li title={notPayment}>{notPayment}</li>
+              <li title={notFeePaid}>S/. {notFeePaid}</li>
 
-            <li>
-              <BotonDetalles
-                onClick={() => alert('En desarrollo...')}
-              />
-            </li>
-          </ListStyleRow>
-        ))
-      }
+              <li className="flex justify-end items-center">
+                <BotonDetalles onClick={() => dateNavigate(selectedDate)} />
+              </li>
+            </ListStyleRow>
+          )
+        )}
     </TablaBase>
   )
 }

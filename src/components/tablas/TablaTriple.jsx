@@ -1,7 +1,7 @@
 import { FooterPaginacion } from '../paginacion/FooterPaginacion'
 import { TablaBase } from './TablaBase'
 
-export function TablaTriple ({
+export function TablaTriple({
   headers1,
   render1,
   className1 = '',
@@ -17,13 +17,8 @@ export function TablaTriple ({
   className3 = ''
 }) {
   return (
-    <section
-      className='w-full !max-w-full h-fit rounded-tablas overflow-hidden flex flex-col gap-2'
-    >
-
-      <section
-        className='w-full !max-w-full h-auto flex gap-2 overflow-hidden'
-      >
+    <section className="w-full !max-w-full h-fit rounded-tablas overflow-hidden flex flex-col gap-2">
+      <section className="w-full !max-w-full h-auto flex gap-2 overflow-hidden">
         <TablaBase
           className={`flex-1 ${className1}`}
           footer={false}
@@ -33,9 +28,7 @@ export function TablaTriple ({
           {render1}
         </TablaBase>
 
-        <div
-          className='flex-1 w-[200px] overflow-y-clip scroll-hide overscroll-x-contain overflow-x-auto'
-        >
+        <div className="flex-1 w-[200px] overflow-y-clip scroll-hide overscroll-x-contain overflow-x-auto">
           <TablaBase
             className={`min-w-max ${className2}`}
             headers={headers2}

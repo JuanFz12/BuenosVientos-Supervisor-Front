@@ -17,6 +17,7 @@ import { Exoneraciones } from './pages/exoneraciones/Exoneraciones'
 import { Pagos } from './pages/pagos/Pagos'
 import { ProtectRoutes, RedirectIfLogged } from './ProtectRoutes'
 import { Pasajeros } from './pages/pasajeros/Pasajeros'
+import { Cuotas } from './pages/cuotas/Cuotas'
 
 const {
   logout,
@@ -27,20 +28,23 @@ const {
 
   // vales
   vales,
-  valesRoutes: {
-    solicitudes: solicitudesVales
-  },
+  valesRoutes: { solicitudes: solicitudesVales },
 
   pasajeros,
   asistencias,
   exoneraciones,
-  pagos
+  pagos,
+  cuotas
 } = routes
 
 const router = createBrowserRouter([
   {
     path: home,
-    element: <RedirectIfLogged><Home /></RedirectIfLogged>
+    element: (
+      <RedirectIfLogged>
+        <Home />
+      </RedirectIfLogged>
+    )
   },
   {
     path: logout,
@@ -48,7 +52,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <ProtectRoutes><Layout /></ProtectRoutes>,
+    element: (
+      <ProtectRoutes>
+        <Layout />
+      </ProtectRoutes>
+    ),
     children: [
       {
         path: dashboard,
@@ -91,6 +99,10 @@ const router = createBrowserRouter([
       {
         path: pagos,
         element: <Pagos />
+      },
+      {
+        path: cuotas,
+        element: <Cuotas />
       }
     ]
   },
@@ -100,6 +112,6 @@ const router = createBrowserRouter([
   }
 ])
 
-export function App () {
+export function App() {
   return <RouterProvider router={router} />
 }

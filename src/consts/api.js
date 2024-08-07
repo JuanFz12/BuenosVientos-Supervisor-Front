@@ -1,12 +1,13 @@
 import { TOKEN_NAME } from './consts'
 
-export const HOST = 'https://node.bvientos.com.pe'
+// export const HOST = 'https://node.bvientos.com.pe'
+export const HOST = 'http://localhost:5000'
 
 export const api = `${HOST}/api`
 
 export const apiImages = `${api}/images`
 
-export function getImage (url) {
+export function getImage(url) {
   if (typeof url !== 'string') return null
 
   const haveInitialSlash = url[0] === '/'
@@ -73,5 +74,8 @@ export const apiRequest = {
   corporaciones: `${api}/corporation`,
 
   // Autenticacion
-  renovarToken: `${api}/auth/renew-token-supervisor`
+  renovarToken: `${api}/auth/renew-token-supervisor`,
+
+  // Pagos
+  pagos: `${api}/supervisor-payments`
 }

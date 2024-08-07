@@ -6,7 +6,7 @@ import { createData } from '../services/createData'
 import { apiRequest } from '../consts/api'
 import { setUsuarioSupervisorToLS } from '../utils/setUsuarioSupervisorToLS'
 
-export function useRenewToken () {
+export function useRenewToken() {
   const { updateUsuarioSupervisor } = useUsuarioSupervisor()
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export function useRenewToken () {
   }, [updateUsuarioSupervisor])
 }
 
-function renovarToken (callback) {
+function renovarToken(callback) {
   const tokenName = localStorageNames.TOKEN_NAME
 
   const oldToken = localStorage.getItem(tokenName)
@@ -28,28 +28,31 @@ function renovarToken (callback) {
 
   const body = { id_sesion: parseInt(usuarioSupervisor.idSesion) }
 
-  oldToken && usuarioSupervisor.idSesion && createData({ url: apiRequest.renovarToken, body })
-    .then(dataRes => {
-      const {
-        token: newToken,
-        id_sesion: newIdSesion
-      } = dataRes.data
+  oldToken &&
+    usuarioSupervisor.idSesion &&
+    createData({ url: apiRequest.renovarToken, body })
+      .then(dataRes => {
+        const { token: newToken, id_sesion: newIdSesion } = dataRes.data
 
-      if (newToken && newIdSesion) {
-        localStorage.setItem(tokenName, newToken)
+        if (newToken && newIdSesion) {
+          localStorage.setItem(tokenName, newToken)
 
-        const nuevaInfoSupervisor = { ...usuarioSupervisor, token: newToken, idSesion: newIdSesion }
-        setUsuarioSupervisorToLS(nuevaInfoSupervisor)
-      } else {
-        throw new Error('No se pudo renovar el token ni la sesión')
-      }
+          const nuevaInfoSupervisor = {
+            ...usuarioSupervisor,
+            token: newToken,
+            idSesion: newIdSesion
+          }
+          setUsuarioSupervisorToLS(nuevaInfoSupervisor)
+        } else {
+          throw new Error('No se pudo renovar el token ni la sesión')
+        }
 
-      callback && callback(null, dataRes)
-      console.log(dataRes)
-    })
-    .catch(err => {
-      console.error(err)
-      callback && callback(err)
-      // window.location.assign(routes.logout)
-    })
+        callback && callback(null, dataRes)
+        console.log(dataRes)
+      })
+      .catch(err => {
+        console.error(err)
+        callback && callback(err)
+        // window.location.assign(routes.logout)
+      })
 }

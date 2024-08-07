@@ -1,0 +1,40 @@
+.render-cuotas {
+  & ul li {
+    flex-grow: 1;
+
+    &:nth-child(1) {
+      width: max(10%, 90px);
+    }
+
+    &:nth-child(2) {
+      width: max(10%, 100px);
+    }
+
+    &:nth-child(3) {
+      width: max(10%, 90px);
+      max-width: 200px;
+    }
+
+    &:nth-child(4) {
+      width: max(8%, 60px);
+      max-width: 230px;
+    }
+
+    &:nth-child(5) {
+      width: max(8%, 70px);
+      max-width: 230px;
+    }
+
+    &:nth-child(6) {
+      width: max(8%, 70px);
+      max-width: 230px;
+    }
+
+    /* lg: */
+    @media screen and (min-width: 1081px) {
+      &:nth-child(7) {
+        max-width: 250px;
+      }
+    }
+  }
+}

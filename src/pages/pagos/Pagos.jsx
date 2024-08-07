@@ -8,11 +8,11 @@ import { useLayout } from '../../store/useLayout'
 import { RenderPagos } from './components/RenderPagos'
 import { useMatch } from 'react-router-dom'
 
-export function Pagos () {
+export function Pagos() {
   const { setTitulo } = useLayout()
 
   useEffect(() => {
-    setTitulo('Pagos de cuotas')
+    setTitulo('Pagos diarios')
 
     return () => setTitulo(undefined)
   }, [setTitulo])
@@ -25,68 +25,36 @@ export function Pagos () {
   )
 }
 
-function Header () {
+function Header() {
   const index = routes.pagos
-
   const { pagosDenominacion } = routes.pagosRoutes
-
-  const rutaIndex = index
   const rutaPagosDenominacion = `${index}/${pagosDenominacion}`
-
-  const matchIndex = useMatch(rutaIndex)
   const matchPagosDenominacion = useMatch(rutaPagosDenominacion)
 
   return (
-    <header
-      className='flex justify-between mb-8 flex-wrap gap-8'
-    >
-      <menu
-        className='flex flex-wrap items-center gap-5 [&>li]:flex-grow-[1] [&>li]:min-w-[140px]'
-      >
-        {
-          matchIndex && (
-            <li>
-              <button
-                className='boton-primario-verde w-[200px] h-9'
-                onClick={() => alert('en construccion')}
-              >
-                Registrar pago
-              </button>
-            </li>
-          )
-        }
+    <header className="flex justify-between mb-8 flex-wrap gap-8">
+      <menu className="flex flex-wrap items-center gap-5 [&>li]:flex-grow-[1] [&>li]:min-w-[140px]">
         <li>
           <InputTime
             defaultValue={new Date().toISOString().split('T')[0]}
-            className='w-auto max-w-full uppercase'
-            type='date'
+            className="w-auto max-w-full uppercase"
+            type="date"
           />
         </li>
-        {
-          matchPagosDenominacion && (
-            <li>
-              <Select placeholder='Denominacion' />
-            </li>
-          )
-        }
+        {matchPagosDenominacion && (
+          <li>
+            <Select placeholder="Denominacion" />
+          </li>
+        )}
       </menu>
 
-      <menu
-        className='flex flex-wrap gap-5 items-center flex-1 max-w-[480px]'
-      >
+      <menu className="flex flex-wrap gap-5 items-center flex-1 max-w-[480px]">
         <li>
-          <BotonFiltro
-            onClick={() => alert('en desarrollo')}
-          />
+          <BotonFiltro onClick={() => alert('en desarrollo')} />
         </li>
 
-        <li
-          className='flex-1'
-        >
-          <Buscador
-            labelClass='flex-1 max-w-[420px]'
-            className='w-full'
-          />
+        <li className="flex-1">
+          <Buscador labelClass="flex-1 max-w-[420px]" className="w-full" />
         </li>
       </menu>
     </header>

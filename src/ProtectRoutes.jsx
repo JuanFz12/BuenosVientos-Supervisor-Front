@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { localStorageNames } from './consts/localStorageNames'
 import { routes } from './routes'
 
-export function ProtectRoutes ({ children }) {
+export function ProtectRoutes({ children }) {
   const token = localStorage.getItem(localStorageNames.TOKEN_NAME)
 
   // aqui tambien podria esperar por una validacion para verificar si el token
@@ -14,17 +14,14 @@ export function ProtectRoutes ({ children }) {
   return <Navigate to={routes.login} />
 }
 
-export function RedirectIfLogged ({ children }) {
+export function RedirectIfLogged({ children }) {
   const token = localStorage.getItem(localStorageNames.TOKEN_NAME)
 
-  const pathsToRedirectToDashboard = [
-    routes.login
-  ]
+  const pathsToRedirectToDashboard = [routes.login]
 
   const { pathname } = useLocation()
 
-  const redirect = pathsToRedirectToDashboard
-    .some(path => path === pathname)
+  const redirect = pathsToRedirectToDashboard.some(path => path === pathname)
 
   if (token && redirect) {
     return <Navigate to={routes.dashboard} />

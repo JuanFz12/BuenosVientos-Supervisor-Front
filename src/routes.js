@@ -17,5 +17,6 @@ export const routes = {
     index: 'pagos',
     detallesPago: ':idPago',
     pagosDenominacion: ':idPago/:idDenominacion'
-  }
+  },
+  cuotas: 'cuotas'
 }

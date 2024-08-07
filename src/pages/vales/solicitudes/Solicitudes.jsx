@@ -4,7 +4,7 @@ import { ListVales } from '../components/ListVales'
 import { useLayout } from '../../../store/useLayout'
 import { routes } from '../../../routes'
 
-export function SolicitudesVales () {
+export function SolicitudesVales() {
   const { solicitudes, getSolicitudes, loadingSolicitudes } = useValesStore()
 
   const { setBackTo } = useLayout()
@@ -18,10 +18,6 @@ export function SolicitudesVales () {
   }, [getSolicitudes, setBackTo])
 
   return (
-    <ListVales
-      solicitudes
-      data={solicitudes}
-      loading={loadingSolicitudes}
-    />
+    <ListVales solicitudes data={solicitudes} loading={loadingSolicitudes} />
   )
 }

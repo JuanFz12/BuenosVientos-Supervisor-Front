@@ -1,15 +1,15 @@
 import { create } from 'zustand'
 
 export const useLayout = create(set => {
-  function setDisplayHeader (boolean) {
+  function setDisplayHeader(boolean) {
     set({ displayHeader: boolean })
   }
 
-  function setTitulo (titulo) {
+  function setTitulo(titulo) {
     set({ titulo })
   }
 
-  function setBackTo (backTo) {
+  function setBackTo(backTo) {
     set({ backTo })
   }
 
