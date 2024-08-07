@@ -20,5 +20,6 @@ module.exports = {
     ],
     'import/no-absolute-path': 'off',
     'react/prop-types': 'off',
+    'react/jsx-handler-names': 'off', // Esto es para que los handlers no siempre tengan que empezar por 'handle*'
   },
 }
