@@ -15,7 +15,7 @@ import { useUsuarioSupervisor } from '../../store/useUsuarioSupervisor'
 import { apiRequest } from '../../consts/api'
 import { DownloadIcon } from '../../assets/icons/elements/DownloadIcon'
 
-export function Vales () {
+export function Vales() {
   useEffect(() => changeDocTitle(titlePages.vales), [])
 
   const { getTaxistas } = useTaxistas()
@@ -30,120 +30,101 @@ export function Vales () {
 
   return (
     <main>
-      <Header
-        solicitudes={Boolean(backTo)}
-      />
+      <Header solicitudes={Boolean(backTo)} />
 
       <Outlet />
-
     </main>
   )
 }
 
-function Header ({ solicitudes }) {
+function Header({ solicitudes }) {
   const { valesRoutes } = routes
 
   const { token } = useUsuarioSupervisor()
   const [isFetchingReport, setIsFetchingReport] = useState(false)
 
-  const startDownloadExcelReport = () => downloadExcelReport({ token, setIsLoading: setIsFetchingReport })
+  const startDownloadExcelReport = () =>
+    downloadExcelReport({ token, setIsLoading: setIsFetchingReport })
 
   const nuevoValeModal = useRef()
 
   return (
-    <header
-      className='w-full mb-8 flex flex-wrap gap-3 min-h-9 items-center justify-between'
-    >
-      <menu
-        className='flex flex-wrap items-center justify-between gap-5'
-      >
-        <NuevoVale
-          refModal={nuevoValeModal}
-        />
+    <header className="w-full mb-8 flex flex-wrap gap-3 min-h-9 items-center justify-between">
+      <menu className="flex flex-wrap items-center justify-between gap-5">
+        <NuevoVale refModal={nuevoValeModal} />
         <button
           onClick={() => nuevoValeModal.current.showModal()}
-          className='boton-primario-verde w-[200px] h-9'
+          className="boton-primario-verde w-[200px] h-9"
         >
           Nuevo Vale
         </button>
 
-        {
-          !solicitudes &&
-          (
-            <>
-              <SelectorFecha />
+        {!solicitudes && (
+          <>
+            <SelectorFecha />
 
-              <Link
-                to={valesRoutes.solicitudes}
-                className='p-[10px] h-9 w-10 flex items-center justify-center rounded-lg bg-rojoMarca-100'
-                unstable_viewTransition
-              >
-                <Notificacion />
-              </Link>
-            </>
-          )
-        }
+            <Link
+              to={valesRoutes.solicitudes}
+              className="p-[10px] h-9 w-10 flex items-center justify-center rounded-lg bg-rojoMarca-100"
+              unstable_viewTransition
+            >
+              <Notificacion />
+            </Link>
+          </>
+        )}
       </menu>
 
-      <section
-        className='flex flex-wrap items-center gap-5'
-      >
+      <section className="flex flex-wrap items-center gap-5">
         <BotonDescargarReporte
           onClick={startDownloadExcelReport}
           isLoading={isFetchingReport}
         />
 
-        {
-          !solicitudes &&
-          (
-            <button
-              onClick={() => alert('en construccion')}
-              className='w-10 h-9 rounded-lg bg-rojoMarca-100 p-[10px] flex justify-center'
-            >
-              <Filtros fill='#E43530' />
-            </button>
-          )
-        }
+        {!solicitudes && (
+          <button
+            onClick={() => alert('en construccion')}
+            className="w-10 h-9 rounded-lg bg-rojoMarca-100 p-[10px] flex justify-center"
+          >
+            <Filtros fill="#E43530" />
+          </button>
+        )}
 
         <Buscador />
-
       </section>
     </header>
   )
 }
 
-function BotonDescargarReporte ({ onClick, isLoading, ...props }) {
+function BotonDescargarReporte({ onClick, isLoading, ...props }) {
   return (
     <BotonDetalles
       {...props}
-      className='bg-transparent flex-shrink-0 flex items-center gap-2 group'
+      className="bg-transparent flex-shrink-0 flex items-center gap-2 group"
       onClick={onClick}
     >
-      {
-        isLoading
-          ? (
-            <span
-              // Este span actuara como un loader
-              className='inline-block size-3 border-[2px] animate-spin border-dashed rounded-full border-blue-400'
-            />
-            )
-          : (
-            <DownloadIcon
-              color='#358643'
-              size={12}
-              className='scale-150 [&>path]:transition [&>path]:ease-in-out [&>path]:duration-[0.25s] group-hover:[&>path]:fill-[#195E25]'
-            />
-            )
-      }
-
+      {isLoading ? (
+        <span
+          // Este span actuara como un loader
+          className="inline-block size-3 border-[2px] animate-spin border-dashed rounded-full border-blue-400"
+        />
+      ) : (
+        <DownloadIcon
+          color="#358643"
+          size={12}
+          className="scale-150 [&>path]:transition [&>path]:ease-in-out [&>path]:duration-[0.25s] group-hover:[&>path]:fill-[#195E25]"
+        />
+      )}
       Exportar Vales
     </BotonDetalles>
   )
 }
 
-function downloadExcelReport ({ token, setIsLoading }) { // Función para descargar el reporte de excel desde el backend
+function downloadExcelReport({ token, setIsLoading }) {
+  // Función para descargar el reporte de excel desde el backend
   const url = apiRequest.descargarReporteVales
-  const fileName = `Reporte de Vales - ${new Date().toLocaleString('es-PE')}`.replaceAll('.', '')
+  const fileName = `Reporte de Vales - ${new Date().toLocaleString(
+    'es-PE'
+  )}`.replaceAll('.', '')
 
   setIsLoading(true)
 
@@ -158,9 +139,11 @@ function downloadExcelReport ({ token, setIsLoading }) { // Función para descar
   fetch(url, options)
     .then(response => {
       if (response.ok) return response.blob()
-      if (response.status === 404) return Promise.reject(new Error('El recurso solicitado no existe'))
+      if (response.status === 404)
+        return Promise.reject(new Error('El recurso solicitado no existe'))
 
-      response.json()
+      response
+        .json()
         .then(err => Promise.reject(err))
         .catch(err => Promise.reject(err))
     })
@@ -176,7 +159,11 @@ function downloadExcelReport ({ token, setIsLoading }) { // Función para descar
       window.URL.revokeObjectURL(fileUrl)
     })
     .catch(e => {
-      alert(`Ocurrió un error mientras se intentaba descargar el reporte: ${e.message ?? e.error ?? 'Error desconocido'}`)
+      alert(
+        `Ocurrió un error mientras se intentaba descargar el reporte: ${
+          e.message ?? e.error ?? 'Error desconocido'
+        }`
+      )
     })
     .finally(() => setIsLoading(false))
 }

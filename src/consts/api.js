@@ -77,5 +77,6 @@ export const apiRequest = {
   renovarToken: `${api}/auth/renew-token-supervisor`,
 
   // Pagos
-  pagos: `${api}/supervisor-payments`
+  pagos: `${api}/supervisor-payments`,
+  descargarReportesPagos: `${api}/v2/systems/supervisor/driver-payments/excel`
 }

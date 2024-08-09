@@ -12,8 +12,6 @@ export const usePagosStore = create(set => {
     return getData({ url })
       .then(dataRes => {
         const { driverDatePayments: pagos } = dataRes.data
-
-        console.log(pagos)
         set({ pagos })
       })
       .catch(err => {

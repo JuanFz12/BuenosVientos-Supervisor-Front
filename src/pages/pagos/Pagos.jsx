@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BotonFiltro } from '../../components/botones/BotonFiltro'
 import { Buscador } from '../../components/buscador/Buscador'
 import { InputTime } from '../../components/inputs/InputTime'
@@ -7,6 +7,11 @@ import { routes } from '../../routes'
 import { useLayout } from '../../store/useLayout'
 import { RenderPagos } from './components/RenderPagos'
 import { useMatch } from 'react-router-dom'
+import { BotonDetalles } from '../../components/botones/BotonDetalles'
+import { DownloadIcon } from '../../assets/icons/elements/DownloadIcon'
+import { apiRequest } from '../../consts/api'
+import { useUsuarioSupervisor } from '../../store/useUsuarioSupervisor'
+import { getUsuarioSupervisor } from '../../utils/getUsuarioSupervisor'
 
 export function Pagos() {
   const { setTitulo } = useLayout()
@@ -31,6 +36,17 @@ function Header() {
   const rutaPagosDenominacion = `${index}/${pagosDenominacion}`
   const matchPagosDenominacion = useMatch(rutaPagosDenominacion)
 
+  const { token } = useUsuarioSupervisor()
+  const { terminal } = getUsuarioSupervisor()
+  const [isFetchingReport, setIsFetchingReport] = useState(false)
+
+  const startDownloadExcelReport = () =>
+    downloadExcelReport({
+      token,
+      setIsLoading: setIsFetchingReport,
+      terminalId: terminal.id
+    })
+
   return (
     <header className="flex justify-between mb-8 flex-wrap gap-8">
       <menu className="flex flex-wrap items-center gap-5 [&>li]:flex-grow-[1] [&>li]:min-w-[140px]">
@@ -48,7 +64,11 @@ function Header() {
         )}
       </menu>
 
-      <menu className="flex flex-wrap gap-5 items-center flex-1 max-w-[480px]">
+      <menu className="flex flex-wrap gap-5 items-center justify-end">
+        <BotonDescargarReporte
+          onClick={startDownloadExcelReport}
+          isLoading={isFetchingReport}
+        />
         <li>
           <BotonFiltro onClick={() => alert('en desarrollo')} />
         </li>
@@ -59,4 +79,81 @@ function Header() {
       </menu>
     </header>
   )
+}
+
+function BotonDescargarReporte({ onClick, isLoading, ...props }) {
+  return (
+    <BotonDetalles
+      {...props}
+      className="bg-transparent flex-shrink-0 flex items-center gap-2 group"
+      onClick={onClick}
+    >
+      {isLoading ? (
+        <span
+          // Este span actuara como un loader
+          className="inline-block size-3 border-[2px] animate-spin border-dashed rounded-full border-blue-400"
+        />
+      ) : (
+        <DownloadIcon
+          color="#358643"
+          size={12}
+          className="scale-150 [&>path]:transition [&>path]:ease-in-out [&>path]:duration-[0.25s] group-hover:[&>path]:fill-[#195E25]"
+        />
+      )}
+      Exportar Pagos
+    </BotonDetalles>
+  )
+}
+
+function downloadExcelReport({ token, setIsLoading, terminalId }) {
+  // Función para descargar el reporte de excel desde el backend
+  const url = apiRequest.descargarReportesPagos
+  const fileName = `Reporte de Pagos - ${new Date().toLocaleString(
+    'es-PE'
+  )}`.replaceAll('.', '')
+
+  setIsLoading(true)
+
+  const options = {
+    method: 'POST',
+    body: {
+      currentDate: new Date().toISOString(),
+      terminalId
+    },
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    cache: 'no-store' // Siempre quiero obtener el archivo excel actualizado del backend y por eso no quiero guardar la respuesta en cache
+  }
+
+  fetch(url, options)
+    .then(response => {
+      if (response.ok) return response.blob()
+      if (response.status === 404)
+        return Promise.reject(new Error('El recurso solicitado no existe'))
+
+      response
+        .json()
+        .then(err => Promise.reject(err))
+        .catch(err => Promise.reject(err))
+    })
+    .then(blob => {
+      const fileUrl = window.URL.createObjectURL(blob)
+
+      const link = document.createElement('a')
+      link.href = fileUrl
+      link.download = fileName
+      link.click() // Iniciar la descarga
+
+      // Revocar el Object Url creado anteriormente.
+      window.URL.revokeObjectURL(fileUrl)
+    })
+    .catch(e => {
+      alert(
+        `Ocurrió un error mientras se intentaba descargar el reporte: ${
+          e.message ?? e.error ?? 'Error desconocido'
+        }`
+      )
+    })
+    .finally(() => setIsLoading(false))
 }

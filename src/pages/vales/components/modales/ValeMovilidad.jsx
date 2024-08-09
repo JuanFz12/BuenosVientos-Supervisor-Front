@@ -30,11 +30,9 @@ const fields = {
   firma: 'signature'
 }
 
-export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
+export function ValeMovilidad({ refModal: thisModal, data, onClose }) {
   const {
-    usuarioSupervisor: {
-      id: supervisorId
-    }
+    usuarioSupervisor: { id: supervisorId }
   } = useUsuarioSupervisor()
 
   const { aceptarVale } = useValesStore()
@@ -67,12 +65,8 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
       endLat,
       endLng
     } = {},
-    area_corporative: {
-      discount: descuento
-    } = {},
-    user_corporative: {
-      signature: firma
-    } = {}
+    area_corporative: { discount: descuento } = {},
+    user_corporative: { signature: firma } = {}
   } = dataToUse
 
   const dataToSend = {
@@ -84,7 +78,10 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
   // vehiculo
   const vehiculo = dataToUse.vehicle
 
-  const getPrice = (key) => vehiculo && vehiculo?.[key] !== 'undefined' && formatearASoles({ numero: vehiculo?.[key] })
+  const getPrice = key =>
+    vehiculo &&
+    vehiculo?.[key] !== 'undefined' &&
+    formatearASoles({ numero: vehiculo?.[key] })
 
   const costoCargaVehiculo = getPrice('load')
   const costoExtraCargaVehiculo = getPrice('extra_load')
@@ -105,7 +102,11 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
   const isRutaFija = isRutaFijaFn({ startCoords, endCoords })
 
   // Carga
-  const costoCarga = carga ? costoCargaVehiculo : extraCarga ? costoExtraCargaVehiculo : ceroSoles
+  const costoCarga = carga
+    ? costoCargaVehiculo
+    : extraCarga
+    ? costoExtraCargaVehiculo
+    : ceroSoles
 
   if (parsearSoles(costoCarga) > 0 && parsearSoles(costo.total) <= 0) {
     console.log({ costoCarga })
@@ -116,10 +117,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
   }
 
   if (isRutaFija && !costo.costoReal) {
-    const {
-      costoReal,
-      costoTotal
-    } = costoRutasFijas[isRutaFija]
+    const { costoReal, costoTotal } = costoRutasFijas[isRutaFija]
 
     setCostoFijo({
       costoInicial: costoReal,
@@ -141,7 +139,7 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
       >
         <form
           ref={formRef}
-          className='w-[640px] h-[804px] max-h-[85dvh] gap-5 flex flex-col p-5 rounded-[32px] overflow-x-clip overflow-y-auto scroll-neutral'
+          className="w-[640px] h-[804px] max-h-[85dvh] gap-5 flex flex-col p-5 rounded-[32px] overflow-x-clip overflow-y-auto scroll-neutral"
           onSubmit={e => {
             e.preventDefault()
             const formData = new FormData()
@@ -170,110 +168,118 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
                 thisModal.current.close()
               })
               .catch(err => {
-                alert(`Error: ${err.error ?? err.message ?? 'Error desconocido'}`)
+                alert(
+                  `Error: ${err.error ?? err.message ?? 'Error desconocido'}`
+                )
                 console.warn(err)
                 atenuarFormulario({ form: e.target, restore: true })
               })
           }}
         >
           <header>
-            <h4
-              className='titulo-h4 text-azul-500'
-            >
-              Vale de movilidad
-            </h4>
+            <h4 className="titulo-h4 text-azul-500">Vale de movilidad</h4>
           </header>
 
-          <fieldset
-            className='flex gap-5 h-fit justify-between'
-          >
+          <fieldset className="flex gap-5 h-fit justify-between">
             {/* Primera parte */}
             <PrimeraParteRO
               data={dataToSend}
               pasajerosModalRef={pasajerosModalReadOnlyRef}
             />
 
-            <hr
-              className='w-px h-[584px] border-l border-bordesSeparador'
-            />
+            <hr className="w-px h-[584px] border-l border-bordesSeparador" />
 
             {/* Segunda parte ----> Tener en cuenta que los servicios fijos ya tienen un precio establecido y no se pueden cambiar ok */}
-            <fieldset
-              className='flex flex-col gap-3 h-full'
-            >
+            <fieldset className="flex flex-col gap-3 h-full">
               <LabelText
-                label='Costo Real'
+                label="Costo Real"
                 name={fields.costoReal}
                 value={costo.costoReal}
                 readOnly={isRutaFija}
                 required
-                onChange={e => setCostoReal({ event: e, costo, setCosto, initialCosto, costoAdicionalCarga: costoCarga, descuento })}
+                onChange={e =>
+                  setCostoReal({
+                    event: e,
+                    costo,
+                    setCosto,
+                    initialCosto,
+                    costoAdicionalCarga: costoCarga,
+                    descuento
+                  })
+                }
                 placeholder={ceroSoles}
               />
 
               <LabelText
-                label='Descuento'
+                label="Descuento"
                 name={fields.descuento}
                 value={costo.descuento}
                 required
-                inputClass='bg-white cursor-default'
+                inputClass="bg-white cursor-default"
                 readOnly
               />
 
               <LabelText
-                label='Sub Total'
+                label="Sub Total"
                 name={fields.subTotal}
                 value={costo.subTotal}
                 required
-                inputClass='bg-white cursor-default'
+                inputClass="bg-white cursor-default"
                 readOnly
               />
 
               <LabelText
-                label='+ I.G.V.'
+                label="+ I.G.V."
                 name={fields.igv}
                 value={costo.igv}
                 required
-                inputClass='bg-white cursor-default'
+                inputClass="bg-white cursor-default"
                 readOnly
               />
 
               <LabelText
-                label='Peaje / Est.'
+                label="Peaje / Est."
                 name={fields.peaje}
                 value={costo.peaje}
                 readOnly={isRutaFija}
                 required={false}
-                placeholder='S/ 00.00'
-                onChange={e => setPeaje({ event: e, costo, setCosto, costoAdicionalCarga: costoCarga })}
+                placeholder="S/ 00.00"
+                onChange={e =>
+                  setPeaje({
+                    event: e,
+                    costo,
+                    setCosto,
+                    costoAdicionalCarga: costoCarga
+                  })
+                }
               />
 
               <LabelText
-                label='Total a pagar'
+                label="Total a pagar"
                 name={fields.total}
                 value={costo.total}
                 required
                 readOnly
-                labelClass='text-amarilloAdvertencia-700 font-medium'
-                inputClass='!text-amarilloAdvertencia-700 font-medium !border-[#EE8C0B] !bg-amarilloAdvertencia-100'
+                labelClass="text-amarilloAdvertencia-700 font-medium"
+                inputClass="!text-amarilloAdvertencia-700 font-medium !border-[#EE8C0B] !bg-amarilloAdvertencia-100"
               />
 
               <LabelText
-                label='Costo adicional de carga'
+                label="Costo adicional de carga"
                 value={costoCarga}
                 readOnly
               />
 
-              <fieldset className='relative cursor-default border-2 w-[190px] h-[108px] border-bordesIdle rounded-lg flex items-center justify-center'>
+              <fieldset className="relative cursor-default border-2 w-[190px] h-[108px] border-bordesIdle rounded-lg flex items-center justify-center">
                 <img
-                  className='max-w-[186px] h-[104px] object-contain rounded-md'
+                  className="max-w-[186px] h-[104px] object-contain rounded-md"
                   src={getImage(firma)}
-                  alt='Imagen'
+                  alt="Imagen"
                 />
 
                 <input
-                  className='absolute -z-50 inset-0 opacity-0 size-0 pointer-events-none'
-                  type='text'
+                  className="absolute -z-50 inset-0 opacity-0 size-0 pointer-events-none"
+                  type="text"
                   defaultValue={firma}
                   readOnly
                 />
@@ -291,8 +297,8 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
           <MenuComun
             cancelProps={{ type: 'button', className: 'w-[100px]' }}
             handleCancel={() => thisModal.current.close()}
-            cancelName='Cancelar'
-            confirmName='Aceptar'
+            cancelName="Cancelar"
+            confirmName="Aceptar"
             confirmProps={{ type: 'submit', className: 'w-[160px]' }}
           />
         </form>
@@ -306,25 +312,24 @@ export function ValeMovilidad ({ refModal: thisModal, data, onClose }) {
   )
 }
 
-function isRutaFijaFn ({ startCoords, endCoords }) {
+function isRutaFijaFn({ startCoords, endCoords }) {
   let result = false
 
-  Object.entries(latLngValuesFromRutasFijas)
-    .some(([key, value]) => {
-      const isEqualStartCoords = isEqual(startCoords, value.start)
-      const isEqualEndCoords = isEqual(endCoords, value.end)
+  Object.entries(latLngValuesFromRutasFijas).some(([key, value]) => {
+    const isEqualStartCoords = isEqual(startCoords, value.start)
+    const isEqualEndCoords = isEqual(endCoords, value.end)
 
-      if (isEqualStartCoords && isEqualEndCoords) {
-        result = key
-        return true
-      }
-      return false
-    })
+    if (isEqualStartCoords && isEqualEndCoords) {
+      result = key
+      return true
+    }
+    return false
+  })
 
   return result
 }
 
-function setCostoFijo ({ costoInicial, costoTotal, setCosto, discountParam }) {
+function setCostoFijo({ costoInicial, costoTotal, setCosto, discountParam }) {
   let costoReal
   let descuento
   let subTotal
@@ -333,7 +338,8 @@ function setCostoFijo ({ costoInicial, costoTotal, setCosto, discountParam }) {
   let total
 
   const igvPorcentaje = 0.18
-  const descuentoFormateado = parseFloat(discountParam.replace(/[^\d.]/g, '')) / 100
+  const descuentoFormateado =
+    parseFloat(discountParam.replace(/[^\d.]/g, '')) / 100
 
   if (costoInicial) {
     const costo = costoInicial
@@ -374,10 +380,18 @@ function setCostoFijo ({ costoInicial, costoTotal, setCosto, discountParam }) {
   })
 }
 
-function setCostoReal ({ event, descuento: discount, initialCosto, costo, setCosto, costoAdicionalCarga }) {
+function setCostoReal({
+  event,
+  descuento: discount,
+  initialCosto,
+  costo,
+  setCosto,
+  costoAdicionalCarga
+}) {
   const descuentoParsed = getNumbers({ string: discount }) / 100
 
-  if (!descuentoParsed) throw new Error('No se ha seleccionado un usuario corporativo')
+  if (!descuentoParsed)
+    throw new Error('No se ha seleccionado un usuario corporativo')
 
   const valorFormateado = formatearInputASoles({ event, controlled: true })
 
@@ -394,10 +408,14 @@ function setCostoReal ({ event, descuento: discount, initialCosto, costo, setCos
   }
 
   const descuento = valorFormateado * descuentoParsed
-  const subTotal = parseFloat((valorFormateado * (1 - descuentoParsed)).toFixed(2))
+  const subTotal = parseFloat(
+    (valorFormateado * (1 - descuentoParsed)).toFixed(2)
+  )
   const igv = parseFloat((subTotal * IGV).toFixed(2))
   const peaje = parsearSoles(costo.peaje) // peaje solo se usa para sumar el total
-  const total = parsearSoles(costoAdicionalCarga) + parseFloat((subTotal + igv + peaje).toFixed(2))
+  const total =
+    parsearSoles(costoAdicionalCarga) +
+    parseFloat((subTotal + igv + peaje).toFixed(2))
 
   setCosto(state => ({
     costoReal: formatearASoles({ numero: valorFormateado }),
@@ -409,13 +427,14 @@ function setCostoReal ({ event, descuento: discount, initialCosto, costo, setCos
   }))
 }
 
-function setPeaje ({ event, costo, setCosto, costoAdicionalCarga }) {
+function setPeaje({ event, costo, setCosto, costoAdicionalCarga }) {
   const valorFormateado = formatearInputASoles({ event, controlled: true })
 
   const subTotal = parsearSoles(costo.subTotal)
   const igv = parsearSoles(costo.igv)
 
-  const total = parsearSoles(costoAdicionalCarga) + subTotal + igv + valorFormateado
+  const total =
+    parsearSoles(costoAdicionalCarga) + subTotal + igv + valorFormateado
 
   setCosto(state => ({
     ...state,
