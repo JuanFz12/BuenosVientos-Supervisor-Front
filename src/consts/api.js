@@ -1,7 +1,7 @@
 import { TOKEN_NAME } from './consts'
 
-// export const HOST = 'https://node.bvientos.com.pe'
-export const HOST = 'http://localhost:5000'
+export const HOST = 'https://node.bvientos.com.pe'
+// export const HOST = 'http://localhost:5000'
 
 export const api = `${HOST}/api`
 
@@ -78,5 +78,6 @@ export const apiRequest = {
 
   // Pagos
   pagos: `${api}/supervisor-payments`,
-  descargarReportesPagos: `${api}/v2/systems/supervisor/driver-payments/excel`
+  descargarReportesPagos: `${api}/v2/systems/supervisor/driver-payments/excel`,
+  rutaExcelPagos: `${api}/v2/files/excel`
 }

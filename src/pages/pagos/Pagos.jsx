@@ -40,8 +40,8 @@ function Header() {
   const { terminal } = getUsuarioSupervisor()
   const [isFetchingReport, setIsFetchingReport] = useState(false)
 
-  const startDownloadExcelReport = () =>
-    downloadExcelReport({
+  const startDownloadExcelReport = async () =>
+    await downloadExcelReport({
       token,
       setIsLoading: setIsFetchingReport,
       terminalId: terminal.id
@@ -104,56 +104,61 @@ function BotonDescargarReporte({ onClick, isLoading, ...props }) {
     </BotonDetalles>
   )
 }
-
-function downloadExcelReport({ token, setIsLoading, terminalId }) {
+async function downloadExcelReport({ token, setIsLoading, terminalId }) {
   // Función para descargar el reporte de excel desde el backend
   const url = apiRequest.descargarReportesPagos
+  const urlExcel = apiRequest.rutaExcelPagos
   const fileName = `Reporte de Pagos - ${new Date().toLocaleString(
     'es-PE'
   )}`.replaceAll('.', '')
 
-  setIsLoading(true)
-
   const options = {
-    method: 'POST',
-    body: {
-      currentDate: new Date().toISOString(),
+    method: 'POSt',
+    body: JSON.stringify({
+      currentDate: '2024-08-01 00:00:00',
       terminalId
-    },
+    }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  }
+  const optionsExcel = {
+    method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`
     },
     cache: 'no-store' // Siempre quiero obtener el archivo excel actualizado del backend y por eso no quiero guardar la respuesta en cache
   }
 
-  fetch(url, options)
-    .then(response => {
-      if (response.ok) return response.blob()
-      if (response.status === 404)
-        return Promise.reject(new Error('El recurso solicitado no existe'))
+  try {
+    setIsLoading(true)
 
-      response
-        .json()
-        .then(err => Promise.reject(err))
-        .catch(err => Promise.reject(err))
-    })
-    .then(blob => {
-      const fileUrl = window.URL.createObjectURL(blob)
+    const response = await fetch(url, options)
 
-      const link = document.createElement('a')
-      link.href = fileUrl
-      link.download = fileName
-      link.click() // Iniciar la descarga
+    if (response.status === 404)
+      return Promise.reject(new Error('El recurso solicitado no existe'))
 
-      // Revocar el Object Url creado anteriormente.
-      window.URL.revokeObjectURL(fileUrl)
-    })
-    .catch(e => {
-      alert(
-        `Ocurrió un error mientras se intentaba descargar el reporte: ${
-          e.message ?? e.error ?? 'Error desconocido'
-        }`
-      )
-    })
-    .finally(() => setIsLoading(false))
+    const { data } = await response.json()
+    const { filePath } = data
+
+    const responseExcel = await fetch(`${urlExcel}/${filePath}`, optionsExcel)
+    if (responseExcel.status === 404)
+      return Promise.reject(new Error('El recurso solicitado no existe'))
+
+    const blob = await responseExcel.blob()
+    const fileUrl = window.URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = fileUrl
+    link.download = fileName
+    link.click() // Iniciar la descarga
+
+    // Revocar el Object Url creado anteriormente.
+    window.URL.revokeObjectURL(fileUrl)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    setIsLoading(false)
+  }
 }
